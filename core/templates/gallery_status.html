@@ -1,0 +1,283 @@
+{% extends 'membre_base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} | UDJK Gallery</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS (via django-tailwind) -->
+    {% load tailwind_tags %}
+    {% tailwind_css %}
+    
+    <style>
+        .transition-smooth {
+            transition: all 0.3s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .object-fit-cover {
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans">
+    {% block content %}
+    
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
+        <!-- Titre principal -->
+        <h1 class="flex items-center gap-3 text-2xl md:text-3xl font-bold text-gray-800 mb-6 pb-3 border-b-4 border-blue-500">
+            <i class="fas fa-photo-video text-blue-500"></i>
+            {{ title }}
+        </h1>
+        
+        <!-- Messages Django -->
+        {% if messages %}
+            <div class="mb-6 space-y-2">
+                {% for message in messages %}
+                    <div class="flex items-center justify-between p-4 rounded-lg shadow-md 
+                        {% if message.tags == 'success' %}bg-green-100 text-green-800 border-l-4 border-green-500
+                        {% elif message.tags == 'error' %}bg-red-100 text-red-800 border-l-4 border-red-500
+                        {% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-800 border-l-4 border-yellow-500
+                        {% else %}bg-blue-100 text-blue-800 border-l-4 border-blue-500{% endif %}">
+                        <span>{{ message }}</span>
+                        <button type="button" class="text-gray-500 hover:text-gray-700" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <!-- Contrôles supérieurs -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <!-- Badges stats -->
+            <div class="flex flex-wrap gap-2">
+                <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
+                    <i class="fas fa-photo-video"></i> Total: {{ total_albums }}
+                </span>
+                {% for category_key, category_data in categories_stats.items %}
+                    {% if category_data.count > 0 %}
+                        <span class="inline-flex items-center px-3 py-1.5 bg-gray-200 text-gray-700 rounded-full text-sm">
+                            {{ category_data.label }}: {{ category_data.count }}
+                        </span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            
+            <!-- Filtre et bouton ajout -->
+            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <select id="categoryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                    <option value="">Toutes les catégories</option>
+                    {% for category_key, category_label in categories %}
+                        <option value="{{ category_key }}" {% if current_category == category_key %}selected{% endif %}>
+                            {{ category_label }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <a href="{% url 'gallery_ajouter' %}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium">
+                    <i class="fas fa-plus"></i> Ajouter la galerie
+                </a>
+            </div>
+        </div>
+
+        {% if albums %}
+            <!-- Grille des albums -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8" id="albumsGrid">
+                {% for album in albums %}
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden transition-smooth hover-lift">
+                        <!-- Zone image -->
+                        <div class="relative h-48 overflow-hidden bg-gray-200">
+                            {% if album.image %}
+                                <img src="{{ album.image.url }}" alt="{{ album.title }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <div class="flex flex-col items-center justify-center h-full text-gray-400">
+                                    <i class="fas fa-image fa-3x mb-2"></i>
+                                    <span class="text-sm">Pas d'image</span>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Badge catégorie -->
+                            <span class="absolute top-2 left-2 px-2 py-1 rounded-md text-xs font-semibold
+                                {% if album.category == 'photo' %}bg-cyan-500 text-white
+                                {% elif album.category == 'video' %}bg-red-500 text-white
+                                {% elif album.category == 'autre' %}bg-amber-500 text-gray-900
+                                {% else %}bg-gray-600 text-white{% endif %}">
+                                {{ album.get_category_display }}
+                            </span>
+                            
+                            <!-- Badge type média -->
+                            <span class="absolute top-2 right-2 px-2 py-1 rounded-md text-xs font-semibold
+                                {% if album.image and album.video %}bg-blue-600 text-white
+                                {% elif album.image %}bg-green-600 text-white
+                                {% elif album.video %}bg-red-600 text-white
+                                {% else %}bg-gray-600 text-white{% endif %}">
+                                {% if album.image and album.video %}
+                                    <i class="fas fa-photo-video"></i> Mixte
+                                {% elif album.image %}
+                                    <i class="fas fa-image"></i> Image
+                                {% elif album.video %}
+                                    <i class="fas fa-video"></i> Vidéo
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <!-- Corps de la carte -->
+                        <div class="p-4 flex flex-col">
+                            <h5 class="text-lg font-bold text-gray-800 mb-2 line-clamp-1">{{ album.title }}</h5>
+                            
+                            {% if album.description %}
+                                <p class="text-gray-600 text-sm mb-3 line-clamp-2 flex-grow">
+                                    {% if album.description|length > 120 %}
+                                        {{ album.description|slice:":120" }}...
+                                    {% else %}
+                                        {{ album.description }}
+                                    {% endif %}
+                                </p>
+                            {% endif %}
+                            
+                            <!-- Métadonnées -->
+                            <div class="flex justify-between text-gray-400 text-xs mb-3">
+                                <span><i class="fas fa-calendar me-1"></i> {{ album.date_created|date:"d/m/Y H:i" }}</span>
+                                <span><i class="fas fa-hashtag me-1"></i> ID: {{ album.id }}</span>
+                            </div>
+                            
+                            <!-- Boutons d'action -->
+                            <div class="flex gap-2">
+                                <a href="{% url 'gallery' %}" class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors text-sm font-medium">
+                                    <i class="fas fa-eye"></i> Voir
+                                </a>
+
+                                <a href="{% url 'gallery_modifie' album.id %}" class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 border border-gray-400 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </a>
+
+                                <form method="post" action="{% url 'gallery_supprime' album.pk %}" class="flex-1">
+                                    {% csrf_token %}
+                                    <button type="submit" class="w-full inline-flex items-center justify-center gap-1 px-3 py-2 border border-red-500 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium" 
+                                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet album ? Cette action supprimera également tous les fichiers associés.')">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if albums.has_other_pages %}
+                <nav class="flex justify-center mt-8" aria-label="Page navigation">
+                    <ul class="flex flex-wrap gap-1">
+                        {% if albums.has_previous %}
+                            <li>
+                                <a class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors" href="?page=1{% if current_category %}&category={{ current_category }}{% endif %}">
+                                    &laquo; Premier
+                                </a>
+                            </li>
+                            <li>
+                                <a class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors" href="?page={{ albums.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}">
+                                    Précédent
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        {% for i in albums.paginator.page_range %}
+                            {% if albums.number == i %}
+                                <li>
+                                    <span class="px-3 py-2 bg-blue-600 text-white rounded-lg">{{ i }}</span>
+                                </li>
+                            {% else %}
+                                <li>
+                                    <a class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors" href="?page={{ i }}{% if current_category %}&category={{ current_category }}{% endif %}">{{ i }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if albums.has_next %}
+                            <li>
+                                <a class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors" href="?page={{ albums.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}">
+                                    Suivant
+                                </a>
+                            </li>
+                            <li>
+                                <a class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors" href="?page={{ albums.paginator.num_pages }}{% if current_category %}&category={{ current_category }}{% endif %}">
+                                    Dernier &raquo;
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+            
+        {% else %}
+            <!-- État vide -->
+            <div class="text-center py-16 my-8 bg-gray-50 rounded-xl border border-gray-200">
+                <i class="fas fa-photo-video fa-4x text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-500 mb-2">Aucun album trouvé</h3>
+                <p class="text-gray-400 mb-4">
+                    {% if current_category %}
+                        Aucun album dans la catégorie "{{ current_category|title }}".
+                    {% else %}
+                        Commencez par créer votre premier album.
+                    {% endif %}
+                </p>
+                <a href="{% url 'gallery_ajouter' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
+                    <i class="fas fa-plus"></i> Ajouter
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Filtrage par catégorie
+        document.getElementById('categoryFilter').addEventListener('change', function() {
+            const category = this.value;
+            const url = new URL(window.location);
+            
+            if (category) {
+                url.searchParams.set('category', category);
+            } else {
+                url.searchParams.delete('category');
+            }
+            
+            url.searchParams.delete('page');
+            window.location.href = url.toString();
+        });
+
+        // Auto-hide messages
+        setTimeout(function() {
+            const messages = document.querySelector('.messages');
+            if (messages && messages.children.length > 0) {
+                const msgDivs = document.querySelectorAll('.flex.items-center.justify-between');
+                msgDivs.forEach(msg => {
+                    msg.style.transition = 'opacity 0.5s ease';
+                    msg.style.opacity = '0';
+                    setTimeout(() => msg.remove(), 500);
+                });
+            }
+        }, 5000);
+        
+        // Support pour line-clamp sur les anciens navigateurs
+        if (!document.createElement('div').style.hasOwnProperty('webkitLineClamp')) {
+            const style = document.createElement('style');
+            style.textContent = `
+                .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+                .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+            `;
+            document.head.appendChild(style);
+        }
+    </script>
+
+    {% endblock %}
+</body>
+</html>

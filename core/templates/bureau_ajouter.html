@@ -1,0 +1,304 @@
+{% extends 'membre_base.html' %}
+{% load static %}
+
+{% block title %}Ajouter un Bureau - Association Communautaire de Kakony{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <!-- En-tête -->
+            <div class="px-6 py-5 border-b border-gray-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h1 class="text-2xl font-bold text-gray-900">Créer un nouveau bureau/comité</h1>
+                        <p class="mt-1 text-sm text-gray-500">Remplissez le formulaire ci-dessous pour créer une nouvelle structure organisationnelle.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire -->
+            <form method="post" class="px-6 py-6">
+                {% csrf_token %}
+                
+                <!-- Messages d'alerte -->
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="mb-6 rounded-md bg-{% if message.tags == 'success' %}green{% else %}red{% endif %}-50 p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-{% if message.tags == 'success' %}green{% else %}red{% endif %}-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-{% if message.tags == 'success' %}green{% else %}red{% endif %}-800">
+                                    {{ message }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Affichage des erreurs du formulaire -->
+                {% if form.errors %}
+                <div class="mb-6 rounded-md bg-red-50 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">
+                                Veuillez corriger les erreurs suivantes
+                            </h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <ul class="list-disc pl-5 space-y-1">
+                                    {% for field in form %}
+                                        {% for error in field.errors %}
+                                            <li>{{ field.label }}: {{ error }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <!-- Informations de base -->
+                    <div class="sm:col-span-2">
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">Informations de base</h2>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="{{ form.nom.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.nom.label }}
+                        </label>
+                        {{ form.nom }}
+                        {% if form.nom.help_text %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.nom.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.sigle.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.sigle.label }}
+                        </label>
+                        {{ form.sigle }}
+                        {% if form.sigle.help_text %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.sigle.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.type_bureau.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.type_bureau.label }}
+                        </label>
+                        {{ form.type_bureau }}
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="{{ form.mission.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.mission.label }}
+                        </label>
+                        {{ form.mission }}
+                        {% if form.mission.help_text %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.mission.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Localisation -->
+                    <div class="sm:col-span-2 mt-6 pt-6 border-t border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">Localisation</h2>
+                    </div>
+
+                    <div>
+                        <label for="{{ form.zone_intervention.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.zone_intervention.label }}
+                        </label>
+                        {{ form.zone_intervention }}
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="{{ form.adresse_locale.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.adresse_locale.label }}
+                        </label>
+                        {{ form.adresse_locale }}
+                        {% if form.adresse_locale.help_text %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.adresse_locale.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Structure hiérarchique -->
+                    <div class="sm:col-span-2 mt-6 pt-6 border-t border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">Structure hiérarchique</h2>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label for="{{ form.bureau_parent.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.bureau_parent.label }}
+                        </label>
+                        {{ form.bureau_parent }}
+                    </div>
+
+                    <!-- Membres dirigeants -->
+                    <div class="sm:col-span-2 mt-6 pt-6 border-t border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">Membres dirigeants</h2>
+                    </div>
+
+                    <div>
+                        <label for="{{ form.president.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.president.label }}
+                        </label>
+                        {{ form.president }}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.vice_president.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.vice_president.label }}
+                        </label>
+                        {{ form.vice_president }}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.secretaire.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.secretaire.label }}
+                        </label>
+                        {{ form.secretaire }}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.secretaire_adjoint.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.secretaire_adjoint.label }}
+                        </label>
+                        {{ form.secretaire_adjoint }}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.tresorier.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.tresorier.label }}
+                        </label>
+                        {{ form.tresorier }}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.responsable_technique.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.responsable_technique.label }}
+                        </label>
+                        {{ form.responsable_technique }}
+                        {% if form.responsable_technique.help_text %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.responsable_technique.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.animateur_communautaire.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.animateur_communautaire.label }}
+                        </label>
+                        {{ form.animateur_communautaire }}
+                        {% if form.animateur_communautaire.help_text %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.animateur_communautaire.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Informations supplémentaires -->
+                    <div class="sm:col-span-2 mt-6 pt-6 border-t border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">Informations supplémentaires</h2>
+                    </div>
+
+                    <div>
+                        <label for="{{ form.date_creation.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.date_creation.label }}
+                        </label>
+                        {{ form.date_creation }}
+                        {% if form.date_creation.help_text %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.date_creation.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.statut.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.statut.label }}
+                        </label>
+                        {{ form.statut }}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.frequence_reunions.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.frequence_reunions.label }}
+                        </label>
+                        {{ form.frequence_reunions }}
+                        {% if form.frequence_reunions.help_text %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.frequence_reunions.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.telephone_contact.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.telephone_contact.label }}
+                        </label>
+                        {{ form.telephone_contact }}
+                    </div>
+
+                    <div>
+                        <label for="{{ form.email_contact.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.email_contact.label }}
+                        </label>
+                        {{ form.email_contact }}
+                    </div>
+
+                    
+
+                   
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="mt-8 flex justify-end space-x-3">
+                    <a href="{% url 'bureau' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Annuler
+                    </a>
+                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Créer le bureau
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Script pour améliorer l'expérience utilisateur -->
+<script>
+    // Ajouter des classes Tailwind aux champs du formulaire
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 
+                               'focus:border-blue-500', 'focus:ring-blue-500', 'sm:text-sm');
+            
+            // Ajouter une classe supplémentaire pour les textarea
+            if (input.tagName.toLowerCase() === 'textarea') {
+                input.classList.add('resize-vertical');
+            }
+        });
+    });
+</script>
+
+<style>
+    .resize-vertical {
+        resize: vertical;
+        min-height: 100px;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+    
+    
+
+{% block content %}
+
+<!-- ==== SECTIONS ==== START -->
+<section class="actualites-section">
+    <div class="container py-4">
+        <h1>Actualités</h1>
+        
+        {% if actualites %}
+            <div class="row">
+                {% for actualite in actualites %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            {% if actualite.image %}
+                                <img src="{{ actualite.image.url }}" class="card-img-top" style="height: 250px; object-fit: cover;" alt="{{ actualite.title }}">
+                            {% else %}
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 250px;">
+                                    <span class="text-muted">Aucune image</span>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ actualite.title }}</h5>
+                                <p class="card-text">{{ actualite.contenu|truncatewords:30 }}</p>
+                                <div class="mt-auto">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar"></i> {{ actualite.date_created|date:"d F Y" }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Aucune actualité disponible.</p>
+        {% endif %}
+    </div>
+</section>
+<!-- Styles et fonctionnalités -->
+
+
+<script>
+  // Fonctionnalité "Voir plus" (simulée)
+  document.getElementById('load-more').addEventListener('click', function() {
+    const btn = this;
+    const spinner = btn.querySelector('.spinner-border');
+    
+    btn.disabled = true;
+    spinner.classList.remove('d-none');
+    
+    // Simulation chargement
+    setTimeout(() => {
+      // Ici, vous pourriez ajouter une requête AJAX pour charger plus d'articles
+      spinner.classList.add('d-none');
+      btn.textContent = 'Actualités chargées';
+    }, 1500);
+  });
+</script>
+
+
+
+<!-- Bootstrap JS -->
+    <script>
+        // Effet navbar au scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    </script>
+{% endblock %}

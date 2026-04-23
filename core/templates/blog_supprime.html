@@ -1,0 +1,189 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmer la suppression</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .warning-icon {
+            font-size: 4rem;
+            color: #dc3545;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .actualite-info {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .actualite-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .actualite-info p {
+            color: #666;
+            margin: 5px 0;
+        }
+
+        .image-preview {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin: 10px auto;
+            display: block;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .warning-text {
+            color: #dc3545;
+            font-weight: 600;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(220, 53, 69, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c82333, #bd2130);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #5a6268, #495057);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(108, 117, 125, 0.3);
+        }
+
+        .actions {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="warning-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        
+        <h1>Confirmer la suppression</h1>
+        
+        <div class="actualite-info">
+            <h3><i class="fas fa-newspaper"></i> {{ actualite.title }}</h3>
+            <p><strong>Contenu :</strong> 
+                {% if actualite.contenu|length > 150 %}
+                    {{ actualite.contenu|slice:":150" }}...
+                {% else %}
+                    {{ actualite.contenu }}
+                {% endif %}
+            </p>
+            <p><strong>Date de création :</strong> {{ actualite.date_created|date:"d/m/Y à H:i" }}</p>
+            
+            {% if actualite.image %}
+                <p><strong>Image :</strong></p>
+                <img src="{{ actualite.image.url }}" alt="Image" class="image-preview">
+            {% endif %}
+        </div>
+        
+        <div class="warning-text">
+            <i class="fas fa-warning"></i>
+            <strong>Attention !</strong> Cette action est irréversible. L'actualité et son image seront définitivement supprimées.
+        </div>
+        
+        <div class="actions">
+            <form method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash-alt"></i> Oui, supprimer
+                </button>
+            </form>
+            
+            <a href="{% url 'blog_status' %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Non, annuler
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Animation d'entrée
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.container');
+            container.style.transform = 'scale(0.8)';
+            container.style.opacity = '0';
+            
+            setTimeout(() => {
+                container.style.transition = 'all 0.5s ease';
+                container.style.transform = 'scale(1)';
+                container.style.opacity = '1';
+            }, 100);
+        });
+    </script>
+</body>
+</html>

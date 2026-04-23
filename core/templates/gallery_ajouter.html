@@ -1,0 +1,82 @@
+
+
+<style>
+    *{
+        padding: 0;
+        margin:0;
+    }
+    body{
+        padding: 10px;
+        margin: 10px;
+        align-items: center;
+        align-content: center;
+    }
+    .forme{
+        background-color : #fff;
+        box-shadow: 0 0 10px rgb(0, 0, 0.15);
+        font-family: sans-serif;
+        width: 80%;
+        padding: 20px;
+        margin: 20px;
+        border-radius: 23px;
+    }
+    p {
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    unicode-bidi: isolate;
+}
+p label{
+    color: #000;
+    padding: 10px;
+    display: block;
+    font-size: 30px;
+    font-weight: bold;
+    color: blue;
+}
+p input{
+    background-color: blue;
+    color: #fff;
+    margin-top: 10px;
+    max-height: 50px;
+    height: 10%;
+    border: 2px solid red;
+    font-size: 1.0rem;
+    border-radius: 23px;
+    text-align : center;
+    box-shadow: 0 0 10px rgb(0, 0, 0.10);
+}
+p input:hover{
+    background-color: blue;
+    color: #fff;
+}
+.forme button{
+    background-color: rgb(15, 70, 4);
+    color: #fff;
+    border-radius: 23px;
+    width: 30%;
+    height: 5%;
+    box-shadow: 0 0 10px rgb(0, 0, 0.15);
+    border: 2px solid red;
+}
+</style>
+<body>
+
+
+
+    
+
+    <div class="forme">
+        <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        {{ form.as_p }}
+        <button type="submit">Publier</button>
+    </form>
+    </div>
+
+    <a href="{% url 'gallery_status' %}">⬅ Retour</a>
+
+

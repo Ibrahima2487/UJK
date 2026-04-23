@@ -1,0 +1,360 @@
+{% extends 'membre_base.html' %}
+{% load static %}
+{% load tailwind_tags %}
+
+{% block extra_head %}
+<style>
+    /* Animations personnalisées */
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+    }
+    
+    .message-sent {
+        animation: slideInRight 0.3s ease-out;
+    }
+    
+    .message-received {
+        animation: slideInLeft 0.3s ease-out;
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.5s ease-out;
+    }
+    
+    .pulse-slow {
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    /* Scrollbar personnalisée */
+    .messages-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .messages-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .messages-scrollbar::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #128C7E, #075E54);
+        border-radius: 10px;
+    }
+    
+    /* Style pour le textarea */
+    #id_contenu {
+        transition: all 0.2s ease;
+    }
+    
+    #id_contenu:focus {
+        border-color: #128C7E;
+        box-shadow: 0 0 0 3px rgba(18, 140, 126, 0.1);
+    }
+    
+    /* Effet de glassmorphism */
+    .glass-bg {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="fixed inset-0 flex flex-col bg-gray-100">
+    
+    <!-- ==================== EN-TÊTE ==================== -->
+    <div class="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white px-4 py-3 shadow-lg">
+        <div class="container mx-auto max-w-4xl">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                    <i class="fas fa-comments text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg">Messagerie UDJK</h1>
+                    <p class="text-xs text-white/80">Discutez avec les membres de la communauté</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== ZONE DES MESSAGES ==================== -->
+    <div id="messages-container" class="flex-1 overflow-y-auto px-4 py-6 messages-scrollbar relative">
+        <!-- Watermark logo en fond -->
+        <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+            <img src="{% static 'image/logo.png' %}" alt="logo" class="w-64 h-64 object-contain">
+        </div>
+        
+        <div class="max-w-4xl mx-auto space-y-3 relative z-10">
+            {% for message in messages %}
+            <div class="flex {% if message.envoyeur == user %}justify-end{% else %}justify-start{% endif %} message-{% if message.envoyeur == user %}sent{% else %}received{% endif %}">
+                <!-- Bulle de message -->
+                <div class="max-w-xs md:max-w-md lg:max-w-lg {% if message.envoyeur == user %}bg-gradient-to-br from-[#DCF8C6] to-[#C5E8B3] border-l-4 border-[#128C7E]{% else %}bg-white border-l-4 border-gray-200 shadow-md{% endif %} rounded-2xl p-3 hover:shadow-lg transition-shadow">
+                    
+                    <!-- En-tête -->
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            {% if message.envoyeur != user %}
+                            <div class="flex items-center gap-1">
+                                <div class="w-6 h-6 bg-gradient-to-r from-[#128C7E] to-[#075E54] rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-white text-xs"></i>
+                                </div>
+                                <span class="font-semibold text-sm text-[#128C7E]">
+                                    {{ message.envoyeur.get_full_name|default:message.envoyeur.username }}
+                                </span>
+                            </div>
+                            {% endif %}
+                            <span class="text-xs text-gray-400 flex items-center gap-1">
+                                <i class="far fa-clock"></i>
+                                {{ message.date_envoi|date:"H:i" }}
+                            </span>
+                        </div>
+                        {% if message.envoyeur == user %}
+                        <div class="text-xs text-[#128C7E]">
+                            <i class="fas fa-check-double"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Contenu -->
+                    <div class="text-gray-700 text-sm md:text-base leading-relaxed break-words">
+                        {{ message.contenu|linebreaksbr }}
+                    </div>
+                    
+                    <!-- Fichier joint -->
+                    {% if message.fichier %}
+                    <div class="mt-3 pt-2 border-t border-gray-200">
+                        <div class="flex items-center justify-between gap-2 bg-gray-50 rounded-xl p-2">
+                            <div class="flex items-center gap-2 flex-1 min-w-0">
+                                <div class="w-8 h-8 bg-gradient-to-r from-[#128C7E] to-[#075E54] rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-paperclip text-white text-sm"></i>
+                                </div>
+                                <span class="text-sm text-gray-600 truncate flex-1">{{ message.fichier.name|cut:"messages_fichiers/"|truncatechars:30 }}</span>
+                            </div>
+                            <a href="{{ message.fichier.url }}" download 
+                               class="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white p-2 rounded-lg hover:scale-105 transition-all shadow-md">
+                                <i class="fas fa-download text-xs"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <!-- État vide -->
+            <div class="flex items-center justify-center min-h-[400px] fade-in">
+                <div class="text-center bg-white/90 backdrop-blur-sm rounded-2xl p-8 max-w-sm mx-4 shadow-xl">
+                    <div class="w-20 h-20 bg-gradient-to-r from-[#128C7E] to-[#075E54] rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <i class="fas fa-comments text-white text-3xl pulse-slow"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Bienvenue dans le chat !</h3>
+                    <p class="text-gray-500 mb-2">Aucun message pour le moment</p>
+                    <p class="text-sm text-gray-400">Soyez le premier à envoyer un message</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ==================== ZONE DE SAISIE ==================== -->
+    <div class="bg-white border-t-4 border-[#128C7E] shadow-lg p-3">
+        <div class="max-w-4xl mx-auto">
+            <form method="post" enctype="multipart/form-data" class="flex items-center gap-2 md:gap-3">
+                {% csrf_token %}
+                
+                <!-- Bouton accueil publication -->
+                <a href="{% url 'main' %}" 
+                   class="bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-[#128C7E] p-2 md:p-3 rounded-full transition-all duration-300 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 shadow-md hover:shadow-lg hover:scale-105 flex-shrink-0">
+                    <i class="fas fa-newspaper text-lg md:text-xl"></i>
+                </a>
+                
+                <!-- Bouton fichier -->
+                <div class="relative flex-shrink-0">
+                    <input type="file" name="fichier" id="file-input" class="hidden" accept="image/*,.pdf,.doc,.docx,.txt,.zip,.rar">
+                    <label for="file-input" 
+                           class="bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-[#128C7E] p-2 md:p-3 rounded-full cursor-pointer transition-all duration-300 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 shadow-md hover:shadow-lg hover:scale-105">
+                        <i class="fas fa-paperclip text-lg md:text-xl"></i>
+                    </label>
+                    <div id="file-name" 
+                         class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded-lg whitespace-nowrap hidden z-20 shadow-lg">
+                    </div>
+                </div>
+
+                <!-- Champ texte -->
+                <div class="flex-1">
+                    {{ form.contenu }}
+                </div>
+
+                <!-- Bouton envoi à DROITE -->
+                <button type="submit" 
+                        class="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white p-3 md:p-4 rounded-full hover:shadow-lg transition-all duration-300 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 shadow-md hover:scale-105 flex-shrink-0 group">
+                    <i class="fas fa-paper-plane text-xl md:text-2xl group-hover:rotate-12 transition-transform"></i>
+                </button>
+            </form>
+            
+            <!-- Indicateur clavier -->
+            <div class="text-xs text-gray-400 mt-2 px-2 text-center md:text-left">
+                <i class="far fa-keyboard"></i> Appuyez sur <kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">Enter</kbd> pour envoyer — <kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">Shift + Enter</kbd> pour nouvelle ligne
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Style pour le textarea -->
+<style>
+    #id_contenu {
+        width: 100%;
+        border: 2px solid #e5e7eb;
+        border-radius: 24px;
+        padding: 12px 18px;
+        font-size: 14px;
+        resize: none;
+        outline: none;
+        transition: all 0.3s ease;
+        font-family: inherit;
+        background: #f9fafb;
+        min-height: 48px;
+        max-height: 120px;
+        line-height: 1.5;
+    }
+    
+    #id_contenu:focus {
+        border-color: #128C7E;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(18, 140, 126, 0.1);
+    }
+    
+    #id_contenu::placeholder {
+        color: #9ca3af;
+        font-size: 14px;
+    }
+    
+    @media (max-width: 640px) {
+        #id_contenu {
+            padding: 10px 14px;
+            font-size: 13px;
+            border-radius: 20px;
+        }
+    }
+    
+    button[type="submit"]:active {
+        transform: scale(0.95);
+    }
+    
+    kbd {
+        font-family: monospace;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 11px;
+        background: #f3f4f6;
+        border: 1px solid #d1d5db;
+    }
+</style>
+
+<!-- Scripts -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('messages-container');
+        const textarea = document.getElementById('id_contenu');
+        const fileInput = document.getElementById('file-input');
+        const fileNameDiv = document.getElementById('file-name');
+        
+        // Scroll automatique vers le bas
+        function scrollToBottom() {
+            container.scrollTop = container.scrollHeight;
+        }
+        scrollToBottom();
+        
+        // Auto-resize du textarea
+        if (textarea) {
+            function resizeTextarea() {
+                textarea.style.height = 'auto';
+                textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+            }
+            textarea.addEventListener('input', resizeTextarea);
+            resizeTextarea();
+        }
+        
+        // Nom du fichier sélectionné
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    const file = this.files[0];
+                    fileNameDiv.textContent = file.name.length > 40 ? file.name.substring(0, 40) + '...' : file.name;
+                    fileNameDiv.classList.remove('hidden');
+                    
+                    setTimeout(() => {
+                        fileNameDiv.classList.add('hidden');
+                    }, 3000);
+                }
+            });
+        }
+        
+        // Envoi avec Enter
+        const form = document.querySelector('form');
+        if (form && textarea) {
+            textarea.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.disabled) {
+                        submitBtn.disabled = true;
+                        form.submit();
+                        setTimeout(() => {
+                            submitBtn.disabled = false;
+                        }, 2000);
+                    }
+                }
+            });
+        }
+    });
+    
+    // Observer pour les nouveaux messages
+    const messagesContainer = document.getElementById('messages-container');
+    if (messagesContainer) {
+        const observer = new MutationObserver(function() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        });
+        observer.observe(messagesContainer, {
+            childList: true,
+            subtree: true
+        });
+    }
+</script>
+
+{% endblock %}

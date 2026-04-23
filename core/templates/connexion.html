@@ -1,0 +1,114 @@
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            
+            background: url('data:image/svg+xml,<svg id="visual" viewBox="0 0 900 600" width="900" height="600" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"><rect x="0" y="0" width="900" height="600" fill="%230A4A7B"></rect><defs><linearGradient id="grad1_0" x1="33.3%" y1="0%" x2="100%" y2="100%"><stop offset="20%" stop-color="%230a4a7b" stop-opacity="1"></stop><stop offset="80%" stop-color="%230a4a7b" stop-opacity="1"></stop></linearGradient></defs><defs><linearGradient id="grad2_0" x1="0%" y1="0%" x2="66.7%" y2="100%"><stop offset="20%" stop-color="%230a4a7b" stop-opacity="1"></stop><stop offset="80%" stop-color="%230a4a7b" stop-opacity="1"></stop></linearGradient></defs><g transform="translate(900, 0)"><path d="M0 486.7C-43.5 435.5 -87 384.2 -153.1 369.6C-219.1 354.9 -307.8 377 -344.2 344.2C-380.6 311.4 -364.7 223.8 -379.7 157.3C-394.8 90.8 -440.8 45.4 -486.7 0L0 0Z" fill="%2336A9E1"></path></g><g transform="translate(0, 600)"><path d="M0 -486.7C52 -454.6 104.1 -422.4 167.6 -404.7C231.1 -386.9 306.1 -383.5 344.2 -344.2C382.2 -304.8 383.4 -229.5 401 -166.1C418.6 -102.7 452.7 -51.4 486.7 0L0 0Z" fill="%2336A9E1"></path></g></svg>') center/cover no-repeat fixed;
+        
+        }
+        .login-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .messages {
+            margin-bottom: 20px;
+        }
+        .messages .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #f5c6cb;
+        }
+        .messages .info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>Connexion</h2>
+        
+        <!-- Messages d'erreur ou d'information -->
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">Nom d'utilisateur :</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="error">{{ form.username.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.password.id_for_label }}">Mot de passe :</label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                    <div class="error">{{ form.password.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <button type="submit" class="btn">Se connecter</button>
+        </form>
+        
+        <p style="margin-top: 20px; text-align: center;">
+            <a href="{% url 'index' %}">Retour à l'accueil</a>
+        </p>
+    </div>
+
+
+</body>
+</html>

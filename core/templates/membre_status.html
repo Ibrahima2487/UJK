@@ -1,0 +1,265 @@
+{% extends 'membre_base.html' %}
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail des Membres</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+   
+    <style>
+        .profile-card {
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .profile-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .profile-image {
+            transition: transform 0.3s ease;
+        }
+        .profile-card:hover .profile-image {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-cyan-100 min-h-screen">
+    <!-- Header -->
+    <div class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-primary">
+                        <i class="fas fa-users mr-3"></i>Portail des Membres
+                    </h1>
+                    <p class="text-gray-600 mt-2">Gestion complète des profils utilisateurs</p>
+                </div>
+                <a href="{% url 'membre_create' %}" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Ajouter un membre
+                </a>
+                <div class="text-right">
+                    <p class="text-2xl font-bold text-accent">{{ utilisateurs|length }} membres</p>
+                    <p class="text-sm text-gray-500">Total des comptes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Search and Filters -->
+        <form method="GET" action="{% url 'membre_status' %}" class="mb-8 bg-white rounded-2xl shadow-lg p-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Rechercher</label>
+                    <input type="text" name="search" placeholder="Nom, email, username..." 
+                           value="{{ request.GET.search }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+                    <select name="statut" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="">Tous les statuts</option>
+                        <option value="actif" {% if request.GET.statut == 'actif' %}selected{% endif %}>Actifs seulement</option>
+                        <option value="inactif" {% if request.GET.statut == 'inactif' %}selected{% endif %}>Inactifs</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Rôle</label>
+                    <select name="role" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <option value="">Tous les rôles</option>
+                        <option value="admin" {% if request.GET.role == 'admin' %}selected{% endif %}>Administrateurs</option>
+                        <option value="staff" {% if request.GET.role == 'staff' %}selected{% endif %}>Staff</option>
+                        <option value="membre" {% if request.GET.role == 'membre' %}selected{% endif %}>Membres</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors">
+                        <i class="fas fa-filter mr-2"></i>Filtrer
+                    </button>
+                    <a href="{% url 'membre_status' %}" class="ml-2 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">
+                        <i class="fas fa-times mr-2"></i>Réinitialiser
+                    </a>
+                </div>
+            </div>
+        </form>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-2xl shadow-lg p-6 text-center">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-user-check text-green-600 text-xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800">{{ utilisateurs_actifs }}</h3>
+                <p class="text-gray-600">Membres actifs</p>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg p-6 text-center">
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-user-slash text-red-600 text-xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800">{{ utilisateurs_inactifs }}</h3>
+                <p class="text-gray-600">Membres inactifs</p>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg p-6 text-center">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-crown text-blue-600 text-xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800">{{ administrateurs }}</h3>
+                <p class="text-gray-600">Administrateurs</p>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg p-6 text-center">
+                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-star text-purple-600 text-xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800">{{ staff }}</h3>
+                <p class="text-gray-600">Staff</p>
+            </div>
+        </div>
+
+        <!-- Profile Cards Grid - Cartes plus petites -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+            {% for utilisateur in utilisateurs %}
+            <div class="profile-card bg-white rounded-xl shadow-md overflow-hidden group">
+                <!-- Card Header with Image -->
+                <div class="relative overflow-hidden p-4">
+                    <img src="{{ utilisateur.image.url }}" 
+                         alt="{{ utilisateur.user.username }}"
+                         class="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md mx-auto profile-image"
+                         onerror="this.src='/static/profiles/default.png'">
+                    
+                    <!-- Status Badge -->
+                    <div class="absolute top-2 right-2">
+                        {% if utilisateur.user.is_active %}
+                        <span class="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                            <i class="fas fa-check-circle mr-1"></i>
+                        </span>
+                        {% else %}
+                        <span class="bg-gray-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                            <i class="fas fa-ban mr-1"></i>
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Admin Badge -->
+                    {% if utilisateur.user.is_superuser %}
+                    <div class="absolute top-2 left-2">
+                        <span class="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                            <i class="fas fa-crown mr-1"></i>
+                        </span>
+                    </div>
+                    {% elif utilisateur.user.is_staff %}
+                    <div class="absolute top-2 left-2">
+                        <span class="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                            <i class="fas fa-star mr-1"></i>
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Card Body -->
+                <div class="p-3">
+                    <!-- Username -->
+                    <h3 class="text-sm font-bold text-gray-800 mb-1 group-hover:text-primary truncate">
+                        @{{ utilisateur.user.username }}
+                    </h3>
+
+                    <!-- Full Name -->
+                    {% if utilisateur.user.first_name or utilisateur.user.last_name %}
+                    <p class="text-xs text-gray-600 font-medium mb-2 truncate">
+                        <i class="fas fa-user mr-1 text-secondary"></i>
+                        {{ utilisateur.user.first_name }} {{ utilisateur.user.last_name }}
+                    </p>
+                    {% endif %}
+
+                    <!-- Email -->
+                    <p class="text-xs text-gray-500 truncate mb-3">
+                        <i class="fas fa-envelope mr-1"></i>
+                        {{ utilisateur.user.email }}
+                    </p>
+                </div>
+
+                <!-- Card Footer with Buttons -->
+                <div class="px-3 pb-3 pt-2 bg-gray-50">
+                    <div class="flex flex-col space-y-2">
+                        <!-- Voir Button -->
+                        <a href="{% url 'membre_profile' utilisateur.user.id %}"
+                           class="bg-primary hover:bg-primary-dark text-white py-1 px-3 rounded-lg text-xs font-semibold transition-all duration-200 transform hover:scale-105 flex items-center justify-center">
+                            <i class="fas fa-eye mr-1"></i>Voir
+                        </a>
+
+                        <h5 class="text-xs font-semibold transition-all">Changer le mots de passe</h5>
+                         <a href="{% url 'change_password' utilisateur.user.id %}"
+                           class="bg-orange-500 hover:bg-orange-600 text-warning py-1 px-3 rounded-lg text-xs font-semibold transition-all duration-200 transform hover:scale-105 flex items-center justify-center">
+                            <i class="fas fa-lock mr-1"></i>Mot de passe
+                        </a>
+
+                        
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Empty State -->
+            <div class="col-span-full text-center py-16">
+                <div class="bg-white rounded-2xl shadow-lg p-12">
+                    <i class="fas fa-users-slash text-6xl text-gray-300 mb-4"></i>
+                    <h3 class="text-2xl font-bold text-gray-700 mb-2">Aucun membre trouvé</h3>
+                    <p class="text-gray-500">Aucun résultat ne correspond à vos critères de recherche.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if utilisateurs.has_other_pages %}
+        <div class="mt-12 flex justify-center">
+            <div class="bg-white rounded-2xl shadow-lg p-4">
+                <nav class="flex space-x-2">
+                    {% if utilisateurs.has_previous %}
+                    <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.statut %}statut={{ request.GET.statut }}&{% endif %}{% if request.GET.role %}role={{ request.GET.role }}&{% endif %}page={{ utilisateurs.previous_page_number }}" 
+                       class="px-4 py-2 bg-primary text-white rounded-lg text-sm">Précédent</a>
+                    {% endif %}
+                    
+                    {% for num in utilisateurs.paginator.page_range %}
+                    <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.statut %}statut={{ request.GET.statut }}&{% endif %}{% if request.GET.role %}role={{ request.GET.role }}&{% endif %}page={{ num }}" 
+                       class="px-4 py-2 text-sm {% if utilisateurs.number == num %}bg-primary text-white{% else %}bg-gray-100 text-gray-700{% endif %} rounded-lg">{{ num }}</a>
+                    {% endfor %}
+                    
+                    {% if utilisateurs.has_next %}
+                    <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.statut %}statut={{ request.GET.statut }}&{% endif %}{% if request.GET.role %}role={{ request.GET.role }}&{% endif %}page={{ utilisateurs.next_page_number }}" 
+                       class="px-4 py-2 bg-primary text-white rounded-lg text-sm">Suivant</a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function confirmDelete(userId, username) {
+            document.getElementById('usernameToDelete').textContent = username;
+            document.getElementById('deleteForm').action = `/membre_status/${userId}/supprimer/`;
+            document.getElementById('deleteModal').classList.remove('hidden');
+            document.getElementById('deleteModal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            document.getElementById('deleteModal').classList.remove('flex');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('deleteModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    </script>
+</body>
+</html>
+{% endblock %}

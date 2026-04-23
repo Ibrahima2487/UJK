@@ -1,0 +1,451 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tailwind_tags %}
+
+{% block extra_head %}
+<style>
+    /* Animations personnalisées */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInScale {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    @keyframes shimmer {
+        0% { background-position: -1000px 0; }
+        100% { background-position: 1000px 0; }
+    }
+    
+    .animate-fade-up {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+    }
+    .animate-fade-scale {
+        animation: fadeInScale 0.5s ease-out forwards;
+        opacity: 0;
+    }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    
+    /* Effets de carte */
+    .album-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .album-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.25) !important;
+    }
+    .album-card:hover .album-media {
+        transform: scale(1.08);
+    }
+    .album-card:hover .overlay-actions {
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+    }
+    .album-card:hover .overlay-actions .btn-group {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .album-media {
+        transition: transform 0.5s ease;
+    }
+    
+    .overlay-actions {
+        background: rgba(0, 0, 0, 0);
+        transition: all 0.3s ease;
+    }
+    
+    .overlay-actions .btn-group {
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+    }
+    
+    .hover-lift {
+        transition: all 0.3s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Limitation des lignes de texte */
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    /* Skeleton loader */
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 1000px 100%;
+        animation: shimmer 1.5s infinite;
+    }
+    
+    /* Focus styles */
+    .input-focus:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="container mx-auto px-4 max-w-7xl">
+        
+        <!-- ==================== EN-TÊTE ==================== -->
+        <div class="mb-8 animate-fade-up">
+            <div class="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl shadow-lg overflow-hidden">
+                <div class="p-6 md:p-8">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-bold text-white mb-2 flex items-center gap-3">
+                                <i class="fas fa-images"></i>
+                                {{ title }}
+                            </h1>
+                            <p class="text-white/80">
+                                <i class="fas fa-collection-play mr-1"></i>
+                                Explorez notre collection multimédia complète
+                            </p>
+                        </div>
+                        <div class="text-center md:text-right">
+                            <div class="text-3xl md:text-4xl font-bold text-white">{{ total_albums }}</div>
+                            <small class="text-white/70">album{{ total_albums|pluralize:"s" }} au total</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== FILTRES ==================== -->
+        <div class="mb-8 animate-fade-up delay-1">
+            <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+                <div class="p-5 md:p-6">
+                    <form method="get" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <!-- Recherche -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-search mr-1"></i>Recherche
+                                </label>
+                                <div class="relative">
+                                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" 
+                                           name="search" 
+                                           value="{{ search_query }}"
+                                           class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:border-blue-500 input-focus transition-all"
+                                           placeholder="Rechercher un album...">
+                                </div>
+                            </div>
+
+                            <!-- Catégorie -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-tags mr-1"></i>Catégorie
+                                </label>
+                                <select name="category" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:border-blue-500 input-focus transition-all bg-white">
+                                    <option value="">Toutes les catégories</option>
+                                    {% for value, label in categories %}
+                                        <option value="{{ value }}" {% if current_category == value %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Tri -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-sort-down mr-1"></i>Trier par
+                                </label>
+                                <select name="sort" class="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:border-blue-500 input-focus transition-all bg-white">
+                                    {% for option in sort_options %}
+                                        <option value="{{ option.value }}" {% if current_sort == option.value %}selected{% endif %}>
+                                            {{ option.label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Bouton -->
+                            <div class="flex items-end">
+                                <button type="submit" class="w-full px-4 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-[1.02] shadow-md">
+                                    <i class="fas fa-filter mr-2"></i>Appliquer
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Filtres actifs -->
+                    {% if search_query or current_category %}
+                    <div class="mt-5 pt-4 border-t border-gray-200">
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <span class="text-sm font-semibold text-gray-500">Filtres actifs :</span>
+                            
+                            {% if current_category %}
+                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm">
+                                <i class="fas fa-tag"></i> {{ current_category }}
+                                <a href="?{% for key, value in request.GET.items %}{% if key != 'category' %}{{ key }}={{ value }}&{% endif %}{% endfor %}" class="ml-1 hover:text-blue-900">
+                                    <i class="fas fa-times-circle"></i>
+                                </a>
+                            </span>
+                            {% endif %}
+                            
+                            {% if search_query %}
+                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-cyan-100 text-cyan-700 rounded-lg text-sm">
+                                <i class="fas fa-search"></i> "{{ search_query }}"
+                                <a href="?{% for key, value in request.GET.items %}{% if key != 'search' %}{{ key }}={{ value }}&{% endif %}{% endfor %}" class="ml-1 hover:text-cyan-900">
+                                    <i class="fas fa-times-circle"></i>
+                                </a>
+                            </span>
+                            {% endif %}
+                            
+                            <a href="{% url 'gallery' %}" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300 transition-colors">
+                                <i class="fas fa-undo-alt mr-1"></i>Réinitialiser
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== STATISTIQUES CATÉGORIES ==================== -->
+        <div class="mb-8 animate-fade-up delay-2">
+            <div class="bg-white rounded-2xl shadow-md p-5 md:p-6">
+                <h5 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <i class="fas fa-chart-pie text-blue-500"></i>
+                    Répartition par catégorie
+                </h5>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                    {% for value, stats in categories_stats.items %}
+                    <a href="?category={{ value }}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                       class="group block">
+                        <div class="bg-gray-50 rounded-xl p-3 text-center hover:bg-blue-50 transition-all {% if value == current_category %}bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md{% endif %}">
+                            <div class="text-xl md:text-2xl font-bold">{{ stats.count }}</div>
+                            <small class="text-xs font-semibold truncate block">{{ stats.label }}</small>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== GRILLE DES ALBUMS ==================== -->
+        {% if albums %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for album in albums %}
+            <div class="album-card bg-white rounded-xl shadow-md overflow-hidden animate-fade-scale delay-{% cycle '1' '2' '3' '4' %}">
+                <!-- Zone média -->
+                <div class="relative overflow-hidden" style="height: 200px;">
+                    {% if album.image %}
+                        <img src="{{ album.image.url }}" 
+                             class="album-media w-full h-full object-cover"
+                             alt="{{ album.title }}"
+                             loading="lazy">
+                    {% elif album.video %}
+                        <div class="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                            <div class="absolute inset-0 bg-black/30"></div>
+                            <i class="fas fa-play-circle text-white text-5xl z-10"></i>
+                            <div class="absolute bottom-2 left-2">
+                                <span class="px-2 py-1 bg-black/50 text-white text-xs rounded-lg">
+                                    <i class="fas fa-video mr-1"></i>Vidéo
+                                </span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+                            <i class="fas fa-image text-gray-300 text-5xl"></i>
+                        </div>
+                    {% endif %}
+
+                    <!-- Badge catégorie -->
+                    <span class="absolute top-2 right-2 px-2 py-1 rounded-lg text-xs font-semibold shadow-md
+                        {% if album.category == 'evenement' %}bg-red-500 text-white
+                        {% elif album.category == 'projet' %}bg-green-500 text-white
+                        {% elif album.category == 'video' %}bg-blue-500 text-white
+                        {% elif album.category == 'reunion' %}bg-yellow-500 text-gray-800
+                        {% elif album.category == 'formation' %}bg-cyan-500 text-white
+                        {% elif album.category == 'conference' %}bg-gray-800 text-white
+                        {% else %}bg-gray-500 text-white{% endif %}">
+                        <i class="fas 
+                            {% if album.category == 'video' %}fa-video
+                            {% elif album.category == 'evenement' %}fa-calendar
+                            {% elif album.category == 'projet' %}fa-project-diagram
+                            {% else %}fa-folder{% endif %} mr-1"></i>
+                        {{ album.get_category_display }}
+                    </span>
+
+                    <!-- Overlay actions -->
+                    <div class="overlay-actions absolute inset-0 flex items-center justify-center">
+                        <div class="btn-group flex gap-2">
+                            {% if album.video %}
+                            <a href="{{ album.video.url }}" target="_blank" 
+                               class="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors shadow-lg"
+                               title="Regarder la vidéo">
+                                <i class="fas fa-play text-blue-500"></i>
+                            </a>
+                            {% endif %}
+                            <button class="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors shadow-lg"
+                                    title="Voir les détails">
+                                <i class="fas fa-eye text-gray-700"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenu carte -->
+                <div class="p-4">
+                    <h6 class="font-bold text-gray-800 line-clamp-2 mb-2 min-h-[48px]">
+                        {{ album.title }}
+                    </h6>
+                    
+                    <p class="text-gray-500 text-sm line-clamp-3 mb-3">
+                        {% if album.description %}
+                            {{ album.description }}
+                        {% else %}
+                            <span class="italic">Aucune description disponible</span>
+                        {% endif %}
+                    </p>
+                    
+                    <div class="pt-3 border-t border-gray-100">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-400">
+                                <i class="far fa-calendar-alt mr-1"></i>
+                                {{ album.date_created|date:"d/m/Y" }}
+                            </span>
+                            <div class="flex gap-1">
+                                <i class="fas {% if album.image %}fa-image{% else %}fa-film{% endif %} text-gray-400 text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- ==================== PAGINATION ==================== -->
+        {% if albums.has_other_pages %}
+        <div class="mt-10">
+            <div class="flex flex-col items-center gap-4">
+                <div class="flex flex-wrap justify-center gap-1">
+                    {% if albums.has_previous %}
+                    <a href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                       class="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-gray-300 text-gray-700 hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                    <a href="?page={{ albums.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                       class="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-gray-300 text-gray-700 hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                    {% endif %}
+
+                    {% for num in albums.paginator.page_range %}
+                        {% if num >= albums.number|add:-2 and num <= albums.number|add:2 %}
+                            {% if albums.number == num %}
+                            <span class="w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md">
+                                {{ num }}
+                            </span>
+                            {% else %}
+                            <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                               class="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-gray-300 text-gray-700 hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all">
+                                {{ num }}
+                            </a>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if albums.has_next %}
+                    <a href="?page={{ albums.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                       class="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-gray-300 text-gray-700 hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                    <a href="?page={{ albums.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                       class="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-gray-300 text-gray-700 hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="text-sm text-gray-500">
+                    Page <strong>{{ albums.number }}</strong> sur <strong>{{ albums.paginator.num_pages }}</strong>
+                    • {{ albums.start_index }} à {{ albums.end_index }} sur {{ albums.paginator.count }} album{{ albums.paginator.count|pluralize:"s" }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- ==================== ÉTAT VIDE ==================== -->
+        <div class="bg-white rounded-2xl shadow-md p-12 text-center">
+            <div class="mb-4">
+                <i class="fas fa-images text-gray-300 text-6xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-500 mb-2">Aucun album trouvé</h3>
+            <p class="text-gray-400 mb-6">
+                {% if search_query or current_category %}
+                    Aucun album ne correspond à vos critères de recherche.
+                {% else %}
+                    Commencez par ajouter votre premier album à la galerie.
+                {% endif %}
+            </p>
+            {% if search_query or current_category %}
+            <a href="{% url 'gallery' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transition-all">
+                <i class="fas fa-sync-alt"></i>
+                Afficher tous les albums
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Script pour auto-submit des selects -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-submit pour les selects
+        const filterSelects = document.querySelectorAll('select[name="category"], select[name="sort"]');
+        filterSelects.forEach(select => {
+            select.addEventListener('change', function() {
+                this.closest('form').submit();
+            });
+        });
+        
+        // Animation au scroll pour les cartes
+        const cards = document.querySelectorAll('.album-card');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        cards.forEach(card => observer.observe(card));
+    });
+</script>
+
+{% endblock %}

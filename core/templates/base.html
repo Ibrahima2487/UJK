@@ -1,0 +1,330 @@
+{% load static %}
+{% load tailwind_tags %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="UDJK - Union des Jeunes de Kakony, association engagée pour le développement communautaire à travers l'éducation, l'autonomisation et les infrastructures durables.">
+    <meta name="theme-color" content="#0a4a7b">
+    <title>{% block title %}UDJK - Union des Jeunes de Kakony{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    {% tailwind_css %}
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'image/logo.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'image/logo.png' %}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'image/logo.png' %}">
+    <link rel="icon" type="image/png" sizes="512x512" href="{% static 'image/logo.png' %}">
+    <link rel="shortcut icon" href="{% static 'image/logo.png' %}" type="image/x-icon">
+    
+    <style>
+        /* Animations personnalisées */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        @keyframes glow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+        
+        .animate-fade-down { animation: fadeInDown 0.8s ease-out forwards; }
+        .animate-fade-up { animation: fadeInUp 0.8s ease-out forwards; }
+        .animate-pulse-slow { animation: pulse 2s ease-in-out infinite; }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-glow { animation: glow 3s ease-in-out infinite; }
+        
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+        
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hover-lift:hover {
+            transform: translateY(-3px);
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #36a9e1, #ffe600);
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Background personnalisé */
+        body {
+            background: linear-gradient(135deg, #0a4a7b 0%, #1a6da0 50%, #2a8ac0 100%);
+            background-attachment: fixed;
+        }
+        
+        /* Glassmorphism */
+        .glass-nav {
+            background: rgba(10, 74, 123, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Scrollbar personnalisée */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a4a7b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #36a9e1, #ffe600);
+            border-radius: 4px;
+        }
+        
+        /* Utilitaires */
+        .text-gradient {
+            background: linear-gradient(135deg, #ffe600, #36a9e1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="font-sans antialiased">
+
+    <!-- ==================== NAVIGATION ==================== -->
+    <nav class="fixed top-0 left-0 w-full z-50 glass-nav transition-all duration-300" x-data="{ mobileMenuOpen: false }" @scroll.window="scrollPosition = window.scrollY">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <a href="{% url 'about' %}" class="flex items-center gap-2 hover:opacity-80 transition-opacity animate-float">
+                    <img src="{% static 'image/logo.png' %}" width="45" height="45" alt="UDJK Logo" class="rounded-full">
+                    <span class="text-white font-bold text-lg hidden sm:inline">
+                        UDJK <span class="text-yellow-300">Kakony</span>
+                    </span>
+                </a>
+                
+                <!-- Bouton Connexion Mobile -->
+                <div class="lg:hidden flex items-center gap-2">
+                    <a href="/connexion/" class="px-3 py-1.5 bg-white/10 border border-white/20 rounded-lg text-white text-sm hover:bg-white/20 transition-all">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </a>
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-white text-2xl focus:outline-none">
+                        <i class="fas" :class="mobileMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+                    </button>
+                </div>
+                
+                <!-- Menu Desktop -->
+                <div class="hidden lg:flex items-center gap-6">
+                    <ul class="flex items-center gap-5">
+                        <li><a href="{% url 'index' %}" class="nav-link text-white/90 hover:text-white transition-colors"><i class="fas fa-home mr-1"></i> Accueil</a></li>
+                        <li><a href="{% url 'about' %}" class="nav-link text-white/90 hover:text-white transition-colors"><i class="fas fa-info-circle mr-1"></i> À propos</a></li>
+                        <li><a href="{% url 'actions' %}" class="nav-link text-white/90 hover:text-white transition-colors"><i class="fas fa-hand-holding-heart mr-1"></i> Actions</a></li>
+                        <li><a href="{% url 'gallery' %}" class="nav-link text-white/90 hover:text-white transition-colors"><i class="fas fa-image mr-1"></i> Galerie</a></li>
+                        <li><a href="{% url 'blog' %}" class="nav-link text-white/90 hover:text-white transition-colors"><i class="fas fa-newspaper mr-1"></i> Actualités</a></li>
+                        <li><a href="{% url 'contact' %}" class="nav-link text-white/90 hover:text-white transition-colors"><i class="fas fa-envelope mr-1"></i> Contact</a></li>
+                    </ul>
+                    
+                    <!-- Bouton Connexion Desktop -->
+                    <a href="/connexion/" class="px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900 rounded-lg font-semibold hover:from-yellow-400 hover:to-yellow-500 transition-all transform hover:scale-105 shadow-lg animate-pulse-slow">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Connexion
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Menu Mobile -->
+            <div x-show="mobileMenuOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-0 translate-y-0" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="lg:hidden mt-4 pb-3 border-t border-white/20 pt-4">
+                <ul class="flex flex-col gap-3">
+                    <li><a href="{% url 'index' %}" class="block text-white/90 hover:text-white py-2 px-3 hover:bg-white/10 rounded-lg transition-all"><i class="fas fa-home mr-2 w-5"></i> Accueil</a></li>
+                    <li><a href="{% url 'about' %}" class="block text-white/90 hover:text-white py-2 px-3 hover:bg-white/10 rounded-lg transition-all"><i class="fas fa-info-circle mr-2 w-5"></i> À propos</a></li>
+                    <li><a href="{% url 'actions' %}" class="block text-white/90 hover:text-white py-2 px-3 hover:bg-white/10 rounded-lg transition-all"><i class="fas fa-hand-holding-heart mr-2 w-5"></i> Actions</a></li>
+                    <li><a href="{% url 'gallery' %}" class="block text-white/90 hover:text-white py-2 px-3 hover:bg-white/10 rounded-lg transition-all"><i class="fas fa-image mr-2 w-5"></i> Galerie</a></li>
+                    <li><a href="{% url 'blog' %}" class="block text-white/90 hover:text-white py-2 px-3 hover:bg-white/10 rounded-lg transition-all"><i class="fas fa-newspaper mr-2 w-5"></i> Actualités</a></li>
+                    <li><a href="{% url 'contact' %}" class="block text-white/90 hover:text-white py-2 px-3 hover:bg-white/10 rounded-lg transition-all"><i class="fas fa-envelope mr-2 w-5"></i> Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ==================== CONTENU PRINCIPAL ==================== -->
+    <main class="pt-20">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="relative bg-gray-900 text-white pt-16 pb-6 overflow-hidden">
+        <!-- Effets décoratifs -->
+        <div class="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-glow"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl animate-glow"></div>
+        
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+                
+                <!-- Colonne 1 - Présentation -->
+                <div class="animate-fade-up">
+                    <div class="mb-4">
+                        <h3 class="text-2xl font-bold">
+                            <span class="text-gradient">UDJK</span>
+                        </h3>
+                        <div class="w-12 h-1 bg-gradient-to-r from-yellow-500 to-blue-500 mt-2"></div>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed mb-4">
+                        Innovons ensemble pour un avenir durable à travers l'éducation, l'autonomisation et les infrastructures communautaires.
+                    </p>
+                    <div class="inline-flex items-center gap-3 px-4 py-2 bg-white/5 rounded-xl border border-white/10">
+                        <i class="fas fa-atom text-2xl text-yellow-400"></i>
+                        <div class="text-sm">
+                            <span class="text-gray-400">Technologie Sociale</span>
+                            <br>
+                            <strong class="text-white">Depuis 2022</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Colonne 2 - Liens rapides -->
+                <div class="animate-fade-up delay-1">
+                    <h4 class="text-lg font-semibold uppercase tracking-wider mb-4">
+                        Navigation
+                        <div class="w-12 h-0.5 bg-gradient-to-r from-yellow-500 to-blue-500 mt-1"></div>
+                    </h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <ul class="space-y-2">
+                            <li><a href="{% url 'about' %}" class="text-gray-300 hover:text-yellow-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i> À propos</a></li>
+                            <li><a href="{% url 'actions' %}" class="text-gray-300 hover:text-yellow-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i> Nos actions</a></li>
+                            <li><a href="#" class="text-gray-300 hover:text-yellow-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i> Équipe</a></li>
+                        </ul>
+                        <ul class="space-y-2">
+                            <li><a href="{% url 'blog' %}" class="text-gray-300 hover:text-yellow-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i> Actualités</a></li>
+                            <li><a href="{% url 'gallery' %}" class="text-gray-300 hover:text-yellow-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i> Galerie</a></li>
+                            <li><a href="{% url 'contact' %}" class="text-gray-300 hover:text-yellow-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i> Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Colonne 3 - Contact et Réseaux -->
+                <div class="animate-fade-up delay-2">
+                    <h4 class="text-lg font-semibold uppercase tracking-wider mb-4">
+                        Nous contacter
+                        <div class="w-12 h-0.5 bg-gradient-to-r from-yellow-500 to-blue-500 mt-1"></div>
+                    </h4>
+                    <ul class="space-y-3 mb-5">
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-map-marker-alt text-yellow-400 mt-1"></i>
+                            <span>Kakony, République de Guinée</span>
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i class="fas fa-phone-alt text-yellow-400"></i>
+                            <span>+224 622 91 81 03</span>
+                        </li>
+                        <li class="flex items-center gap-3 text-gray-300">
+                            <i class="fas fa-envelope text-yellow-400"></i>
+                            <span>jeuneskakony@gmail.com</span>
+                        </li>
+                    </ul>
+                    
+                    <!-- Réseaux sociaux -->
+                    <div class="flex gap-3">
+                        <a href="#" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-yellow-500 hover:text-gray-900 transition-all transform hover:scale-110">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-yellow-500 hover:text-gray-900 transition-all transform hover:scale-110">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-yellow-500 hover:text-gray-900 transition-all transform hover:scale-110">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-yellow-500 hover:text-gray-900 transition-all transform hover:scale-110">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Copyright -->
+            <div class="border-t border-white/10 pt-6 mt-6 text-center md:text-left">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-3">
+                    <p class="text-gray-400 text-sm">
+                        &copy; 2025 <span class="text-yellow-400">Association de Jeunes de Kakony</span>. Tous droits réservés.
+                    </p>
+                    <div class="flex gap-4 text-sm">
+                        <a href="#" class="text-gray-400 hover:text-yellow-400 transition-colors">Mentions légales</a>
+                        <a href="#" class="text-gray-400 hover:text-yellow-400 transition-colors">Politique de confidentialité</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Script pour la gestion des animations au scroll -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animation au scroll
+            const animatedElements = document.querySelectorAll('.animate-fade-up, .animate-fade-down');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translate(0)';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            animatedElements.forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                observer.observe(el);
+            });
+            
+            // Navbar transparente au scroll
+            const nav = document.querySelector('nav');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    nav.classList.add('bg-opacity-95');
+                } else {
+                    nav.classList.remove('bg-opacity-95');
+                }
+            });
+        });
+    </script>
+    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

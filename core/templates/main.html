@@ -1,0 +1,702 @@
+{% extends 'membre_base.html' %}
+{% load static %}
+
+{% block content %}
+
+
+
+<!-- MAIN CONTENT -->
+<main class="max-w-2xl mx-auto px-0 sm:px-4 lg:px-4 py-4">
+    
+
+    <!-- Publications List -->
+    <div class="space-y-2">
+        {% for publication in page_obj %}
+            <article class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <!-- Publication Header -->
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
+                                <span class="text-white font-bold text-sm">
+                                    {{ publication.auteur.username|slice:":2"|upper }}
+                                </span>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 text-sm">{{ publication.auteur.username }}</h3>
+                                <p class="text-xs text-gray-500 flex items-center">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    {{ publication.date_creation|timesince }}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        {% if user == publication.auteur %}
+                            <div class="relative">
+                                <button onclick="toggleMenu({{ publication.pk }})" class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div id="menu-{{ publication.pk }}" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-10">
+                                    <a href="{% url 'pub_modifie' publication.pk %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg">
+                                        <i class="fas fa-edit mr-2 text-blue-500"></i>Modifier
+                                    </a>
+                                    <form action="#" method="post" class="block">
+                                        {% csrf_token %}
+                                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-lg">
+                                            <i class="fas fa-trash mr-2"></i>Supprimer
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% if publication.titre %}
+                        <h2 class="text-lg font-semibold text-blue-900 bg-gray-100 border-blue-600 hadow mb-3 leading-tight">
+                            {{ publication.titre }}
+                        </h2>
+                    {% endif %}
+
+                    <div class="mb-4">
+                        <div id="content-{{ publication.pk }}" class="text-gray-800 leading-relaxed">
+                            {% if publication.contenu|length > 300 %}
+                                <p>{{ publication.contenu|slice:":300" }}...</p>
+                                <button onclick="expandContent({{ publication.pk }})" 
+                                        class="text-blue-600 hover:text-blue-800 font-medium text-sm mt-2 transition-colors duration-200">
+                                    Voir plus
+                                </button>
+                                <div id="full-content-{{ publication.pk }}" class="hidden">
+                                    <p>{{ publication.contenu }}</p>
+                                    <button onclick="collapseContent({{ publication.pk }})" 
+                                            class="text-blue-600 hover:text-blue-800 font-medium text-sm mt-2 transition-colors duration-200">
+                                        Voir moins
+                                    </button>
+                                </div>
+                            {% else %}
+                                <p>{{ publication.contenu }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MEDIA DISPLAY - FACEBOOK STYLE -->
+                {% if publication.image or publication.video %}
+                <div class="relative bg-gray-50 px-4 pb-4">
+                    <div class="facebook-media-grid">
+                        {% if publication.image and publication.video %}
+                            <!-- Image + Vidéo côte à côte -->
+                            <div class="media-grid-2">
+                                <div class="media-item" onclick="openLightbox('{{ publication.image.url }}', 'image', '{{ publication.titre|default:"Image" }}')">
+                                    <img src="{{ publication.image.url }}" 
+                                         alt="Image publication"
+                                         class="media-content">
+                                    <div class="media-overlay">
+                                        <i class="fas fa-expand"></i>
+                                    </div>
+                                </div>
+                                <div class="media-item video-item" onclick="openLightbox('{{ publication.video.url }}', 'video', '{{ publication.titre|default:"Vidéo" }}')">
+                                    <video class="media-content" preload="metadata">
+                                        <source src="{{ publication.video.url }}" type="video/mp4">
+                                    </video>
+                                    <div class="media-overlay video-overlay">
+                                        <i class="fas fa-play"></i>
+                                    </div>
+                                    <div class="video-duration">2:30</div>
+                                </div>
+                            </div>
+                            
+                        {% elif publication.image %}
+                            <!-- Image seule -->
+                            <div class="media-grid-1">
+                                <div class="media-item" onclick="openLightbox('{{ publication.image.url }}', 'image', '{{ publication.titre|default:"Image" }}')">
+                                    <img src="{{ publication.image.url }}" 
+                                         alt="Image publication"
+                                         class="media-content">
+                                    <div class="media-overlay">
+                                        <i class="fas fa-expand"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        {% elif publication.video %}
+                            <!-- Vidéo seule -->
+                            <div class="media-grid-1">
+                                <div class="media-item video-item" onclick="openLightbox('{{ publication.video.url }}', 'video', '{{ publication.titre|default:"Vidéo" }}')">
+                                    <video class="media-content" preload="metadata">
+                                        <source src="{{ publication.video.url }}" type="video/mp4">
+                                    </video>
+                                    <div class="media-overlay video-overlay">
+                                        <i class="fas fa-play"></i>
+                                    </div>
+                                    <div class="video-duration">2:30</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Likes and Comments -->
+                <div class="px-4 py-2 border-t border-gray-100">
+                    <div class="flex items-center justify-between text-sm text-gray-500">
+                        <div class="flex items-center space-x-1">
+                            {% if publication.total_likes > 0 %}
+                                <div class="flex -space-x-1">
+                                    <div class="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center border-2 border-white">
+                                        <i class="fas fa-heart text-white text-xs"></i>
+                                    </div>
+                                </div>
+                                <span class="ml-2">{{ publication.total_likes }} j'aime</span>
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            {% if publication.Commentaires.count > 0 %}
+                                <span>{{ publication.Commentaires.count }} commentaire{{ publication.Commentaires.count|pluralize }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="px-4 py-3 bg-gray-50 border-t border-gray-100">
+                    <div class="flex items-center justify-around">
+                        <button onclick="openCommentModal({{ publication.pk }})" 
+                                class="flex items-center justify-center space-x-2 flex-1 py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200 font-medium text-sm">
+                            <i class="far fa-comment text-lg"></i>
+                            <span>Commenter</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Comment Modal -->
+                <div id="comment-modal-{{ publication.pk }}" 
+                     class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+                    <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-90vh overflow-hidden flex flex-col">
+                        <div class="flex items-center justify-between p-4 border-b">
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                Commentaires ({{ publication.Commentaires.count }})
+                            </h3>
+                            <button onclick="closeCommentModal({{ publication.pk }})" class="text-gray-400 hover:text-gray-600 text-xl">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <div class="p-4 flex-1 overflow-y-auto" style="max-height: 60vh;">
+                            {% for commentaire in publication.Commentaires.all %}
+                                <div class="mb-4 last:mb-0">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center">
+                                            <span class="text-white font-bold text-xs">
+                                                {{ commentaire.auteur.first_name|slice:":2"|upper }}
+                                            </span>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="bg-gray-100 rounded-2xl px-3 py-2">
+                                                <p class="font-medium text-sm text-gray-900">{{ commentaire.auteur.get_full_name }}</p> 
+                                                <p class="text-sm text-gray-800">{{ commentaire.texte }}</p>
+                                            </div>
+                                            <div class="flex items-center space-x-4 mt-1 text-xs text-gray-500">
+                                                <span>{{ commentaire.date_com|timesince }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <div class="text-center py-8 text-gray-500">
+                                    <i class="far fa-comment fa-2x mb-2"></i>
+                                    <p>Aucun commentaire pour le moment</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        {% if user.is_authenticated %}
+                        <div class="p-4 border-t">
+                            <form method="post" action="{% url 'commentaire_create' publication.pk %}" class="flex space-x-2">
+                                {% csrf_token %}
+                                <input type="text" name="texte" 
+                                       class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm" 
+                                       placeholder="Écrivez un commentaire..." required>
+                                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+        {% empty %}
+            <div class="text-center py-16 bg-white rounded-xl shadow-sm">
+                <div class="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-newspaper text-gray-400 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-medium text-gray-900 mb-2">Aucune publication</h3>
+                <p class="text-gray-500 mb-6">Soyez le premier à partager quelque chose avec la communauté !</p>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200 shadow-sm">
+                    <i class="fas fa-plus mr-2"></i>Créer une publication
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+        <div class="mt-8 bg-white rounded-lg shadow-sm p-6">
+            <!-- Pagination code -->
+        </div>
+    {% endif %}
+</main>
+
+<!-- LIGHTBOX AVEC ZOOM ET TÉLÉCHARGEMENT -->
+<div id="lightbox" class="lightbox hidden">
+    <div class="lightbox-backdrop" onclick="closeLightbox()"></div>
+    <div class="lightbox-content">
+        <!-- Bouton fermer -->
+        <button class="lightbox-close" onclick="closeLightbox()">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <!-- Bouton télécharger -->
+        <button class="lightbox-download" onclick="downloadMedia()">
+            <i class="fas fa-download"></i>
+        </button>
+        
+        <!-- Bouton zoom -->
+        <button class="lightbox-zoom" onclick="toggleZoom()">
+            <i class="fas fa-search-plus"></i>
+        </button>
+        
+        <!-- Contenu média -->
+        <div class="media-container">
+            <img id="lightbox-img" class="lightbox-media hidden" onclick="toggleZoom()">
+            <video id="lightbox-video" class="lightbox-media hidden" controls onclick="event.stopPropagation()">
+                <source src="" type="video/mp4">
+            </video>
+        </div>
+        
+        <!-- Indicateur -->
+        <div class="lightbox-indicator">
+            <span id="lightbox-type"></span>
+        </div>
+    </div>
+</div>
+
+<!-- JAVASCRIPT AVEC ZOOM ET TÉLÉCHARGEMENT -->
+<script>
+let currentMedia = {
+    src: '',
+    type: '',
+    filename: ''
+};
+let isZoomed = false;
+
+// Lightbox functions
+function openLightbox(src, type, filename) {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxVideo = document.getElementById('lightbox-video');
+    const typeIndicator = document.getElementById('lightbox-type');
+    
+    // Sauvegarder les infos du média courant
+    currentMedia = { src, type, filename };
+    
+    // Reset
+    lightboxImg.classList.add('hidden');
+    lightboxVideo.classList.add('hidden');
+    lightboxVideo.pause();
+    resetZoom();
+    
+    if (type === 'image') {
+        lightboxImg.src = src;
+        lightboxImg.classList.remove('hidden');
+        typeIndicator.textContent = 'Photo';
+        // Afficher le bouton zoom pour les images
+        document.querySelector('.lightbox-zoom').style.display = 'block';
+    } else if (type === 'video') {
+        lightboxVideo.innerHTML = `<source src="${src}" type="video/mp4">`;
+        lightboxVideo.load();
+        lightboxVideo.classList.remove('hidden');
+        typeIndicator.textContent = 'Vidéo';
+        // Cacher le bouton zoom pour les vidéos
+        document.querySelector('.lightbox-zoom').style.display = 'none';
+    }
+    
+    lightbox.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxVideo = document.getElementById('lightbox-video');
+    
+    lightboxVideo.pause();
+    lightbox.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    resetZoom();
+}
+
+// Fonction de zoom
+function toggleZoom() {
+    const lightboxImg = document.getElementById('lightbox-img');
+    if (currentMedia.type !== 'image') return;
+    
+    if (!isZoomed) {
+        lightboxImg.style.transform = 'scale(2)';
+        lightboxImg.style.cursor = 'zoom-out';
+        isZoomed = true;
+    } else {
+        resetZoom();
+    }
+}
+
+function resetZoom() {
+    const lightboxImg = document.getElementById('lightbox-img');
+    lightboxImg.style.transform = 'scale(1)';
+    lightboxImg.style.cursor = 'zoom-in';
+    isZoomed = false;
+}
+
+// Fonction de téléchargement
+function downloadMedia() {
+    if (!currentMedia.src) return;
+    
+    // Créer un lien de téléchargement
+    const link = document.createElement('a');
+    link.href = currentMedia.src;
+    
+    // Générer un nom de fichier
+    const timestamp = new Date().getTime();
+    let extension = currentMedia.type === 'image' ? '.jpg' : '.mp4';
+    let filename = currentMedia.filename || `media_${timestamp}`;
+    
+    // Nettoyer le nom de fichier
+    filename = filename.replace(/[^a-zA-Z0-9]/g, '_') + extension;
+    
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Comment modal functions
+function openCommentModal(publicationId) {
+    const modal = document.getElementById(`comment-modal-${publicationId}`);
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCommentModal(publicationId) {
+    const modal = document.getElementById(`comment-modal-${publicationId}`);
+    modal.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Other functions
+function toggleMenu(publicationId) {
+    const menu = document.getElementById(`menu-${publicationId}`);
+    menu.classList.toggle('hidden');
+}
+
+function expandContent(publicationId) {
+    document.getElementById(`content-${publicationId}`).classList.add('hidden');
+    document.getElementById(`full-content-${publicationId}`).classList.remove('hidden');
+}
+
+function collapseContent(publicationId) {
+    document.getElementById(`content-${publicationId}`).classList.remove('hidden');
+    document.getElementById(`full-content-${publicationId}`).classList.add('hidden');
+}
+
+// Event listeners
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeLightbox();
+        const modals = document.querySelectorAll('[id^="comment-modal-"]');
+        modals.forEach(modal => modal.classList.add('hidden'));
+        document.body.style.overflow = 'auto';
+    }
+    
+    // Zoom avec la molette de la souris
+    if (event.key === 'z' || event.key === 'Z') {
+        if (!document.getElementById('lightbox').classList.contains('hidden')) {
+            toggleZoom();
+        }
+    }
+});
+
+// Close modals when clicking outside
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('fixed')) {
+        const modals = document.querySelectorAll('[id^="comment-modal-"]');
+        modals.forEach(modal => modal.classList.add('hidden'));
+        document.body.style.overflow = 'auto';
+    }
+});
+
+// Zoom avec double-clic sur l'image
+document.getElementById('lightbox-img').addEventListener('dblclick', function() {
+    toggleZoom();
+});
+</script>
+
+<!-- STYLES AVEC BOUTONS DE TÉLÉCHARGEMENT ET ZOOM -->
+<style>
+/* Facebook Media Grid */
+.facebook-media-grid {
+    width: 100%;
+}
+
+.media-grid-1 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.media-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.media-item {
+    position: relative;
+    background: #000;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.media-item:hover {
+    transform: scale(1.01);
+}
+
+.media-content {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    display: block;
+}
+
+.media-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.media-item:hover .media-overlay {
+    opacity: 1;
+}
+
+.media-overlay i {
+    color: white;
+    font-size: 24px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-overlay {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.video-duration {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Lightbox Styles avec boutons */
+.lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+}
+
+.lightbox-content {
+    position: relative;
+    z-index: 1001;
+    max-width: 90vw;
+    max-height: 90vh;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Boutons lightbox */
+.lightbox-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1002;
+    transition: all 0.3s ease;
+}
+
+.lightbox-close:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: scale(1.1);
+}
+
+.lightbox-download {
+    position: absolute;
+    top: 15px;
+    right: 65px;
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1002;
+    transition: all 0.3s ease;
+}
+
+.lightbox-download:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: scale(1.1);
+}
+
+.lightbox-zoom {
+    position: absolute;
+    top: 15px;
+    right: 115px;
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1002;
+    transition: all 0.3s ease;
+}
+
+.lightbox-zoom:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: scale(1.1);
+}
+
+.media-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    min-height: 0;
+    cursor: default;
+}
+
+.lightbox-media {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+#lightbox-img {
+    cursor: zoom-in;
+}
+
+#lightbox-img.zoomed {
+    cursor: zoom-out;
+}
+
+.lightbox-indicator {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+/* Utility */
+.hidden {
+    display: none !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .media-content {
+        height: 200px;
+    }
+    
+    .media-grid-2 {
+        grid-template-columns: 1fr;
+    }
+    
+    .lightbox-content {
+        max-width: 95vw;
+        max-height: 95vh;
+    }
+    
+    .lightbox-media {
+        padding: 10px;
+        max-height: 70vh;
+    }
+    
+    .lightbox-download {
+        right: 60px;
+    }
+    
+    .lightbox-zoom {
+        right: 105px;
+    }
+}
+</style>
+
+{% endblock %}

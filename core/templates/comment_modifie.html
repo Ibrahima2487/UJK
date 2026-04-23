@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier</title>
+</head>
+<body>
+    <h4>Modifie votre publication</h4>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        {{ form.as_p }}
+        <button type="submit">Modifie</button>
+        <a href="{% url 'main' %}">Annuler</a>
+    </form>
+
+</body>
+</html>

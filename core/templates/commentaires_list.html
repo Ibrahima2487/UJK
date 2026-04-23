@@ -1,0 +1,132 @@
+<!-- core/templates/core/publication_modal.html -->
+<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        
+        <!-- EN-TÊTE : Détails de la publication -->
+        <div class="modal-header">
+            <div class="d-flex align-items-center w-100">
+                <img src="{{ publication.auteur.profile.image.url }}" class="rounded-circle me-2" width="40" height="40">
+                <div>
+                    <h6 class="mb-0">{{ publication.auteur.username }}</h6>
+                    <small class="text-muted">{{ publication.date_creation|timesince }}</small>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <!-- CORPS : Contenu de la publication -->
+        <div class="modal-body">
+            <!-- Image de la publication -->
+            {% if publication.image %}
+            <div class="text-center mb-3">
+                <img src="{{ publication.image.url }}" class="img-fluid rounded" style="max-height: 400px;">
+            </div>
+            {% endif %}
+            
+            <!-- Contenu texte -->
+            <p>{{ publication.contenu }}</p>
+            
+            <!-- Stats (likes, commentaires) -->
+            <div class="d-flex justify-content-between border-top border-bottom py-2 mb-3">
+                <span>{{ publication.total_likes }} j'aime</span>
+                <span>{{ publication.commentaires.count }} commentaires</span>
+            </div>
+            
+            <!-- LISTE DES COMMENTAIRES -->
+            <div class="commentaires-list mb-3">
+                <h6>Commentaires</h6>
+                {% for commentaire in commentaires %}
+                <div class="commentaire-item mb-2 p-2 border rounded" id="comment-{{ commentaire.id }}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <strong class="text-primary">{{ commentaire.auteur.username }}</strong>
+                            <span class="ms-2">{{ commentaire.texte }}</span>
+                        </div>
+                        <small class="text-muted">{{ commentaire.date_com|timesince }}</small>
+                    </div>
+                    
+                    <!-- Actions (modifier/supprimer) -->
+                    {% if user == commentaire.auteur %}
+                    <div class="mt-1">
+                        <button class="btn btn-sm btn-outline-primary btn-edit-comment" 
+                                data-comment-id="{{ commentaire.id }}">
+                            Modifier
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger btn-delete-comment" 
+                                data-comment-id="{{ commentaire.id }}">
+                            Supprimer
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="text-muted">Aucun commentaire pour le moment.</p>
+                {% endfor %}
+            </div>
+            
+            <!-- FORMULAIRE DE COMMENTAIRE -->
+            <div class="comment-form">
+                <form id="modal-comment-form" method="post" 
+                      action="{% url 'core:ajouter_commentaire_modal' publication.id %}">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="text" name="texte" class="form-control" 
+                               placeholder="Écrivez un commentaire..." required>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// JavaScript pour le modal
+$(document).ready(function() {
+    // Soumission du formulaire de commentaire
+    $('#modal-comment-form').on('submit', function(e) {
+        e.preventDefault();
+        var form = $(this);
+        
+        $.ajax({
+            type: 'POST',
+            url: form.attr('action'),
+            data: form.serialize(),
+            success: function(response) {
+                if (response.success) {
+                    // Recharger tout le modal
+                    $.ajax({
+                        url: "{% url 'core:get_publication_modal' publication.id %}",
+                        success: function(response) {
+                            $('#publication-modal-content').html(response.modal_html);
+                        }
+                    });
+                }
+            }
+        });
+    });
+    
+    // Supprimer un commentaire
+    $('.btn-delete-comment').click(function() {
+        var commentId = $(this).data('comment-id');
+        
+        if (confirm('Supprimer ce commentaire ?')) {
+            $.ajax({
+                url: "{% url 'core:supprimer_commentaire_modal' 0 %}".replace('0', commentId),
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Recharger le modal
+                        location.reload();
+                    }
+                }
+            });
+        }
+    });
+});
+</script>

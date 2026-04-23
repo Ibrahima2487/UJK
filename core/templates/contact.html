@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tailwind_tags %}
+
+{% block extra_head %}
+<style>
+    /* Animations personnalisées */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInLeft {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes fadeInRight {
+        from { opacity: 0; transform: translateX(30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+    }
+    
+    .animate-fade-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+        opacity: 0;
+    }
+    .animate-fade-left {
+        animation: fadeInLeft 0.8s ease-out forwards;
+        opacity: 0;
+    }
+    .animate-fade-right {
+        animation: fadeInRight 0.8s ease-out forwards;
+        opacity: 0;
+    }
+    
+    .delay-1 { animation-delay: 0.2s; }
+    .delay-2 { animation-delay: 0.4s; }
+    .delay-3 { animation-delay: 0.6s; }
+    
+    .hover-lift {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .hover-lift:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .input-focus:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .gradient-border {
+        background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 md:py-16">
+    <div class="container mx-auto px-4 max-w-7xl">
+        
+        <!-- ==================== EN-TÊTE ==================== -->
+        <div class="text-center mb-12 md:mb-16">
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-4 animate-fade-up">
+                Contactez-nous
+            </h1>
+            <div class="w-24 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 mx-auto mb-4"></div>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto animate-fade-up delay-1">
+                Nous sommes là pour vous accueillir, discuter de vos idées et répondre à toutes vos questions.
+            </p>
+        </div>
+
+        <!-- ==================== CONTENU PRINCIPAL ==================== -->
+        <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
+            
+            <!-- ==================== COLONNE GAUCHE - INFOS ==================== -->
+            <div class="lg:w-1/2 space-y-6">
+                
+                <!-- Image principale -->
+                <div class="relative rounded-2xl overflow-hidden shadow-2xl animate-fade-left">
+                    <img src="{% static 'image/logo.png' %}" 
+                         alt="Union des Jeunes de Kakony" 
+                         class="w-full h-72 md:h-96 object-cover transition-transform duration-500 hover:scale-105">
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 via-gray-900/70 to-transparent p-6">
+                        <h3 class="text-xl md:text-2xl font-bold text-white mb-1">Union des Jeunes de Kakony</h3>
+                        <p class="text-gray-200">Ensemble pour un avenir meilleur</p>
+                    </div>
+                </div>
+
+                <!-- Informations de contact -->
+                <div class="bg-white rounded-2xl shadow-lg p-6 hover-lift animate-fade-left delay-1">
+                    <h3 class="text-xl font-bold text-gray-800 mb-5 flex items-center gap-2">
+                        <i class="fas fa-address-card text-blue-500"></i>
+                        Nos coordonnées
+                    </h3>
+                    
+                    <!-- Adresse -->
+                    <div class="flex items-start gap-4 mb-5">
+                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-map-marker-alt text-blue-500 text-xl"></i>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold text-gray-800 mb-1">Adresse</h5>
+                            <p class="text-gray-500">Kakony, République de Guinée - Conakry</p>
+                        </div>
+                    </div>
+
+                    <!-- Téléphone -->
+                    <div class="flex items-start gap-4 mb-5">
+                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-phone-alt text-green-500 text-xl"></i>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold text-gray-800 mb-1">Téléphone</h5>
+                            <p class="text-gray-500">+224 622 91 81 03</p>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-envelope text-cyan-500 text-xl"></i>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold text-gray-800 mb-1">Email</h5>
+                            <p class="text-gray-500">jeuneskakony@gmail.com</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Message d'engagement -->
+                <div class="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100 animate-fade-left delay-2">
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-info-circle text-white text-xl"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-gray-800 mb-2">Notre engagement</h5>
+                            <p class="text-gray-600 text-sm leading-relaxed">
+                                Votre message sera traité avec la plus grande attention par notre équipe dédiée. 
+                                Nous nous engageons à vous répondre dans les plus brefs délais.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== COLONNE DROITE - FORMULAIRE ==================== -->
+            <div class="lg:w-1/2">
+                <div class="sticky top-24">
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden animate-fade-right">
+                        <div class="gradient-border h-1"></div>
+                        
+                        <div class="p-6 md:p-8">
+                            <div class="mb-6">
+                                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Envoyez-nous un message</h2>
+                                <p class="text-gray-500">Remplissez le formulaire ci-dessous et nous vous répondrons rapidement.</p>
+                            </div>
+
+                            <form method="post" enctype="multipart/form-data" class="space-y-5">
+                                {% csrf_token %}
+                                
+                                <!-- Nom et Prénom -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Nom <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" 
+                                               name="nom" 
+                                               required
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 input-focus transition-all"
+                                               placeholder="Votre nom">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                            Prénom <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="text" 
+                                               name="prenom" 
+                                               required
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 input-focus transition-all"
+                                               placeholder="Votre prénom">
+                                    </div>
+                                </div>
+                                
+                                <!-- Adresse -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Adresse
+                                    </label>
+                                    <input type="text" 
+                                           name="adresse" 
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 input-focus transition-all"
+                                           placeholder="Votre adresse complète">
+                                </div>
+                                
+                                <!-- Email -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Adresse email <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="email" 
+                                           name="email" 
+                                           required
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 input-focus transition-all"
+                                           placeholder="votre.email@exemple.com">
+                                </div>
+                                
+                                <!-- Message -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Votre message <span class="text-red-500">*</span>
+                                    </label>
+                                    <textarea name="contenu" 
+                                              required
+                                              rows="5"
+                                              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 input-focus transition-all resize-none"
+                                              placeholder="Décrivez votre demande ou votre message..."></textarea>
+                                </div>
+                                
+                                <!-- Upload de fichier -->
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                        Pièce jointe <span class="text-gray-400 text-xs font-normal">(optionnel)</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input type="file" 
+                                               name="image" 
+                                               accept="image/*,.pdf,.doc,.docx"
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all">
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-1">Formats acceptés : Images, PDF, Word (max. 5MB)</p>
+                                </div>
+                                
+                                <!-- Bouton d'envoi -->
+                                <button type="submit" 
+                                        class="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-[1.02] shadow-lg hover:shadow-xl">
+                                    <i class="fas fa-paper-plane mr-2"></i>
+                                    Envoyer le message
+                                </button>
+                                
+                                <p class="text-center text-xs text-gray-400 pt-3">
+                                    Les champs marqués d'un <span class="text-red-500">*</span> sont obligatoires
+                                </p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Font Awesome (si pas déjà inclus) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Alpine.js pour les animations optionnelles -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<script>
+    // Animation au scroll pour les éléments
+    document.addEventListener('DOMContentLoaded', function() {
+        const animatedElements = document.querySelectorAll('.animate-fade-up, .animate-fade-left, .animate-fade-right');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translate(0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        animatedElements.forEach(el => {
+            el.style.opacity = '0';
+            if (el.classList.contains('animate-fade-up')) {
+                el.style.transform = 'translateY(30px)';
+            } else if (el.classList.contains('animate-fade-left')) {
+                el.style.transform = 'translateX(-30px)';
+            } else if (el.classList.contains('animate-fade-right')) {
+                el.style.transform = 'translateX(30px)';
+            }
+            observer.observe(el);
+        });
+    });
+</script>
+
+{% endblock %}

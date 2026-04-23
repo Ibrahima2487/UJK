@@ -1,0 +1,661 @@
+{% extends 'membre_base.html' %}
+{% load static %}
+
+{% block title %}Tableau des Messages - UDJK{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    
+    <!-- Header Principal -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center py-4 sm:py-6">
+                <div class="mb-3 sm:mb-0">
+                    <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Tableau des Messages</h1>
+                    <p class="text-xs sm:text-sm text-gray-600 mt-1">Gestion centralisée des messages reçus</p>
+                </div>
+                
+                <!-- Statistiques Rapides -->
+                <div class="flex flex-wrap gap-2 sm:gap-4">
+                    <div class="bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
+                        <div class="text-xs sm:text-sm text-blue-600 font-medium">Total</div>
+                        <div class="text-lg sm:text-2xl font-bold text-blue-900">{{ total_contacts }}</div>
+                    </div>
+                    <div class="bg-green-50 px-3 py-2 rounded-lg border border-green-200">
+                        <div class="text-xs sm:text-sm text-green-600 font-medium">Affichés</div>
+                        <div class="text-lg sm:text-2xl font-bold text-green-900">{{ filtered_count }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenu Principal -->
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-8">
+        
+        <!-- Barre de Recherche -->
+        <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-4 sm:mb-6">
+            <form method="get" class="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-end">
+                <div class="flex-1 w-full">
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
+                        🔍 Rechercher
+                    </label>
+                    <input type="text" 
+                           id="search" 
+                           name="search" 
+                           value="{{ search_query }}"
+                           placeholder="Nom, email, téléphone ou message..."
+                           class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button type="submit" 
+                            class="flex-1 sm:flex-none inline-flex justify-center items-center px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white text-sm sm:text-base font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <span class="hidden sm:inline">Rechercher</span>
+                        <span class="sm:hidden">Recherche</span>
+                    </button>
+                    {% if search_query %}
+                    <a href="{% url 'contact_status' %}" 
+                       class="flex-1 sm:flex-none inline-flex justify-center items-center px-3 sm:px-4 py-2 sm:py-3 bg-gray-100 text-gray-700 text-sm sm:text-base rounded-lg hover:bg-gray-200 transition-all duration-200">
+                        Effacer
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+
+        <!-- Tableau des Messages -->
+        {% if contacts %}
+        <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <!-- En-tête du tableau -->
+            <div class="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                    <h2 class="text-base sm:text-lg font-semibold text-gray-900">Liste des Messages</h2>
+                    <span class="text-xs sm:text-sm text-gray-500">
+                        {{ contacts|length }} message{{ contacts|length|pluralize }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Tableau - Version Desktop -->
+            <div class="hidden lg:block overflow-x-auto">
+                <table class="w-full min-w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Contact
+                            </th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Coordonnées
+                            </th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Message
+                            </th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Date
+                            </th>
+                            <th class="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for contact in contacts %}
+                        <tr class="hover:bg-gray-50 transition-colors duration-150" data-contact-id="{{ contact.id }}">
+                            <!-- Colonne Contact -->
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10">
+                                        {% if contact.image %}
+                                        <img class="h-8 w-8 sm:h-10 sm:w-10 rounded-full object-cover border border-gray-200" 
+                                             src="{{ contact.image.url }}" 
+                                             alt="{{ contact.nom }}">
+                                        {% else %}
+                                        <div class="h-8 w-8 sm:h-10 sm:w-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                                            <span class="text-white font-semibold text-xs sm:text-sm">
+                                                {{ contact.nom|first|upper|default:"?" }}
+                                            </span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ contact.nom|default:"Anonyme" }} {{ contact.prenom|default:"" }}
+                                        </div>
+                                        <div class="flex items-center mt-1">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                                Nouveau
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Colonne Coordonnées -->
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900 space-y-1">
+                                    <div class="flex items-center">
+                                        <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                                        </svg>
+                                        <a href="mailto:{{ contact.email }}" class="text-blue-600 hover:text-blue-800 truncate block max-w-[150px]">
+                                            {{ contact.email }}
+                                        </a>
+                                    </div>
+                                    {% if contact.telephone %}
+                                    <div class="flex items-center">
+                                        <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                                        </svg>
+                                        <span class="text-gray-600">{{ contact.telephone }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Colonne Message -->
+                            <td class="px-4 sm:px-6 py-4">
+                                <div class="text-sm text-gray-900 max-w-xs">
+                                    {% if contact.contenu %}
+                                    <div class="message-content">
+                                        <p class="text-gray-700 line-clamp-2 mb-1">{{ contact.contenu|truncatewords:20 }}</p>
+                                        <button onclick="openMessageModal({{ contact.id }}, '{{ contact.nom }}', '{{ contact.contenu|escapejs }}')" 
+                                                class="text-blue-600 hover:text-blue-800 text-xs font-medium">
+                                            📖 Lire la suite
+                                        </button>
+                                    </div>
+                                    {% else %}
+                                    <span class="text-gray-400 italic text-sm">Aucun message</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Colonne Date -->
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">
+                                    <div class="font-medium">{{ contact.date_envoi|date:"d/m/Y" }}</div>
+                                    <div class="text-gray-500 text-xs">{{ contact.date_envoi|time:"H:i" }}</div>
+                                </div>
+                            </td>
+
+                            <!-- Colonne Actions -->
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex justify-end space-x-1 sm:space-x-2">
+                                    <a href="mailto:{{ contact.email }}?subject=Re: Votre message&body=Bonjour {{ contact.nom }},"
+                                       class="inline-flex items-center px-2 sm:px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                                       title="Répondre par email">
+                                        <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                        </svg>
+                                        <span class="hidden sm:inline">Répondre</span>
+                                    </a>
+                                    <button onclick="markAsRead({{ contact.id }})"
+                                            class="inline-flex items-center px-2 sm:px-3 py-1 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                                            title="Marquer comme lu">
+                                        <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                        <span class="hidden sm:inline">Lu</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Version Mobile -->
+            <div class="lg:hidden">
+                {% for contact in contacts %}
+                <div class="border-b border-gray-200 last:border-b-0">
+                    <div class="p-4 hover:bg-gray-50 transition-colors duration-150">
+                        <!-- En-tête mobile -->
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="flex-shrink-0">
+                                    {% if contact.image %}
+                                    <img class="h-10 w-10 rounded-full object-cover border border-gray-200" 
+                                         src="{{ contact.image.url }}" 
+                                         alt="{{ contact.nom }}">
+                                    {% else %}
+                                    <div class="h-10 w-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                                        <span class="text-white font-semibold text-sm">
+                                            {{ contact.nom|first|upper|default:"?" }}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-semibold text-gray-900">
+                                        {{ contact.nom|default:"Anonyme" }} {{ contact.prenom|default:"" }}
+                                    </h3>
+                                    <div class="flex items-center space-x-2 mt-1">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                            Nouveau
+                                        </span>
+                                        <span class="text-xs text-gray-500">{{ contact.date_envoi|date:"d/m/Y" }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Coordonnées mobile -->
+                        <div class="mb-3">
+                            <div class="flex items-center text-sm text-gray-600 mb-1">
+                                <svg class="w-4 h-4 mr-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                                </svg>
+                                <a href="mailto:{{ contact.email }}" class="text-blue-600">{{ contact.email }}</a>
+                            </div>
+                            {% if contact.telephone %}
+                            <div class="flex items-center text-sm text-gray-600">
+                                <svg class="w-4 h-4 mr-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                                </svg>
+                                {{ contact.telephone }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Message mobile -->
+                        <div class="mb-3">
+                            <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Message</h4>
+                            {% if contact.contenu %}
+                            <div class="text-sm text-gray-700">
+                                <p class="line-clamp-2 mb-2">{{ contact.contenu|truncatewords:15 }}</p>
+                                <button onclick="openMessageModal({{ contact.id }}, '{{ contact.nom }}', '{{ contact.contenu|escapejs }}')" 
+                                        class="text-blue-600 hover:text-blue-800 text-xs font-medium">
+                                    📖 Lire la suite
+                                </button>
+                            </div>
+                            {% else %}
+                            <span class="text-gray-400 italic text-sm">Aucun message</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Actions mobile -->
+                        <div class="flex justify-between items-center pt-2 border-t border-gray-100">
+                            <span class="text-xs text-gray-500">{{ contact.date_envoi|time:"H:i" }}</span>
+                            <div class="flex space-x-2">
+                                <a href="mailto:{{ contact.email }}?subject=Re: Votre message&body=Bonjour {{ contact.nom }},"
+                                   class="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                    Répondre
+                                </a>
+                                <button onclick="markAsRead({{ contact.id }})"
+                                        class="inline-flex items-center px-3 py-1 bg-gray-200 text-gray-700 text-xs rounded-lg hover:bg-gray-300 transition-colors">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    Lu
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pied de tableau -->
+            <div class="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 bg-gray-50">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div class="text-xs sm:text-sm text-gray-700 text-center sm:text-left">
+                        Page <span class="font-semibold">{{ contacts.number }}</span> sur 
+                        <span class="font-semibold">{{ contacts.paginator.num_pages }}</span>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    {% if contacts.has_other_pages %}
+                    <nav class="flex space-x-1">
+                        {% if contacts.has_previous %}
+                        <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}" 
+                           class="px-2 sm:px-3 py-1 sm:py-2 rounded border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 transition-colors text-xs"
+                           title="Première page">
+                            ««
+                        </a>
+                        <a href="?page={{ contacts.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                           class="px-2 sm:px-3 py-1 sm:py-2 rounded border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 transition-colors text-xs"
+                           title="Page précédente">
+                            ‹
+                        </a>
+                        {% endif %}
+                        
+                        {% for num in contacts.paginator.page_range %}
+                            {% if contacts.number == num %}
+                            <span class="px-2 sm:px-3 py-1 sm:py-2 rounded border border-blue-500 bg-blue-500 text-white font-semibold text-xs">
+                                {{ num }}
+                            </span>
+                            {% elif num > contacts.number|add:'-3' and num < contacts.number|add:'3' %}
+                            <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                               class="px-2 sm:px-3 py-1 sm:py-2 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors text-xs">
+                                {{ num }}
+                            </a>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if contacts.has_next %}
+                        <a href="?page={{ contacts.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                           class="px-2 sm:px-3 py-1 sm:py-2 rounded border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 transition-colors text-xs"
+                           title="Page suivante">
+                            ›
+                        </a>
+                        <a href="?page={{ contacts.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                           class="px-2 sm:px-3 py-1 sm:py-2 rounded border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 transition-colors text-xs"
+                           title="Dernière page">
+                            »»
+                        </a>
+                        {% endif %}
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+        <!-- État Vide -->
+        <div class="bg-white rounded-lg sm:rounded-xl shadow-sm border border-gray-200 p-6 sm:p-12 text-center">
+            <div class="mx-auto w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-4 sm:mb-6">
+                <svg class="w-8 h-8 sm:w-12 sm:h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            <h3 class="text-lg sm:text-2xl font-bold text-gray-900 mb-2">
+                {% if search_query %}Aucun résultat{% else %}Aucun message{% endif %}
+            </h3>
+            <p class="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">
+                {% if search_query %}
+                Aucun message ne correspond à votre recherche "{{ search_query }}".
+                {% else %}
+                Aucun message de contact n'a été reçu pour le moment.
+                {% endif %}
+            </p>
+            {% if search_query %}
+            <a href="{% url 'contact_status' %}" 
+               class="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white text-sm sm:text-base font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                Voir tous les messages
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal pour afficher le message complet -->
+<div id="messageModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden transform transition-all duration-300 scale-95 opacity-0">
+        <!-- En-tête du modal -->
+        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-gray-50 flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900" id="modalContactName"></h3>
+                <p class="text-sm text-gray-600 mt-1">Message complet</p>
+            </div>
+            <button onclick="closeMessageModal()" 
+                    class="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Contenu du message -->
+        <div class="p-6 overflow-y-auto max-h-[60vh]">
+            <div class="prose prose-sm max-w-none">
+                <p id="modalMessageContent" class="text-gray-700 whitespace-pre-wrap leading-relaxed"></p>
+            </div>
+        </div>
+        
+        <!-- Actions du modal -->
+        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row gap-3 justify-between items-center">
+            <div class="text-sm text-gray-500" id="modalContactInfo"></div>
+            <div class="flex gap-2 w-full sm:w-auto">
+                <button onclick="closeMessageModal()" 
+                        class="flex-1 sm:flex-none px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium">
+                    Fermer
+                </button>
+                <button id="modalReplyButton"
+                        class="flex-1 sm:flex-none px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    Répondre
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts JavaScript -->
+<script>
+// Variables globales pour le modal
+let currentContactEmail = '';
+
+// Ouvrir le modal avec le message complet
+function openMessageModal(contactId, contactName, messageContent) {
+    const modal = document.getElementById('messageModal');
+    const contactNameElement = document.getElementById('modalContactName');
+    const messageContentElement = document.getElementById('modalMessageContent');
+    const contactInfoElement = document.getElementById('modalContactInfo');
+    const replyButton = document.getElementById('modalReplyButton');
+    
+    // Récupérer les informations du contact (à adapter selon votre structure)
+    const contactRow = document.querySelector(`[data-contact-id="${contactId}"]`);
+    let contactEmail = '';
+    let contactPhone = '';
+    
+    if (contactRow) {
+        const emailLink = contactRow.querySelector('a[href^="mailto:"]');
+        const phoneElement = contactRow.querySelector('.text-gray-600');
+        contactEmail = emailLink ? emailLink.textContent : '';
+        contactPhone = phoneElement ? phoneElement.textContent : '';
+    }
+    
+    // Mettre à jour le contenu du modal
+    contactNameElement.textContent = contactName || 'Anonyme';
+    messageContentElement.textContent = messageContent;
+    contactInfoElement.textContent = contactEmail ? `Contact: ${contactEmail}` : 'Aucune information de contact';
+    currentContactEmail = contactEmail;
+    
+    // Configurer le bouton de réponse
+    if (contactEmail) {
+        replyButton.onclick = function() {
+            window.location.href = `mailto:${contactEmail}?subject=Re: Votre message&body=Bonjour ${contactName},`;
+        };
+        replyButton.disabled = false;
+        replyButton.classList.remove('opacity-50', 'cursor-not-allowed');
+    } else {
+        replyButton.disabled = true;
+        replyButton.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+    
+    // Afficher le modal avec animation
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.querySelector('.bg-white').classList.remove('scale-95', 'opacity-0');
+    }, 10);
+}
+
+// Fermer le modal
+function closeMessageModal() {
+    const modal = document.getElementById('messageModal');
+    const modalContent = modal.querySelector('.bg-white');
+    
+    modalContent.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
+
+// Fermer le modal en cliquant à l'extérieur
+document.getElementById('messageModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeMessageModal();
+    }
+});
+
+// Fermer le modal avec la touche Échap
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeMessageModal();
+    }
+});
+
+// Fonction pour marquer comme lu
+function markAsRead(contactId) {
+    // Implémentation API pour marquer comme lu
+    fetch(`/api/contacts/${contactId}/mark-read/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Message marqué comme lu', 'success');
+            // Mettre à jour l'UI - retirer le badge "Nouveau"
+            const badges = document.querySelectorAll(`[data-contact-id="${contactId}"] .bg-blue-100`);
+            badges.forEach(badge => badge.remove());
+        }
+    })
+    .catch(error => {
+        showNotification('Erreur lors de la mise à jour', 'error');
+    });
+}
+
+// Système de notification
+function showNotification(message, type = 'info') {
+    const types = {
+        success: 'bg-green-500',
+        error: 'bg-red-500',
+        info: 'bg-blue-500'
+    };
+    
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 ${types[type]} text-white px-4 py-3 rounded-lg shadow-lg z-50 transform transition-transform duration-300 translate-x-full`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <span class="text-sm">${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 hover:opacity-70">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animation d'entrée
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+    }, 10);
+    
+    // Suppression automatique
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Recherche en temps réel
+const searchInput = document.getElementById('search');
+if (searchInput) {
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            if (this.value.length >= 2 || this.value.length === 0) {
+                this.form.submit();
+            }
+        }, 500);
+    });
+}
+
+// Animation des lignes au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    const rows = document.querySelectorAll('tbody tr, .lg\\:hidden > div');
+    rows.forEach((row, index) => {
+        row.style.opacity = '0';
+        row.style.transform = 'translateY(10px)';
+        setTimeout(() => {
+            row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            row.style.opacity = '1';
+            row.style.transform = 'translateY(0)';
+        }, index * 50);
+    });
+});
+</script>
+
+<!-- Styles CSS Additionnels -->
+<style>
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Animation pour le modal */
+#messageModal .bg-white {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive table */
+@media (max-width: 1024px) {
+    .overflow-x-auto {
+        font-size: 0.875rem;
+    }
+}
+
+/* Amélioration de la lisibilité */
+tbody tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Scrollbar personnalisée pour le modal */
+#messageModal .overflow-y-auto::-webkit-scrollbar {
+    width: 6px;
+}
+
+#messageModal .overflow-y-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+#messageModal .overflow-y-auto::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+#messageModal .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Animation pour les notifications */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.fixed.top-4.right-4 {
+    animation: slideInRight 0.3s ease-out;
+}
+</style>
+{% endblock %}

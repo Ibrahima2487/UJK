@@ -1,0 +1,15 @@
+
+
+<h1>Commentaire</h1>
+
+{% for comment in Commentaires %}
+    {{ comment.texte }}
+{% endfor %}
+
+
+<form method="post">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+    <button type="submit">Commenter</button>
+</form>

@@ -1,0 +1,203 @@
+{% extends 'membre_base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <!-- Carte principale -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-images fa-2x me-3"></i>
+                        <div>
+                            <h2 class="h4 mb-0">
+                                {% if album %}
+                                    Modifier l'album
+                                {% else %}
+                                    Créer un nouvel album
+                                {% endif %}
+                            </h2>
+                            {% if album %}
+                                <small class="opacity-75">{{ album.title }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Titre -->
+                        <div class="mb-4">
+                            <label for="id_title" class="form-label fw-semibold">
+                                Titre de la gallerie <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" name="title" id="id_title" 
+                                   class="form-control {% if form.title.errors %}is-invalid{% endif %}" 
+                                   value="{{ form.title.value|default_if_none:'' }}" 
+                                   placeholder="Ex: Vacances à la mer" required>
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.title.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <label for="id_description" class="form-label fw-semibold">
+                                Description
+                            </label>
+                            <textarea name="description" id="id_description" rows="4" 
+                                      class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                                      placeholder="Décrivez votre album...">{{ form.description.value|default_if_none:'' }}</textarea>
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.description.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Catégorie -->
+                        <div class="mb-4">
+                            <label for="id_category" class="form-label fw-semibold">
+                                Catégorie
+                            </label>
+                            <select name="category" id="id_category" 
+                                    class="form-select {% if form.category.errors %}is-invalid{% endif %}">
+                                {% for value, label in form.category.field.choices %}
+                                    <option value="{{ value }}" 
+                                            {% if form.category.value == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.category.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.category.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Image -->
+                        <div class="mb-4">
+                            <label for="id_image" class="form-label fw-semibold">
+                                Image de couverture
+                            </label>
+                            
+                            {% if album.image %}
+                            <div class="current-file mb-3">
+                                <p class="mb-2"><strong>Image actuelle:</strong></p>
+                                <img src="{{ album.image.url }}" class="img-thumbnail" style="max-width: 200px;" alt="Image actuelle">
+                            </div>
+                            {% endif %}
+                            
+                            <input type="file" name="image" id="id_image" 
+                                   class="form-control {% if form.image.errors %}is-invalid{% endif %}" 
+                                   accept="image/*">
+                            <div class="form-text">
+                                Formats supportés: JPG, PNG, GIF. Taille max: 5MB.
+                            </div>
+                            {% if form.image.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.image.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Vidéo -->
+                        <div class="mb-4">
+                            <label for="id_video" class="form-label fw-semibold">
+                                Vidéo
+                            </label>
+                            
+                            {% if album.video %}
+                            <div class="current-file mb-3">
+                                <p class="mb-2"><strong>Vidéo actuelle:</strong></p>
+                                <div class="d-flex align-items-center bg-light rounded p-2">
+                                    <i class="fas fa-video text-primary me-2"></i>
+                                    <span>{{ album.video.name }}</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <input type="file" name="video" id="id_video" 
+                                   class="form-control {% if form.video.errors %}is-invalid{% endif %}" 
+                                   accept="video/*">
+                            <div class="form-text">
+                                Formats supportés: MP4, AVI, MOV. Taille max: 20MB.
+                            </div>
+                            {% if form.video.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.video.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <a href="{% if album %}{% url 'gallery_status' %}{% else %}{% url 'album_list' %}{% endif %}" 
+                               class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Enregistrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Information supplémentaire -->
+            <div class="alert alert-info mt-4">
+                <div class="d-flex">
+                    <i class="fas fa-info-circle me-2 mt-1"></i>
+                    <div>
+                        <h6 class="alert-heading mb-2">Informations</h6>
+                        <p class="mb-0 small">Les champs marqués d'un astérisque (*) sont obligatoires. Vous pouvez ajouter une image, une vidéo, ou les deux.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.current-file {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    border: 1px solid #dee2e6;
+}
+
+.form-label {
+    margin-bottom: 0.5rem;
+}
+
+.card {
+    border: none;
+    border-radius: 0.5rem;
+}
+
+.img-thumbnail {
+    border-radius: 0.375rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

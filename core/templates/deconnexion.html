@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Déconnexion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .logout-container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .icon {
+            font-size: 48px;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        .messages {
+            margin-bottom: 20px;
+        }
+        .messages .info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #bee5eb;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .footer-text {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-container">
+        <div class="icon">✅</div>
+        
+        <h2>Déconnexion réussie</h2>
+        
+        <!-- Messages d'information -->
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <p>
+            Vous avez été déconnecté avec succès de votre session.<br>
+            Merci d'avoir utilisé notre plateforme !
+        </p>
+        
+        <div>
+            <a href="{% url 'index' %}" class="btn">Retour à l'accueil</a>
+            <a href="{% url 'connexion' %}" class="btn btn-secondary">Se reconnecter</a>
+        </div>
+        
+        <p class="footer-text">
+            Pour votre sécurité, fermez votre navigateur si vous utilisez un ordinateur public.
+        </p>
+    </div>
+</body>
+</html>

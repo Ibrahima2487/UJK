@@ -1,0 +1,173 @@
+{% extends 'membre_base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail Administrateur - UDJK</title>
+    
+    <!-- Tailwind CSS CDN -->
+    
+    
+    <!-- Configuration Tailwind -->
+    
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        .hover-lift {
+            transition: all 0.3s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+        }
+    </style>
+</head>
+
+<body class="font-poppins bg-gray-50">
+    {% block content %}
+    
+    <!-- Header -->
+    <header class="bg-blue-900 text-white  gap-3 w-full top-0 left-0 rounded-2xl border border-white-500 py-6 mb-6 shadow-lg">
+        <div class="container mx-auto px-4">
+            <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 animate-fade-down">
+                Portail d'Administration UJK
+            </h1>
+            <p class="text-base md:text-lg opacity-90 animate-fade-in flex items-center gap-2 flex-wrap">
+                Gérez l'ensemble de la plateforme UJK
+                <img src="{% static 'image/logo.png' %}" width="40" height="40" alt="logo" class="inline-block ml-2 rounded-full bg-white p-1">
+            </p>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 pb-8">
+        <!-- Barre de statistiques -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
+            <!-- Carte stats 1 -->
+            <div class="bg-white rounded-xl shadow-md p-3 md:p-4 text-center hover:shadow-lg transition-shadow">
+                <div class="text-2xl md:text-3xl font-bold text-primary">{{ total_user }}</div>
+                <div class="text-xs md:text-sm text-gray-500">Total membres</div>
+            </div>
+            
+            <!-- Carte stats 2 -->
+            <div class="bg-white rounded-xl shadow-md p-3 md:p-4 text-center hover:shadow-lg transition-shadow">
+                <div class="text-lg md:text-2xl font-bold text-success">{{ stats.total_montant|floatformat:0 }} GNF</div>
+                <div class="text-xs md:text-sm text-gray-500">Revenu mensuel</div>
+            </div>
+            
+            <!-- Carte stats 3 - Publier -->
+            <div class="bg-white rounded-xl shadow-md p-3 md:p-4 text-center hover:shadow-lg transition-shadow">
+                <a href="{% url 'pub_create' %}" class="block">
+                    <div class="text-xl md:text-2xl font-bold text-warning">
+                        <i class="fas fa-plus-circle"></i> Publier
+                    </div>
+                    <div class="text-xs md:text-sm text-gray-500">Informations</div>
+                </a>
+            </div>
+            
+            <!-- Carte stats 4 -->
+            <div class="bg-white rounded-xl shadow-md p-3 md:p-4 text-center hover:shadow-lg transition-shadow">
+                <div class="text-2xl md:text-3xl font-bold text-info">{{ Paiements }}</div>
+                <div class="text-xs md:text-sm text-gray-500">Nouveaux inscrits</div>
+            </div>
+        </div>
+
+        <!-- Grille des cartes principales -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            
+            <!-- Carte 1 - Galerie -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover-lift animate-fade-in-up">
+                <div class="p-4 md:p-5">
+                    <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mb-3">
+                        <i class="fas fa-images text-2xl text-primary"></i>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-semibold mb-2">Galerie</h3>
+                    <p class="text-gray-500 text-sm mb-4">La galerie de la plateforme. Gérez les préférences globales et les options techniques.</p>
+                    <a href="{% url 'gallery_status' %}" class="inline-flex items-center justify-center w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                        <i class="fas fa-arrow-right-circle mr-2"></i> Accéder
+                    </a>
+                </div>
+            </div>
+
+            <!-- Carte 2 - Actualités -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover-lift animate-fade-in-up" style="animation-delay: 0.1s">
+                <div class="p-4 md:p-5">
+                    <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center mb-3">
+                        <i class="fas fa-newspaper text-2xl text-success"></i>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-semibold mb-2">Actualités</h3>
+                    <p class="text-gray-500 text-sm mb-4">Gestion des articles, catégories et contenu éditorial. Modération des commentaires.</p>
+                    <a href="{% url 'blog_status' %}" class="inline-flex items-center justify-center w-full bg-success text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors text-sm font-medium">
+                        <i class="fas fa-arrow-right-circle mr-2"></i> Accéder
+                    </a>
+                </div>
+            </div>
+
+            <!-- Carte 3 - Membres -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover-lift animate-fade-in-up" style="animation-delay: 0.2s">
+                <div class="p-4 md:p-5">
+                    <div class="w-12 h-12 rounded-lg bg-cyan-100 flex items-center justify-center mb-3">
+                        <i class="fas fa-users text-2xl text-info"></i>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-semibold mb-2">Membres</h3>
+                    <p class="text-gray-500 text-sm mb-4">Gestion des membres, une vue globale des membres UDJK, détails de chaque profil.</p>
+                    <a href="{% url 'membre_status' %}" class="inline-flex items-center justify-center w-full bg-info text-white py-2 px-4 rounded-lg hover:bg-cyan-600 transition-colors text-sm font-medium">
+                        <i class="fas fa-arrow-right-circle mr-2"></i> Accéder
+                    </a>
+                </div>
+            </div>
+
+            <!-- Carte 4 - Paiements -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover-lift animate-fade-in-up" style="animation-delay: 0.3s">
+                <div class="p-4 md:p-5">
+                    <div class="w-12 h-12 rounded-lg bg-yellow-100 flex items-center justify-center mb-3">
+                        <i class="fas fa-credit-card text-2xl text-warning"></i>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-semibold mb-2">Paiements</h3>
+                    <p class="text-gray-500 text-sm mb-4">Suivi des transactions, gestion des facturations et des remboursements.</p>
+                    <a href="#" class="inline-flex items-center justify-center w-full bg-warning text-gray-800 py-2 px-4 rounded-lg hover:bg-yellow-500 transition-colors text-sm font-medium">
+                        <i class="fas fa-arrow-right-circle mr-2"></i> Accéder
+                    </a>
+                </div>
+            </div>
+
+            <!-- Carte 5 - Bureau -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover-lift animate-fade-in-up" style="animation-delay: 0.4s">
+                <div class="p-4 md:p-5">
+                    <div class="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center mb-3">
+                        <i class="fas fa-building text-2xl text-danger"></i>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-semibold mb-2">Bureau</h3>
+                    <p class="text-gray-500 text-sm mb-4">Configuration des commissions, suivi des performances et gestion du bon fonctionnement.</p>
+                    <a href="{% url 'bureau' %}" class="inline-flex items-center justify-center w-full bg-danger text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors text-sm font-medium">
+                        <i class="fas fa-arrow-right-circle mr-2"></i> Accéder
+                    </a>
+                </div>
+            </div>
+
+            <!-- Carte 6 - Message Status -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover-lift animate-fade-in-up" style="animation-delay: 0.5s">
+                <div class="p-4 md:p-5">
+                    <div class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center mb-3">
+                        <i class="fas fa-phone-alt text-2xl text-secondary"></i>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-semibold mb-2">Message Status</h3>
+                    <p class="text-gray-500 text-sm mb-4">Gestion des messages, gérez ici les messages de l'extérieur.</p>
+                    <a href="{% url 'contact_status' %}" class="inline-flex items-center justify-center w-full bg-secondary text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-colors text-sm font-medium">
+                        <i class="fas fa-arrow-right-circle mr-2"></i> Accéder
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endblock %}
+</body>
+</html>

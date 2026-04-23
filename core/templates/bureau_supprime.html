@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Supprimer {{ bureau.nom }} - Association Communautaire de Kakony{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <!-- En-tête -->
+            <div class="px-6 py-5 border-b border-gray-200 bg-red-50">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-8 w-8 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h1 class="text-2xl font-bold text-red-900">Confirmation de suppression</h1>
+                        <p class="mt-1 text-sm text-red-700">Cette action est irréversible. Veuillez confirmer votre choix.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenu -->
+            <div class="px-6 py-6">
+                <!-- Avertissement -->
+                <div class="rounded-md bg-red-50 p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">Attention</h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <p>Vous êtes sur le point de supprimer définitivement le bureau <strong>{{ bureau.nom }}</strong>. Cette action ne peut pas être annulée.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Détails du bureau -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-3">Détails du bureau à supprimer</h2>
+                    
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
+                        <div class="sm:col-span-1">
+                            <dt class="text-sm font-medium text-gray-500">Nom</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ bureau.nom }}</dd>
+                        </div>
+                        
+                        <div class="sm:col-span-1">
+                            <dt class="text-sm font-medium text-gray-500">Sigle</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ bureau.sigle }}</dd>
+                        </div>
+                        
+                        <div class="sm:col-span-1">
+                            <dt class="text-sm font-medium text-gray-500">Type</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ bureau.get_type_bureau_display }}</dd>
+                        </div>
+                        
+                        <div class="sm:col-span-1">
+                            <dt class="text-sm font-medium text-gray-500">Statut</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ bureau.get_statut_display }}</dd>
+                        </div>
+                        
+                        <div class="sm:col-span-2">
+                            <dt class="text-sm font-medium text-gray-500">Zone d'intervention</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ bureau.get_zone_intervention_display }}</dd>
+                        </div>
+                        
+                        <div class="sm:col-span-2">
+                            <dt class="text-sm font-medium text-gray-500">Président</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ bureau.president.get_full_name|default:bureau.president.username }}</dd>
+                        </div>
+                        
+                        <div class="sm:col-span-2">
+                            <dt class="text-sm font-medium text-gray-500">Date de création</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ bureau.date_creation }}</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <!-- Vérifications supplémentaires -->
+                <div class="bg-yellow-50 rounded-lg p-4 mb-6">
+                    <h2 class="text-lg font-medium text-yellow-900 mb-3">Vérifications</h2>
+                    
+                    <div class="space-y-3">
+                        {% if bureau.structures_filiales.exists %}
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-yellow-800">
+                                    Ce bureau a {{ bureau.structures_filiales.count }} structure(s) filiale(s).
+                                </p>
+                                <p class="mt-1 text-sm text-yellow-700">
+                                    La suppression de ce bureau entraînera également la suppression de toutes ses structures filiales.
+                                </p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-yellow-800">
+                                    Toutes les données associées à ce bureau seront perdues.
+                                </p>
+                                <p class="mt-1 text-sm text-yellow-700">
+                                    Cela inclut les informations sur les membres, les projets, et toutes les autres données liées.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulaire de confirmation -->
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:space-x-4">
+                        <a href="{% url 'bureau_details' bureau.id %}" class="order-2 sm:order-1 mt-3 sm:mt-0 w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            Annuler et retourner aux détails
+                        </a>
+                        
+                        <button type="submit" class="order-1 sm:order-2 w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" onclick="return confirm('Êtes-vous absolument sûr de vouloir supprimer ce bureau? Cette action est irréversible.')">
+                            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            Confirmer la suppression
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

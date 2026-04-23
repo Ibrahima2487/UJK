@@ -1,0 +1,303 @@
+{% extends 'membre_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-4 sm:py-6">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+        
+        <!-- En-tête compact du bureau -->
+        <div class="bg-white shadow-sm rounded-lg mb-4 sm:mb-6 overflow-hidden">
+            <div class="px-3 py-3 sm:px-4 sm:py-4 border-b border-gray-100">
+                <div class="flex items-center justify-between flex-wrap gap-3">
+                    <div class="flex items-center min-w-0 flex-1">
+                        <div class="flex-shrink-0">
+                            <div class="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-sm">
+                                <span class="text-white font-bold text-xs sm:text-sm">{{ bureau.sigle }}</span>
+                            </div>
+                        </div>
+                        <div class="ml-3 min-w-0 flex-1">
+                            <h1 class="text-lg sm:text-xl font-bold text-gray-900 truncate">{{ bureau.nom }}</h1>
+                            <div class="flex items-center flex-wrap gap-2 mt-1">
+                                <span class="text-xs sm:text-sm text-gray-500">{{ bureau.get_type_bureau_display }}</span>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium 
+                                    {% if bureau.statut == 'ACTIF' %}bg-green-100 text-green-700
+                                    {% elif bureau.statut == 'INACTIF' %}bg-red-100 text-red-700
+                                    {% elif bureau.statut == 'EN_PROJET' %}bg-yellow-100 text-yellow-700
+                                    {% else %}bg-gray-100 text-gray-700{% endif %}">
+                                    {{ bureau.get_statut_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% if peut_modifier %}
+                    <div class="flex-shrink-0">
+                        <a href="{% url 'bureau_modifie' bureau.pk %}" 
+                           class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent rounded-lg shadow-sm text-xs sm:text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition duration-200">
+                            <i class="fas fa-edit mr-1 sm:mr-2"></i>
+                            <span class="hidden sm:inline">Modifier</span>
+                            <span class="sm:hidden">Modifier</span>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid responsive avec gap réduit -->
+        <div class="grid grid-cols-1 gap-4 xl:grid-cols-4">
+            
+            <!-- Colonne principale - 3/4 sur xl -->
+            <div class="xl:col-span-3 space-y-4">
+                
+                <!-- Mission - Compact -->
+                <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+                    <div class="px-3 py-3 sm:px-4 sm:py-3 border-b border-gray-100">
+                        <h3 class="text-base font-medium text-gray-900 flex items-center">
+                            <i class="fas fa-bullseye text-indigo-500 mr-2 text-sm"></i>
+                            Mission et objectifs
+                        </h3>
+                    </div>
+                    <div class="px-3 py-3 sm:px-4 sm:py-4">
+                        <p class="text-gray-700 text-sm leading-relaxed">{{ bureau.mission }}</p>
+                    </div>
+                </div>
+
+                <!-- Membres dirigeants - Compact -->
+                <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+                    <div class="px-3 py-3 sm:px-4 sm:py-3 border-b border-gray-100">
+                        <h3 class="text-base font-medium text-gray-900 flex items-center">
+                            <i class="fas fa-users text-indigo-500 mr-2 text-sm"></i>
+                            Membres dirigeants
+                        </h3>
+                    </div>
+                    <div class="divide-y divide-gray-100">
+                        {% for role, membre in membres_dirigeants %}
+                        <div class="px-3 py-3 sm:px-4 sm:py-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center min-w-0 flex-1">
+                                    <div class="flex-shrink-0">
+                                        <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center">
+                                            <span class="text-indigo-700 font-medium text-xs">{{ membre.first_name|first }}{{ membre.last_name|first }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-3 min-w-0 flex-1">
+                                        <div class="text-sm font-medium text-gray-900 truncate">{{ membre.get_full_name }}</div>
+                                        <div class="text-xs text-gray-500 truncate">{{ role }}</div>
+                                    </div>
+                                </div>
+                                {% if membre.email %}
+                                <div class="flex-shrink-0 ml-2">
+                                    <a href="mailto:{{ membre.email }}" class="text-indigo-600 hover:text-indigo-800 text-xs sm:text-sm">
+                                        <i class="fas fa-envelope sm:mr-1"></i>
+                                        <span class="hidden sm:inline">{{ membre.email|truncatechars:20 }}</span>
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Informations générales - Grid responsive -->
+                <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+                    <div class="px-3 py-3 sm:px-4 sm:py-3 border-b border-gray-100">
+                        <h3 class="text-base font-medium text-gray-900 flex items-center">
+                            <i class="fas fa-info-circle text-indigo-500 mr-2 text-sm"></i>
+                            Informations générales
+                        </h3>
+                    </div>
+                    <div class="divide-y divide-gray-100">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 px-3 py-3 sm:px-4 sm:py-3 bg-gray-25">
+                            <dt class="text-xs font-medium text-gray-500 sm:text-sm">Zone d'intervention</dt>
+                            <dd class="text-xs text-gray-900 sm:text-sm sm:col-span-2">{{ bureau.get_zone_intervention_display }}</dd>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 px-3 py-3 sm:px-4 sm:py-3">
+                            <dt class="text-xs font-medium text-gray-500 sm:text-sm">Adresse locale</dt>
+                            <dd class="text-xs text-gray-900 sm:text-sm sm:col-span-2">{{ bureau.adresse_locale|default:"Non spécifiée" }}</dd>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 px-3 py-3 sm:px-4 sm:py-3 bg-gray-25">
+                            <dt class="text-xs font-medium text-gray-500 sm:text-sm">Date de création</dt>
+                            <dd class="text-xs text-gray-900 sm:text-sm sm:col-span-2">{{ bureau.date_creation }}</dd>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 px-3 py-3 sm:px-4 sm:py-3">
+                            <dt class="text-xs font-medium text-gray-500 sm:text-sm">Fréquence réunions</dt>
+                            <dd class="text-xs text-gray-900 sm:text-sm sm:col-span-2">{{ bureau.frequence_reunions }}</dd>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 px-3 py-3 sm:px-4 sm:py-3 bg-gray-25">
+                            <dt class="text-xs font-medium text-gray-500 sm:text-sm">Dernière assemblée</dt>
+                            <dd class="text-xs text-gray-900 sm:text-sm sm:col-span-2">{{ bureau.date_derniere_assemblee|default:"Non spécifiée" }}</dd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne latérale - 1/4 sur xl -->
+            <div class="space-y-4">
+                
+                <!-- Hiérarchie - Compact -->
+                <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+                    <div class="px-3 py-3 sm:px-4 sm:py-3 border-b border-gray-100">
+                        <h3 class="text-base font-medium text-gray-900 flex items-center">
+                            <i class="fas fa-sitemap text-indigo-500 mr-2 text-sm"></i>
+                            Structure
+                        </h3>
+                    </div>
+                    <div class="px-3 py-3 sm:px-4 sm:py-4 space-y-3">
+                        {% if bureau.bureau_parent %}
+                        <div>
+                            <p class="text-xs font-medium text-gray-500 mb-1">Bureau parent</p>
+                            <a href="{% url 'bureau_details' bureau.bureau_parent.id %}" 
+                               class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
+                                <i class="fas fa-arrow-up mr-1 text-xs"></i>
+                                {{ bureau.bureau_parent.nom|truncatechars:25 }}
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if structures_filiales %}
+                        <div>
+                            <p class="text-xs font-medium text-gray-500 mb-2">
+                                Filiales ({{ structures_filiales|length }})
+                            </p>
+                            <div class="space-y-1 max-h-32 overflow-y-auto">
+                                {% for filiale in structures_filiales %}
+                                <a href="{% url 'bureau_details' filiale.id %}" 
+                                   class="block text-indigo-600 hover:text-indigo-800 text-xs hover:bg-gray-50 rounded px-2 py-1 -mx-2">
+                                    <i class="fas fa-arrow-right mr-1 text-xs"></i>
+                                    {{ filiale.nom|truncatechars:20 }}
+                                    <span class="text-gray-500">({{ filiale.get_type_bureau_display|truncatechars:10 }})</span>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Contacts - Plus compact -->
+                <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+                    <div class="px-3 py-3 sm:px-4 sm:py-3 border-b border-gray-100">
+                        <h3 class="text-base font-medium text-gray-900 flex items-center">
+                            <i class="fas fa-address-book text-indigo-500 mr-2 text-sm"></i>
+                            Contacts
+                        </h3>
+                    </div>
+                    <div class="px-3 py-3 sm:px-4 sm:py-4 space-y-2">
+                        {% if bureau.telephone_contact %}
+                        <div class="flex items-center">
+                            <i class="fas fa-phone text-gray-400 mr-2 text-sm flex-shrink-0"></i>
+                            <span class="text-sm text-gray-900 truncate">{{ bureau.telephone_contact }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if bureau.email_contact %}
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope text-gray-400 mr-2 text-sm flex-shrink-0"></i>
+                            <a href="mailto:{{ bureau.email_contact }}" 
+                               class="text-sm text-indigo-600 hover:text-indigo-800 truncate">
+                                {{ bureau.email_contact }}
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Statistiques - Compact -->
+                <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+                    <div class="px-3 py-3 sm:px-4 sm:py-3 border-b border-gray-100">
+                        <h3 class="text-base font-medium text-gray-900 flex items-center">
+                            <i class="fas fa-chart-bar text-indigo-500 mr-2 text-sm"></i>
+                            Statistiques
+                        </h3>
+                    </div>
+                    <div class="px-3 py-3 sm:px-4 sm:py-4">
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <dt class="text-xs font-medium text-gray-500">Effectif total</dt>
+                                <dd class="text-sm font-semibold text-gray-900 bg-blue-50 px-2 py-1 rounded">
+                                    {{ effectif_total }}
+                                </dd>
+                            </div>
+                            
+                            {% if bureau.taux_reussite %}
+                            <div class="flex justify-between items-center">
+                                <dt class="text-xs font-medium text-gray-500">Taux réussite</dt>
+                                <dd class="text-sm font-semibold text-green-700 bg-green-50 px-2 py-1 rounded">
+                                    {{ bureau.taux_reussite }}%
+                                </dd>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Localisation - Compact -->
+                <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+                    <div class="px-3 py-3 sm:px-4 sm:py-3 border-b border-gray-100">
+                        <h3 class="text-base font-medium text-gray-900 flex items-center">
+                            <i class="fas fa-map-marker-alt text-indigo-500 mr-2 text-sm"></i>
+                            Localisation
+                        </h3>
+                    </div>
+                    <div class="px-3 py-3 sm:px-4 sm:py-4">
+                        <p class="text-sm text-gray-700 leading-relaxed">{{ bureau.adresse_complete_kakony }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions flottantes sur mobile -->
+        <div class="fixed bottom-4 right-4 sm:hidden">
+            {% if peut_modifier %}
+            <a href="{% url 'bureau_modifie' bureau.pk %}" 
+               class="inline-flex items-center justify-center w-12 h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg transition duration-200">
+                <i class="fas fa-edit"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- CSS supplémentaire pour des détails fins -->
+<style>
+    .bg-gray-25 {
+        background-color: #fafafa;
+    }
+    
+    /* Scroll bar custom pour les listes */
+    .overflow-y-auto::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 2px;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 2px;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+    
+    /* Animation au hover pour les cards */
+    .bg-white {
+        transition: all 0.2s ease;
+    }
+    
+    .bg-white:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    /* Responsive breakpoints personnalisés */
+    @media (max-width: 640px) {
+        .truncate-mobile {
+            max-width: 120px;
+        }
+    }
+</style>
+{% endblock %}

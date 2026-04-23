@@ -1,0 +1,205 @@
+{% extends 'membre_base.html' %}
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil de {{ utilisateur.user.username }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="{% url 'membre_status' %}" class="text-white hover:text-blue-200 transition-colors flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i> Retour à la liste
+                </a>
+                <h1 class="text-2xl font-bold">Profil Utilisateur</h1>
+                <div class="w-8"></div> <!-- Pour l'équilibrage -->
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- Carte de profil avec deux colonnes -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3">
+                    <!-- Colonne de gauche - Image de profil -->
+                    <div class="bg-gradient-to-b from-blue-100 to-indigo-100 p-8 flex flex-col items-center justify-center">
+                        <div class="text-center">
+                            <div class="relative mb-6">
+                                <img src="{{ utilisateur.image.url }}" 
+                                     alt="{{ utilisateur.user.username }}"
+                                     class="w-70 h-70 rounded-r-lg object-cover border-12 border-blue shadow-xl mx-auto"
+                                     onerror="this.src='/static/profiles/default.png'">
+                            </div>
+                            
+                            <!-- Badges de statut -->
+                            <div class="flex flex-wrap justify-center gap-2 mb-6">
+                                {% if utilisateur.user.is_active %}
+                                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                        <i class="fas fa-check-circle mr-1"></i>Actif
+                                    </span>
+                                {% else %}
+                                    <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
+                                        <i class="fas fa-ban mr-1"></i>Inactif
+                                    </span>
+                                {% endif %}
+                                
+                                {% if utilisateur.user.is_superuser %}
+                                    <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                                        <i class="fas fa-crown mr-1"></i>Superadmin
+                                    </span>
+                                {% elif utilisateur.user.is_staff %}
+                                    <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                                        <i class="fas fa-star mr-1"></i>Staff
+                                    </span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h3 class="font-medium text-gray-800 mb-2">Statistiques</h3>
+                                <div class="grid grid-cols-2 gap-4 text-center">
+                                    <div>
+                                        <div class="text-2xl font-bold text-blue-600">12</div>
+                                        <div class="text-xs text-gray-500">Activités</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-2xl font-bold text-green-600">95%</div>
+                                        <div class="text-xs text-gray-500">Engagement</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Colonne de droite - Informations du profil -->
+                    <div class="lg:col-span-2 p-8">
+                        <div class="mb-8">
+                            <h2 class="text-3xl font-bold text-gray-800 mb-2">
+                                {{ utilisateur.user.first_name }} {{ utilisateur.user.last_name }}
+                            </h2>
+                            <p class="text-gray-600 text-lg">@{{ utilisateur.user.username }}</p>
+                        </div>
+
+                        <!-- Grille d'informations -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <!-- Informations de contact -->
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                    <i class="fas fa-envelope text-blue-500 mr-3"></i> Contact
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-envelope text-gray-400 mt-1 mr-3 w-5"></i>
+                                        <div>
+                                            <p class="text-sm text-gray-600">Email</p>
+                                            <p class="font-medium">{{ utilisateur.user.email|default:"Non renseigné" }}</p>
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                    
+                                    <div class="flex items-start">
+                                        <i class="fas fa-phone text-gray-400 mt-1 mr-3 w-5"></i>
+                                        <div>
+                                            <p class="text-sm text-gray-600">Numéro de téléphone</p>
+                                            <p class="font-medium">{{ utilisateur.numero|default:"Non renseigné" }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <i class="fas fa-home text-gray-400 mt-1 mr-3 w-5"></i>
+                                        <div>
+                                            <p class="text-sm text-gray-600">Adresse </p>
+                                            <p class="font-medium">{{ utilisateur.adresse|default:"Non renseigné" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Informations du profil -->
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                    <i class="fas fa-info-circle text-blue-500 mr-3"></i> Informations
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-user-circle text-gray-400 mt-1 mr-3 w-5"></i>
+                                        <div>
+                                            <p class="text-sm text-gray-600">Nom d'utilisateur</p>
+                                            <p class="font-medium">{{ utilisateur.user.username }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <i class="fas fa-id-card text-gray-400 mt-1 mr-3 w-5"></i>
+                                        <div>
+                                            <p class="text-sm text-gray-600">Nom complet</p>
+                                            <p class="font-medium">
+                                                {% if utilisateur.user.first_name or utilisateur.user.last_name %}
+                                                    {{ utilisateur.user.first_name }} {{ utilisateur.user.last_name }}
+                                                {% else %}
+                                                    Non renseigné
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <i class="fas fa-calendar-alt text-gray-400 mt-1 mr-3 w-5"></i>
+                                        <div>
+                                            <p class="text-sm text-gray-600">Date d'inscription</p>
+                                            <p class="font-medium">{{ utilisateur.user.date_joined|date:"d/m/Y" }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <i class="fas fa-sign-in-alt text-gray-400 mt-1 mr-3 w-5"></i>
+                                        <div>
+                                            <p class="text-sm text-gray-600">Dernière connexion</p>
+                                            <p class="font-medium">
+                                                {% if utilisateur.user.last_login %}
+                                                    {{ utilisateur.user.last_login|date:"d/m/Y à H:i" }}
+                                                {% else %}
+                                                    Jamais
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex flex-wrap gap-4 justify-start">
+                            <a href="{% url 'membre_status' %}" 
+                               class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center">
+                                <i class="fas fa-arrow-left mr-2"></i> Retour
+                            </a>
+                            
+                          
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <a href="{% url 'membre_status' %}" class="text-white hover:text-blue-200 transition-colors flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i> Retour à la liste
+                </a>
+                <div class="w-8"></div> <!-- Pour l'équilibrage -->
+            </div>
+        </div>
+    </div>
+
+   
+</body>
+</html>
+{% endblock %}

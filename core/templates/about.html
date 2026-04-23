@@ -1,0 +1,398 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tailwind_tags %}
+
+{% block extra_head %}
+<style>
+    /* Animations personnalisées */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInLeft {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes fadeInRight {
+        from { opacity: 0; transform: translateX(30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes countUp {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .animate-fade-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+    .animate-fade-left {
+        animation: fadeInLeft 0.8s ease-out forwards;
+    }
+    .animate-fade-right {
+        animation: fadeInRight 0.8s ease-out forwards;
+    }
+    .animate-float {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    .delay-1 { animation-delay: 0.2s; }
+    .delay-2 { animation-delay: 0.4s; }
+    .delay-3 { animation-delay: 0.6s; }
+    .delay-4 { animation-delay: 0.8s; }
+    
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #ffe600, #36a9e1);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        display: inline-block;
+    }
+    
+    .hover-lift {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .hover-lift:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .value-card {
+        transition: all 0.3s ease;
+    }
+    .value-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .impact-item {
+        border-left: 4px solid #36a9e1;
+        transition: all 0.3s;
+    }
+    .impact-item:hover {
+        background-color: rgba(54, 169, 225, 0.05);
+        transform: translateX(5px);
+    }
+    
+    /* Overlay pour sections avec background */
+    .overlay-dark {
+        background: linear-gradient(135deg, rgba(10, 74, 123, 0.95), rgba(54, 169, 225, 0.85));
+    }
+    
+    /* Compteurs */
+    .counter-value {
+        transition: all 0.3s ease;
+    }
+    
+    /* Témoignages */
+    .testimonial-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+    .testimonial-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ==================== SECTION 1: HERO ==================== -->
+<section class="relative py-20 bg-gradient-to-br from-blue-700 to-cyan-600 text-center overflow-hidden">
+    <div class="absolute inset-0 opacity-10">
+        <svg class="w-full h-full" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="200" cy="200" r="150" fill="white" opacity="0.3"/>
+            <circle cx="1000" cy="600" r="200" fill="white" opacity="0.2"/>
+            <polygon points="300,100 350,200 250,200" fill="white" opacity="0.2"/>
+        </svg>
+    </div>
+    <div class="container mx-auto px-4 relative z-10 py-12">
+        <h1 class="text-4xl md:text-6xl font-bold text-white mb-4 animate-fade-up">Historique & Mission</h1>
+        <p class="text-xl text-white/90 animate-fade-up delay-1">Découvrez les fondements de notre engagement communautaire</p>
+    </div>
+</section>
+
+<!-- ==================== SECTION 2: HISTOIRE ==================== -->
+<section class="relative py-20 bg-cover bg-center bg-fixed" style="background-image: url('{% static 'image/image4.jpg' %}');">
+    <div class="absolute inset-0 overlay-dark"></div>
+    <div class="container mx-auto px-4 relative z-10">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl md:text-5xl font-bold text-center text-white mb-10 animate-fade-up">Notre Histoire</h2>
+            <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 shadow-2xl animate-fade-up delay-1">
+                <p class="text-white leading-relaxed mb-4">
+                    Fondée en <strong class="text-yellow-300">2022</strong> par un groupe de jeunes leaders passionnés dont 
+                    <strong class="text-yellow-300">Mamadou Alpha Foinké</strong> et <strong class="text-yellow-300">Ibrahima Sory Diallo</strong>, 
+                    notre association est née d'un constat simple : le potentiel inexploité de la jeunesse de Kakony.
+                </p>
+                <p class="text-white/90 leading-relaxed mb-4">
+                    Face au manque d'opportunités éducatives et professionnelles dans la sous-préfecture de Kakony, 
+                    nous avons décidé d'agir concrètement pour créer des solutions durables et donner à chaque jeune 
+                    la possibilité de révéler ses talents.
+                </p>
+                <p class="text-white/90 leading-relaxed mb-4">
+                    Conscients que le potentiel de Kakony réside dans sa jeunesse, l'Union des Jeunes de Kakony (UDJK) 
+                    a pris l'initiative de bâtir un avenir meilleur à travers des projets éducatifs, des formations 
+                    techniques et des programmes d'accompagnement pour les jeunes entrepreneurs.
+                </p>
+                <p class="text-white/90 leading-relaxed">
+                    L'UDJK n'est pas seulement une association : c'est un mouvement qui rassemble toutes les forces vives 
+                    de Kakony pour créer des opportunités là où il n'y en avait pas.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 3: VISION / MISSION / VALEURS ==================== -->
+<section class="relative py-20 bg-cover bg-center bg-fixed" style="background-image: url('{% static 'image/image3.jpg' %}');">
+    <div class="absolute inset-0 overlay-dark"></div>
+    <div class="container mx-auto px-4 relative z-10">
+        <h2 class="text-3xl md:text-5xl font-bold text-center text-white mb-12 animate-fade-up">Nos Fondements</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Vision -->
+            <div class="bg-white rounded-2xl p-6 shadow-xl hover-lift animate-fade-up delay-1">
+                <div class="text-center mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto">
+                        <i class="fas fa-eye text-white text-2xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-center text-gray-800 mb-3">Vision</h3>
+                <p class="text-gray-600 text-center text-sm leading-relaxed">
+                    Une jeunesse kakonyenne autonome, qualifiée et actrice du développement local.
+                    <br><br>
+                    Nous aspirons à voir émerger une jeunesse consciente de son potentiel et capable 
+                    de prendre en main son avenir à travers l'innovation, l'entrepreneuriat et l'engagement citoyen.
+                </p>
+            </div>
+            
+            <!-- Mission -->
+            <div class="bg-white rounded-2xl p-6 shadow-xl hover-lift animate-fade-up delay-2">
+                <div class="text-center mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center mx-auto">
+                        <i class="fas fa-bullseye text-white text-2xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-center text-gray-800 mb-3">Mission</h3>
+                <p class="text-gray-600 text-center text-sm leading-relaxed">
+                    Offrir des opportunités d'éducation, de formation et d'épanouissement aux jeunes de Kakony 
+                    dans un esprit de solidarité.
+                    <br><br>
+                    Nous travaillons à renforcer l'accès à une éducation de qualité et à mettre en place des 
+                    programmes de formation professionnelle pour une insertion durable.
+                </p>
+            </div>
+            
+            <!-- Valeurs -->
+            <div class="bg-white rounded-2xl p-6 shadow-xl hover-lift animate-fade-up delay-3">
+                <div class="text-center mb-4">
+                    <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto">
+                        <i class="fas fa-heart text-white text-2xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-center text-gray-800 mb-3">Valeurs</h3>
+                <div class="space-y-3 text-center">
+                    <div class="flex items-center justify-center gap-2 text-gray-700">
+                        <i class="fas fa-handshake text-green-500"></i>
+                        <span>Solidarité</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-2 text-gray-700">
+                        <i class="fas fa-scale-balanced text-blue-500"></i>
+                        <span>Intégrité</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-2 text-gray-700">
+                        <i class="fas fa-lightbulb text-yellow-500"></i>
+                        <span>Innovation</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 4: ZONE D'INTERVENTION ==================== -->
+<section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col lg:flex-row gap-12 items-center">
+            <div class="lg:w-1/2 animate-fade-left">
+                <img src="{% static 'image/p-6.jpg' %}" alt="Zone d'intervention" class="rounded-2xl shadow-2xl w-full object-cover h-96">
+            </div>
+            <div class="lg:w-1/2 animate-fade-right">
+                <h2 class="text-3xl md:text-5xl font-bold text-gray-800 mb-4">Notre Zone d'Intervention</h2>
+                <p class="text-lg text-gray-600 mb-6 leading-relaxed">
+                    Nous concentrons nos actions dans le <strong class="text-blue-600">quartier de Kakony</strong> et ses environs immédiats, 
+                    une zone urbaine défavorisée de la commune de Ratoma.
+                </p>
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3 text-gray-700">
+                        <i class="fas fa-map-marker-alt text-blue-500 text-xl"></i>
+                        <span>Population cible : 15-35 ans</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-gray-700">
+                        <i class="fas fa-users text-blue-500 text-xl"></i>
+                        <span>+5 000 jeunes impactés depuis 2022</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 5: IMPACT LONG TERME ==================== -->
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl md:text-5xl font-bold text-center text-gray-800 mb-12 animate-fade-up">Notre Impact à Long Terme</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="impact-item bg-gray-50 rounded-xl p-5 hover-lift animate-fade-up delay-1">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-graduation-cap text-blue-500 text-xl"></i>
+                    <h3 class="font-bold text-gray-800">Éducation</h3>
+                </div>
+                <p class="text-gray-600 text-sm">Réduction du taux d'abandon scolaire de 40% d'ici 2030</p>
+            </div>
+            
+            <div class="impact-item bg-gray-50 rounded-xl p-5 hover-lift animate-fade-up delay-2">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-briefcase text-green-500 text-xl"></i>
+                    <h3 class="font-bold text-gray-800">Emploi</h3>
+                </div>
+                <p class="text-gray-600 text-sm">Insertion professionnelle de 500 jeunes par an</p>
+            </div>
+            
+            <div class="impact-item bg-gray-50 rounded-xl p-5 hover-lift animate-fade-up delay-3">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-leaf text-teal-500 text-xl"></i>
+                    <h3 class="font-bold text-gray-800">Environnement</h3>
+                </div>
+                <p class="text-gray-600 text-sm">100% des écoles équipées en systèmes de tri sélectif</p>
+            </div>
+            
+            <div class="impact-item bg-gray-50 rounded-xl p-5 hover-lift animate-fade-up delay-4">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="fas fa-chart-line text-purple-500 text-xl"></i>
+                    <h3 class="font-bold text-gray-800">Communauté</h3>
+                </div>
+                <p class="text-gray-600 text-sm">Création d'un réseau de 200 jeunes leaders formés</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 6: STATISTIQUES ==================== -->
+<section class="py-20 bg-gradient-to-r from-blue-600 to-cyan-600">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl md:text-4xl font-bold text-center text-white mb-12 animate-fade-up">Notre Impact en Chiffres</h2>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+            <div class="animate-fade-up delay-1" x-data="{ count: 0 }" x-init="setTimeout(() => { const target = 850; const increment = target / 50; const interval = setInterval(() => { if (count < target) count += increment; else clearInterval(interval); }, 30); }, 200)">
+                <div class="stat-number" x-text="Math.floor(count)">0</div>
+                <div class="text-white/90 mt-2 font-semibold">Élèves accompagnés</div>
+            </div>
+            
+            <div class="animate-fade-up delay-2" x-data="{ count: 0 }" x-init="setTimeout(() => { const target = 12; const increment = target / 30; const interval = setInterval(() => { if (count < target) count += increment; else clearInterval(interval); }, 30); }, 200)">
+                <div class="stat-number" x-text="Math.floor(count)">0</div>
+                <div class="text-white/90 mt-2 font-semibold">Écoles partenaires</div>
+            </div>
+            
+            <div class="animate-fade-up delay-3" x-data="{ count: 0 }" x-init="setTimeout(() => { const target = 1500; const increment = target / 50; const interval = setInterval(() => { if (count < target) count += increment; else clearInterval(interval); }, 30); }, 200)">
+                <div class="stat-number" x-text="Math.floor(count)">0</div>
+                <div class="text-white/90 mt-2 font-semibold">Livres disponibles</div>
+            </div>
+            
+            <div class="animate-fade-up delay-4" x-data="{ count: 0 }" x-init="setTimeout(() => { const target = 92; const increment = target / 40; const interval = setInterval(() => { if (count < target) count += increment; else clearInterval(interval); }, 30); }, 200)">
+                <div class="stat-number" x-text="Math.floor(count)">0</div>
+                <div class="text-white/90 mt-2 font-semibold">% de réussite 2024</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 7: TÉMOIGNAGES ==================== -->
+<section class="py-20 bg-gray-900 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10">
+        <img src="{% static 'image/image2.jpg' %}" class="w-full h-full object-cover" alt="Background">
+    </div>
+    <div class="container mx-auto px-4 relative z-10">
+        <div class="text-center mb-12">
+            <i class="fas fa-comments text-4xl text-yellow-400 mb-3 animate-float"></i>
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-2">On vous dit</h2>
+            <p class="text-gray-300">Découvrez les témoignages de notre communauté</p>
+        </div>
+        
+        <div x-data="{ active: 0 }" class="max-w-4xl mx-auto">
+            <div class="relative">
+                <!-- Témoignage 1 -->
+                <div x-show="active === 0" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="testimonial-card bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center">
+                    <i class="fas fa-quote-left text-4xl text-yellow-400 mb-4"></i>
+                    <p class="text-white text-lg mb-6 leading-relaxed">
+                        "Grâce aux programmes éducatifs, mon fils a pu intégrer le collège avec une solide base. Merci pour votre engagement quotidien !"
+                    </p>
+                    <div class="flex items-center justify-center gap-4">
+                        <img src="{% static 'image/image4.jpg' %}" class="w-14 h-14 rounded-full object-cover border-2 border-yellow-400" alt="Aïssata D.">
+                        <div class="text-left">
+                            <h4 class="text-white font-semibold">Aïssata D.</h4>
+                            <span class="text-yellow-400 text-sm">Membre de la communauté</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Témoignage 2 -->
+                <div x-show="active === 1" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="testimonial-card bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center">
+                    <i class="fas fa-quote-left text-4xl text-yellow-400 mb-4"></i>
+                    <p class="text-white text-lg mb-6 leading-relaxed">
+                        "La bibliothèque communautaire a changé notre quartier. Les enfants y passent leur temps libre à lire au lieu de traîner dans la rue."
+                    </p>
+                    <div class="flex items-center justify-center gap-4">
+                        <img src="{% static 'image/image6.jpg' %}" class="w-14 h-14 rounded-full object-cover border-2 border-yellow-400" alt="Mamadou K.">
+                        <div class="text-left">
+                            <h4 class="text-white font-semibold">Mamadou K.</h4>
+                            <span class="text-yellow-400 text-sm">Instituteur, École Farako</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Témoignage 3 -->
+                <div x-show="active === 2" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" class="testimonial-card bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center">
+                    <i class="fas fa-quote-left text-4xl text-yellow-400 mb-4"></i>
+                    <p class="text-white text-lg mb-6 leading-relaxed">
+                        "Les formations professionnelles m'ont donné les compétences pour créer mon petit commerce. Aujourd'hui je suis autonome financièrement."
+                    </p>
+                    <div class="flex items-center justify-center gap-4">
+                        <img src="{% static 'image/image7.jpg' %}" class="w-14 h-14 rounded-full object-cover border-2 border-yellow-400" alt="Fatou B.">
+                        <div class="text-left">
+                            <h4 class="text-white font-semibold">Fatou B.</h4>
+                            <span class="text-yellow-400 text-sm">Bénéficiaire des formations</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Navigation -->
+                <button @click="active = (active - 1 + 3) % 3" class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 lg:-translate-x-6 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/40 transition-all">
+                    <i class="fas fa-chevron-left text-white"></i>
+                </button>
+                <button @click="active = (active + 1) % 3" class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 lg:translate-x-6 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/40 transition-all">
+                    <i class="fas fa-chevron-right text-white"></i>
+                </button>
+            </div>
+            
+            <!-- Indicateurs -->
+            <div class="flex justify-center gap-2 mt-6">
+                <template x-for="(item, index) in 3" :key="index">
+                    <button @click="active = index" class="w-2 h-2 rounded-full transition-all" :class="active === index ? 'bg-yellow-400 w-6' : 'bg-white/50'"></button>
+                </template>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Script pour Alpine.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+{% endblock %}

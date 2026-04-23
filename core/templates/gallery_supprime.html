@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation de suppression - Album</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .card {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            border: none;
+            border-radius: 0.5rem;
+        }
+        .album-image {
+            max-height: 300px;
+            object-fit: cover;
+            width: 100%;
+        }
+        .category-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-danger text-white py-3">
+                        <h2 class="h5 mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Confirmation de suppression</h2>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="alert alert-warning" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <strong>Attention!</strong> Vous êtes sur le point de supprimer définitivement cet album. Cette action est irréversible.
+                        </div>
+
+                        <div class="mb-4 position-relative">
+                            {% if album.image %}
+                                <img src="{{ album.image.url }}" alt="{{ album.title }}" class="album-image rounded">
+                            {% else %}
+                                <div class="album-image bg-secondary d-flex align-items-center justify-content-center rounded">
+                                    <i class="fas fa-image text-white" style="font-size: 3rem;"></i>
+                                </div>
+                            {% endif %}
+                            <span class="badge bg-primary category-badge">{{ album.get_category_display }}</span>
+                        </div>
+
+                        <h3 class="h4">{{ album.title }}</h3>
+                        
+                        {% if album.description %}
+                            <p class="text-muted">{{ album.description }}</p>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <small class="text-muted">Créé le: {{ album.date_created|date:"d F Y à H:i" }}</small>
+                        </div>
+
+                        <hr>
+
+                        <form method="post" action="{% url 'gallery_supprime' album.pk %}" class="flex-fill">
+                            {% csrf_token %}
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="{% url 'gallery_status' %}" class="btn btn-secondary me-md-2">
+                                    <i class="fas fa-arrow-left me-1"></i>Annuler
+                                </a>
+                                <button type="submit" class="btn btn-outline-danger d-flex align-items-center justify-content-center gap-1" 
+                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet album ? Cette action supprimera également tous les fichiers associés.')">
+                                    <i class="fas fa-trash"></i> Supprimer définitivement
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

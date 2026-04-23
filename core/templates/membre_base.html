@@ -1,0 +1,604 @@
+{% load static tailwind_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Au lieu de votre CSS local -->
+<script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    {% tailwind_css %}
+
+    <title>UJK</title>
+    <link rel="stylesheet" href="{% static 'css/dist/style.css' %}">
+
+    <!-- ==== LES FAVICON ==== -->
+         <!-- Favicon classique -->
+   <link rel="icon" href="/static/image/logo.png" type="image/x-icon">
+   <link rel="shortcut icon" href="/static/image/logo.png" type="image/x-icon">
+
+<!-- Pour les navigateurs modernes -->
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/image/logo.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/image/logo.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/static/image/logo.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/static/image/logo.png">
+
+
+<!-- Apple Touch Icon (pour iOS) -->
+<link rel="apple-touch-icon" sizes="180x180" href="/static/image/logo.png">
+
+    <!-- === Style personaliser ==== -->
+     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+     
+     
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+     <!-- ====== Style en ligne ===== -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/hover-min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/4.5.10/css/ionicons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.compat.min.css">
+</head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body{
+            background-color: #fff;
+        }
+    </style>
+
+<body>
+    
+    <div class="fixed inset-0 z-0">
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+         style="background-image: url('{% static 'image/logo.png' %}');">
+    </div>
+    <div class="absolute inset-0 bg-black/10 backdrop-blur-sm"></div>
+  </div>
+    <!-- ==== MENU ==== START -->
+
+
+
+    <!-- Tailwind CSS -->
+    
+    <!-- Font Awesome -->
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'udjk-blue': '#004080',
+                        'udjk-dark-blue': '#004080',
+                        'udjk-light': '#004080',
+                        'udjk-accent': '#3498db',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        body{
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+<!-- Barre de navigation -->
+<nav class="fixed top-0 left-0 w-full bg-blue-500 from-blue-400 to-dark-blue-600 shadow-xl z-50 py-2" style="background: linear-gradient(to right, #0d6efd 0%, #16213e 100%)">
+    <div class="container mx-auto">
+        <div class="flex justify-between items-center">
+            <!-- Logo et nom -->
+            <div class="flex items-center">
+                <a href="#" class="flex items-center transition-transform duration-300 hover:scale-105">
+                    <img src="{% static 'image/logo.png' %}" width="45" height="45" alt="logo UJK" class="rounded-full border-2 border-white">
+                    <span class="ml-3 font-bold text-white text-lg lg:text-xl"></span>
+                </a>
+            </div>
+
+            <!-- Menu desktop complet (nom + icônes) -->
+            <div id="desktop-menu" class="items-center space-x-2">
+                {% if user.is_superuser %}
+                    <a href="{% url 'trone' %}" class="px-4 py-2 text-white font-medium rounded-lg flex items-center transition-all duration-300 hover:bg-white hover:bg-opacity-20 hover:-translate-y-0.5">
+                        <i class="fas fa-user-shield mr-2"></i>PRÉSIDENT
+                    </a>
+                {% else %}
+                    <a href="#" class="px-4 py-2 text-white font-medium rounded-lg flex items-center transition-all duration-300 hover:bg-white hover:bg-opacity-20 hover:-translate-y-0.5">
+                        <i class="fas fa-user mr-2"></i>Royal
+                    </a>
+                {% endif %}
+                
+                <a href="{% url 'comptable' %}" class="px-4 py-2 text-white font-medium rounded-lg flex items-center transition-all duration-300 hover:bg-white hover:bg-opacity-20 hover:-translate-y-0.5 relative">
+                    <i class="fas fa-envelope mr-2"></i>Paiments
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-pulse">!</span>
+                </a>
+                
+                <a href="{% url 'main' %}" class="px-4 py-2 text-white font-medium rounded-lg flex items-center transition-all duration-300 hover:bg-white hover:bg-opacity-20 hover:-translate-y-0.5">
+                    <i class="fas fa-newspaper mr-2"></i>Publications
+                </a>
+                
+                <a href="{% url 'profile_image' %}" class="px-4 py-2 text-white font-medium rounded-lg flex items-center transition-all duration-300 hover:bg-white hover:bg-opacity-20 hover:-translate-y-0.5">
+                    <i class="fas fa-image mr-2"></i>Profile
+                </a>
+                
+                <a href="{% url 'bureau' %}" class="px-4 py-2 text-white font-medium rounded-lg flex items-center transition-all duration-300 hover:bg-white hover:bg-opacity-20 hover:-translate-y-0.5">
+                    <i class="fas fa-folder mr-2"></i>Bureau
+                </a>
+                
+                {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="px-4 py-2 text-white font-medium rounded-lg flex items-center transition-all duration-300 hover:bg-white hover:bg-opacity-20 hover:-translate-y-0.5">
+                    <i class="fas fa-user mr-2"></i>Profil
+                </a>
+                {% endif %}
+                
+                <a href="/deconnexion/" class="ml-2 px-4 py-2 bg-red-500 text-white font-medium rounded-lg flex items-center transition-all duration-300 hover:bg-red-600 hover:shadow-lg transform hover:-translate-y-0.5">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                </a>
+            </div>
+
+            <!-- Menu mobile (icônes seulement) -->
+            <div id="mobile-menu" class="items-center space-x-3">
+                {% if user.is_superuser %}
+                    <a href="{% url 'trone' %}" class="p-3 text-white rounded-lg flex items-center transition-all duration-300 hover:bg-white hover:bg-opacity-20" title="Président">
+                        <i class="fas fa-user-shield text-lg"></i>
+                    </a>
+                {% else %}
+                    <a href="#" class="p-3 text-white rounded-lg flex items-center transition-all duration-300 hover:bg-white hover:bg-opacity-20" title="Royal">
+                        <i class="fas fa-user text-lg"></i>
+                    </a>
+                {% endif %}
+                
+                <a href="{% url 'comptable' %}" class="p-3 text-white rounded-lg flex items-center transition-all duration-300 hover:bg-white hover:bg-opacity-20 relative" title="Paiments">
+                    <i class="fas fa-envelope text-lg"></i>
+                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center animate-pulse">!</span>
+                </a>
+                
+                <a href="{% url 'main' %}" class="p-3 text-white rounded-lg flex items-center transition-all duration-300 hover:bg-white hover:bg-opacity-20" title="Publications">
+                    <i class="fas fa-newspaper text-lg"></i>
+                </a>
+                
+                <a href="{% url 'profile_image' %}" class="p-3 text-white rounded-lg flex items-center transition-all duration-300 hover:bg-white hover:bg-opacity-20" title="Profile">
+                    <i class="fas fa-image text-lg"></i>
+                </a>
+                
+                <a href="{% url 'bureau' %}" class="p-3 text-white rounded-lg flex items-center transition-all duration-300 hover:bg-white hover:bg-opacity-20" title="Bureau">
+                    <i class="fas fa-folder text-lg"></i>
+                </a>
+                
+                {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="p-3 text-white rounded-lg flex items-center transition-all duration-300 hover:bg-white hover:bg-opacity-20" title="Mon Profil">
+                    <i class="fas fa-user text-lg"></i>
+                </a>
+                {% endif %}
+                
+                <a href="/deconnexion/" class="p-3 bg-red-500 text-white rounded-lg flex items-center transition-all duration-300 hover:bg-red-600 hover:shadow-lg" title="Déconnexion">
+                    <i class="fas fa-sign-out-alt text-lg"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicateur de scroll -->
+    <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 transition-opacity duration-300" id="scroll-indicator"></div>
+</nav>
+
+<!-- Espace pour le contenu sous le menu fixe -->
+<div class="pt-20 md:pt-24"></div>
+
+<style>
+    /* MENU DESKTOP - Visible sur grands écrans */
+    #desktop-menu {
+        display: flex;
+    }
+    
+    /* MENU MOBILE - Caché par défaut */
+    #mobile-menu {
+        display: none;
+    }
+    
+    /* Sur mobile (moins de 1024px), on inverse */
+    @media (max-width: 1023px) {
+        #desktop-menu {
+            display: none;
+        }
+        
+        #mobile-menu {
+            display: flex;
+        }
+    }
+
+    /* Styles pour le menu mobile */
+    #mobile-menu a {
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        position: relative;
+    }
+
+    /* Effet de surbrillance au survol */
+    #mobile-menu a:hover::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        animation: pulse-hover 0.3s ease;
+    }
+
+    @keyframes pulse-hover {
+        0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+        100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    /* Adaptation pour les très petits écrans */
+    @media (max-width: 400px) {
+        #mobile-menu {
+            gap: 0.5rem;
+        }
+        
+        #mobile-menu a {
+            min-width: 40px;
+            min-height: 40px;
+        }
+        
+        #mobile-menu i {
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 360px) {
+        #mobile-menu {
+            gap: 0.25rem;
+        }
+        
+        #mobile-menu a {
+            min-width: 38px;
+            min-height: 38px;
+            padding: 0.75rem;
+        }
+    }
+
+    /* Pour les écrans très larges */
+    @media (min-width: 1400px) {
+        .container {
+            max-width: 1320px;
+        }
+    }
+
+    /* Transition fluide pour les changements de couleur */
+    nav {
+        transition: all 0.3s ease;
+    }
+</style>
+
+<!-- JavaScript pour les interactions -->
+<script>
+    // Gestion du scroll pour l'indicateur
+    const navbar = document.querySelector('nav');
+    const scrollIndicator = document.getElementById('scroll-indicator');
+
+    window.addEventListener('scroll', function() {
+        let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Indicateur de progression
+        const winHeight = window.innerHeight;
+        const docHeight = document.documentElement.scrollHeight;
+        const scrollPercent = (currentScroll / (docHeight - winHeight)) * 100;
+        scrollIndicator.style.width = scrollPercent + '%';
+        scrollIndicator.style.opacity = currentScroll > 100 ? '1' : '0';
+
+        // Effet de disparition/apparition du menu
+        if (currentScroll > 100) {
+            navbar.style.backdropFilter = 'blur(10px)';
+            navbar.style.backgroundColor = 'rgba(13, 110, 253, 0.95)';
+        } else {
+            navbar.style.backdropFilter = 'none';
+            navbar.style.backgroundColor = '';
+        }
+    });
+
+    // Tooltip simple pour mobile
+    const mobileIcons = document.querySelectorAll('#mobile-menu a[title]');
+    let tooltip = null;
+
+    mobileIcons.forEach(icon => {
+        icon.addEventListener('mouseenter', function(e) {
+            if (tooltip) tooltip.remove();
+            
+            const title = this.getAttribute('title');
+            tooltip = document.createElement('div');
+            tooltip.className = 'fixed bg-black text-white text-xs px-3 py-2 rounded-lg shadow-lg z-50 font-medium';
+            tooltip.textContent = title;
+            document.body.appendChild(tooltip);
+            
+            const rect = this.getBoundingClientRect();
+            tooltip.style.left = (rect.left + rect.width/2 - tooltip.offsetWidth/2) + 'px';
+            tooltip.style.top = (rect.top - 45) + 'px';
+        });
+        
+        icon.addEventListener('mouseleave', function() {
+            if (tooltip) {
+                tooltip.remove();
+                tooltip = null;
+            }
+        });
+    });
+
+    // Gestion du redimensionnement
+    window.addEventListener('resize', function() {
+        if (tooltip) {
+            tooltip.remove();
+            tooltip = null;
+        }
+    });
+</script>
+
+
+
+
+    <main class="container mt-1">
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+
+
+
+<!-- Barre d'accès rapide flottante - Version optimisée -->
+<div class="position-fixed bottom-0 end-0 p-1" style="z-index: 1000 ;">
+    <div class="d-flex flex-column align-items-center shadow-lg" style="gap: 12px; transition: all 0.3s ease;">
+        <img class=" rounded-circle d-flex flex-column align-items-center justify-content-center hover-scale"  src="{% static 'image/logo.png' %}" width="60px" height="60px" alt="logo">
+        <a href="{% url 'message' %}" class="btn btn-warning rounded-circle d-flex flex-column align-items-center justify-content-center hover-scale" 
+           title="Messagerie" data-bs-toggle="tooltip" data-bs-placement="left"
+           style="width: 60px; height: 60px; padding: 0;">
+            <i class="bi bi-chat-text fs-5"></i>
+            <span class="fs-8 mt-1" style="font-size: 0.6rem;">Autres</span>
+        </a>
+        <a href="{% url 'profile' %}" class="btn btn-secondary rounded-circle d-flex flex-column align-items-center justify-content-center hover-scale" 
+           title="Mon profil" data-bs-toggle="tooltip" data-bs-placement="left"
+           style="width: 60px; height: 60px; padding: 0;">
+            <i class="bi bi-person fs-5"></i>
+            <span class="fs-8 mt-1" style="font-size: 0.6rem;">Profil</span>
+        </a>
+        <a href="#top" class="btn btn-info rounded-circle d-flex flex-column align-items-center justify-content-center hover-scale" 
+           title="Retour en haut" data-bs-toggle="tooltip" data-bs-placement="left"
+           style="width: 60px; height: 60px; padding: 0;">
+            <i class="bi bi-arrow-up fs-5"></i>
+            <span class="fs-8 mt-1" style="font-size: 0.6rem;">Haut</span>
+        </a>
+    </div>
+</div>
+
+<style>
+    .hover-scale {
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .hover-scale:hover {
+        transform: scale(1.15);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+    }
+    
+    /* Animation subtile au chargement */
+    @keyframes floatIn {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .position-fixed div a {
+        animation: floatIn 0.4s ease-out forwards;
+    }
+    
+    .position-fixed div a:nth-child(1) { animation-delay: 0.1s; }
+    .position-fixed div a:nth-child(2) { animation-delay: 0.2s; }
+    .position-fixed div a:nth-child(3) { animation-delay: 0.3s; }
+</style>
+
+<script>
+    // Activation des tooltips Bootstrap
+    document.addEventListener('DOMContentLoaded', function() {
+        [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+          .forEach(function (element) {
+            new bootstrap.Tooltip(element, {
+                trigger: 'hover focus'
+            });
+        });
+    });
+</script>
+
+
+
+
+
+        <!-- Contenu principal -->
+        {% block content %}
+
+        
+        {% endblock %}
+    </main>
+
+<!-- ====== LA PARTIE GALLERIE ===== -->
+   
+
+   
+
+        <!-- Messages de succès ou d'erreur -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                    
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Contenu principal -->
+       
+    </div>
+    <!-- ==== LA PARTIE GALLERIE ===== -->
+   
+
+
+      
+
+<style>
+/* Styles minimalistes */
+.fill-primary {
+    fill: #0d6efd;
+}
+
+.wave-top {
+    margin-bottom: -1px;
+}
+
+.hover-lift {
+    transition: transform 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    color: #0d6efd !important;
+}
+
+.bg-dark {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .wave-top svg {
+        height: 40px;
+    }
+    
+    .d-flex.gap-4 {
+        gap: 1rem !important;
+        flex-direction: column;
+    }
+}
+</style>
+
+
+<script>
+    // Solution ultra-simple pour le burger menu
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // Sélectionner le burger et le menu
+        const burger = document.querySelector('.navbar-burger');
+        const menu = document.querySelector('.navbar-menu');
+        
+        // Ajouter un écouteur d'événement sur le burger
+        if (burger && menu) {
+            burger.addEventListener('click', function() {
+                // Basculer les classes is-active
+                burger.classList.toggle('is-active');
+                menu.classList.toggle('is-active');
+                
+                console.log('Burger cliqué!'); // Pour debug
+                console.log('Burger actif:', burger.classList.contains('is-active'));
+                console.log('Menu actif:', menu.classList.contains('is-active'));
+            });
+        }
+        
+        // Fermer le menu si on clique sur un lien
+        const menuLinks = document.querySelectorAll('.navbar-item');
+        menuLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                burger.classList.remove('is-active');
+                menu.classList.remove('is-active');
+            });
+        });
+        
+        // Animation au scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow');
+            } else {
+                navbar.classList.remove('shadow');
+            }
+        });
+    });
+</script>
+
+
+
+
+  <!-- JavaScript personnalisé -->
+    <script>
+        // Auto-hide des alertes après 5 secondes
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert-dismissible');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+        });
+
+        // Confirmation globale pour les suppressions
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('a[href*="supprimer"], button[data-action="delete"]')) {
+                if (!confirm('Êtes-vous sûr de vouloir effectuer cette suppression ?')) {
+                    e.preventDefault();
+                }
+            }
+        });
+
+        // Loader pour les formulaires
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            
+            if (submitBtn && !submitBtn.disabled) {
+                submitBtn.disabled = true;
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Chargement...';
+                
+                // Rétablir le bouton en cas d'erreur de validation
+                setTimeout(function() {
+                    if (document.querySelector('.alert-danger, .is-invalid')) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                }, 1000);
+            }
+        });
+    </script>
+{% block extra_js %}{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

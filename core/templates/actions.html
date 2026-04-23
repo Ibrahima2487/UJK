@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tailwind_tags %}
+
+{% block extra_head %}
+<style>
+    /* Animations personnalisées */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInLeft {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes fadeInRight {
+        from { opacity: 0; transform: translateX(30px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    
+    .animate-fade-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+        opacity: 0;
+    }
+    .animate-fade-left {
+        animation: fadeInLeft 0.8s ease-out forwards;
+        opacity: 0;
+    }
+    .animate-fade-right {
+        animation: fadeInRight 0.8s ease-out forwards;
+        opacity: 0;
+    }
+    .delay-1 { animation-delay: 0.2s; }
+    .delay-2 { animation-delay: 0.4s; }
+    .delay-3 { animation-delay: 0.6s; }
+    .delay-4 { animation-delay: 0.8s; }
+    
+    .hover-lift {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .hover-lift:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .gradient-bg {
+        background: linear-gradient(135deg, #1a4d5f 0%, #2a9d8f 100%);
+    }
+    
+    .card-img-overlay-gradient {
+        background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ==================== SECTION 1: HERO ==================== -->
+<section class="relative py-24 gradient-bg text-center overflow-hidden">
+    <!-- Effet de vagues décoratives -->
+    <div class="absolute inset-0 opacity-10">
+        <svg class="w-full h-full" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,400 C300,300 600,500 1200,400 L1200,800 L0,800 Z" fill="white"/>
+            <circle cx="200" cy="200" r="100" fill="white" opacity="0.3"/>
+            <circle cx="1000" cy="600" r="150" fill="white" opacity="0.2"/>
+        </svg>
+    </div>
+    
+    <div class="container mx-auto px-4 relative z-10">
+        <h1 class="text-4xl md:text-6xl font-bold text-white mb-4 animate-fade-up">
+            NOS ACTIONS
+        </h1>
+        <div class="w-24 h-1 bg-yellow-400 mx-auto mb-4 animate-fade-up delay-1"></div>
+        <p class="text-xl text-white/90 animate-fade-up delay-2">
+            Transformer les défis en opportunités durables
+        </p>
+    </div>
+    
+    <!-- Vague en bas -->
+    <div class="absolute bottom-0 left-0 w-full">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120">
+            <path fill="#f3f4f6" fill-opacity="1" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
+        </svg>
+    </div>
+</section>
+
+<!-- ==================== SECTION 2: ACTIONS PRINCIPALES ==================== -->
+<section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+            <!-- Carte 1: Éducation -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover-lift animate-fade-up">
+                <div class="relative h-56 overflow-hidden">
+                    <img src="{% static 'image/edu-1.jpg' %}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" alt="Éducation">
+                    <div class="absolute inset-0 card-img-overlay-gradient"></div>
+                    <div class="absolute top-4 left-4">
+                        <span class="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-full">Action prioritaire</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fas fa-graduation-cap text-2xl text-blue-500"></i>
+                        <h3 class="text-xl font-bold text-gray-800">Éducation</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4 leading-relaxed">
+                        Construction de 3 écoles en 2024, touchant plus de 500 enfants.
+                    </p>
+                    <div class="bg-blue-50 rounded-lg p-3 mb-4">
+                        <span class="text-sm font-semibold text-blue-600">📊 Résultat :</span>
+                        <p class="text-sm text-gray-700 mt-1">Taux de scolarisation augmenté de 40% dans la région ciblée.</p>
+                    </div>
+                    <button class="w-full px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105">
+                        <i class="fas fa-heart mr-2"></i>Soutenir ce projet
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Carte 2: Autonomisation des femmes -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover-lift animate-fade-up delay-1">
+                <div class="relative h-56 overflow-hidden">
+                    <img src="{% static 'image/fem-1.png' %}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" alt="Autonomisation des femmes">
+                    <div class="absolute inset-0 card-img-overlay-gradient"></div>
+                    <div class="absolute top-4 left-4">
+                        <span class="px-3 py-1 bg-pink-500 text-white text-xs font-semibold rounded-full">Impact social</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fas fa-female text-2xl text-pink-500"></i>
+                        <h3 class="text-xl font-bold text-gray-800">Autonomisation des femmes</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4 leading-relaxed">
+                        Formation de 200 femmes en entrepreneuriat et gestion financière.
+                    </p>
+                    <div class="bg-pink-50 rounded-lg p-3 mb-4">
+                        <span class="text-sm font-semibold text-pink-600">📊 Résultat :</span>
+                        <p class="text-sm text-gray-700 mt-1">30 micro-entreprises créées en seulement 6 mois.</p>
+                    </div>
+                    <button class="w-full px-4 py-2 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-lg font-semibold hover:from-pink-600 hover:to-pink-700 transition-all transform hover:scale-105">
+                        <i class="fas fa-play-circle mr-2"></i>Voir les témoignages
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Carte 3: Infrastructures -->
+            <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover-lift animate-fade-up delay-2">
+                <div class="relative h-56 overflow-hidden">
+                    <img src="{% static 'image/image6.jpg' %}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" alt="Infrastructures">
+                    <div class="absolute inset-0 card-img-overlay-gradient"></div>
+                    <div class="absolute top-4 left-4">
+                        <span class="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">Développement</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fas fa-building text-2xl text-green-500"></i>
+                        <h3 class="text-xl font-bold text-gray-800">Infrastructures</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4 leading-relaxed">
+                        Accès à l'eau potable pour 10 villages de la région.
+                    </p>
+                    <div class="bg-green-50 rounded-lg p-3 mb-4">
+                        <span class="text-sm font-semibold text-green-600">📊 Projet 2025 :</span>
+                        <p class="text-sm text-gray-700 mt-1">Construction d'un pont routier pour désenclaver la région.</p>
+                    </div>
+                    <button class="w-full px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105">
+                        <i class="fas fa-hand-holding-usd mr-2"></i>Participer au financement
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 3: PROJETS FUTURS ==================== -->
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-3 animate-fade-up">
+                NOS PROJETS À VENIR
+            </h2>
+            <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-teal-500 mx-auto"></div>
+            <p class="text-gray-600 mt-3 animate-fade-up delay-1">
+                Des initiatives innovantes pour un avenir meilleur
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Projet 1 -->
+            <div class="group bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 animate-fade-left">
+                <div class="w-14 h-14 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-laptop-code text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Centre de formation numérique</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Équipement d'outils informatiques et formation aux métiers du numérique pour les jeunes de Kakony.
+                </p>
+                <div class="mt-4 flex items-center gap-2 text-sm text-blue-600">
+                    <i class="fas fa-calendar"></i>
+                    <span>Objectif : 2025</span>
+                </div>
+            </div>
+            
+            <!-- Projet 2 -->
+            <div class="group bg-gradient-to-br from-green-50 to-teal-50 rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 animate-fade-up delay-1">
+                <div class="w-14 h-14 bg-gradient-to-r from-green-500 to-teal-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-truck-medical text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Programme santé mobile</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Unités médicales itinérantes pour apporter les soins de base dans les zones rurales isolées.
+                </p>
+                <div class="mt-4 flex items-center gap-2 text-sm text-green-600">
+                    <i class="fas fa-calendar"></i>
+                    <span>Objectif : 2025</span>
+                </div>
+            </div>
+            
+            <!-- Projet 3 -->
+            <div class="group bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 animate-fade-right delay-2">
+                <div class="w-14 h-14 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-solar-panel text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Énergie solaire</h3>
+                <p class="text-gray-600 leading-relaxed">
+                    Installation de panneaux solaires dans 5 villages isolés pour un accès à l'électricité durable.
+                </p>
+                <div class="mt-4 flex items-center gap-2 text-sm text-orange-600">
+                    <i class="fas fa-calendar"></i>
+                    <span>Objectif : 2026</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 4: CHIFFRES CLÉS ==================== -->
+<section class="py-20 gradient-bg relative overflow-hidden">
+    <div class="absolute inset-0 opacity-5">
+        <svg class="w-full h-full" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="80" fill="white"/>
+            <circle cx="700" cy="500" r="100" fill="white"/>
+            <circle cx="400" cy="300" r="150" fill="white" opacity="0.5"/>
+        </svg>
+    </div>
+    
+    <div class="container mx-auto px-4 relative z-10">
+        <div class="text-center mb-10">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-2">Notre Impact</h2>
+            <div class="w-20 h-1 bg-yellow-400 mx-auto"></div>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+            <div class="animate-fade-up" x-data="{ count: 0 }" x-init="setTimeout(() => { const target = 8; const interval = setInterval(() => { if (count < target) count += Math.ceil(target / 30); else clearInterval(interval); }, 50); }, 200)">
+                <div class="text-4xl md:text-5xl font-bold text-yellow-400" x-text="Math.floor(count)">0</div>
+                <p class="text-white/90 mt-2 font-semibold">Projets réalisés</p>
+            </div>
+            
+            <div class="animate-fade-up delay-1" x-data="{ count: 0 }" x-init="setTimeout(() => { const target = 700; const interval = setInterval(() => { if (count < target) count += Math.ceil(target / 40); else clearInterval(interval); }, 30); }, 200)">
+                <div class="text-4xl md:text-5xl font-bold text-yellow-400" x-text="Math.floor(count)">0</div>
+                <p class="text-white/90 mt-2 font-semibold">Bénéficiaires directs</p>
+            </div>
+            
+            <div class="animate-fade-up delay-2" x-data="{ count: 0 }" x-init="setTimeout(() => { const target = 15; const interval = setInterval(() => { if (count < target) count += Math.ceil(target / 30); else clearInterval(interval); }, 50); }, 200)">
+                <div class="text-4xl md:text-5xl font-bold text-yellow-400" x-text="Math.floor(count)">0</div>
+                <p class="text-white/90 mt-2 font-semibold">Partenaires actifs</p>
+            </div>
+            
+            <div class="animate-fade-up delay-3" x-data="{ count: 0 }" x-init="setTimeout(() => { const target = 200; const interval = setInterval(() => { if (count < target) count += Math.ceil(target / 35); else clearInterval(interval); }, 30); }, 200)">
+                <div class="text-4xl md:text-5xl font-bold text-yellow-400" x-text="Math.floor(count)">0</div>
+                <p class="text-white/90 mt-2 font-semibold">Bénévoles engagés</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 5: APPEL À L'ACTION ==================== -->
+<section class="py-16 bg-gray-100">
+    <div class="container mx-auto px-4 text-center">
+        <div class="max-w-3xl mx-auto">
+            <h3 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 animate-fade-up">
+                Vous souhaitez contribuer à ces actions ?
+            </h3>
+            <p class="text-gray-600 mb-6 animate-fade-up delay-1">
+                Rejoignez-nous pour faire la différence ensemble. Chaque geste compte pour transformer notre communauté.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up delay-2">
+                <a href="#" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105">
+                    <i class="fas fa-hand-sparkles"></i>
+                    Devenir bénévole
+                </a>
+                <a href="#" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105">
+                    <i class="fas fa-donate"></i>
+                    Faire un don
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Alpine.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+{% endblock %}

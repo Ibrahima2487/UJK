@@ -1,0 +1,286 @@
+{% extends 'membre_base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .read-more-content {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .read-more-content.expanded {
+            display: block;
+            -webkit-line-clamp: unset;
+        }
+        
+        .card-hover {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .pagination .page-link {
+            color: #0d6efd;
+        }
+        
+        .pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    {% block content %}
+    <div class="container py-4">
+        <!-- En-tête de page -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                            <div class="mb-3 mb-md-0">
+                                <h1 class="h2 mb-2">
+                                    <i class="bi bi-newspaper me-2"></i>
+                                    {{ title }}
+                                </h1>
+                                <p class="mb-0 opacity-75">Gestion des actualités de la plateforme</p>
+                            </div>
+                            <a href="{% url 'blog_create' %}" class="btn btn-light text-primary fw-semibold">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Ajouter une actualité
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Django -->
+        {% if messages %}
+        <div class="row mb-4">
+            <div class="col-12">
+                {% for message in messages %}
+                <div class="alert alert-dismissible fade show 
+                    {% if message.tags == 'success' %}alert-success
+                    {% elif message.tags == 'error' %}alert-danger
+                    {% elif message.tags == 'warning' %}alert-warning
+                    {% else %}alert-info{% endif %}" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="bi 
+                            {% if message.tags == 'success' %}bi-check-circle-fill
+                            {% elif message.tags == 'error' %}bi-exclamation-triangle-fill
+                            {% elif message.tags == 'warning' %}bi-exclamation-circle-fill
+                            {% else %}bi-info-circle-fill{% endif %} me-2"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if actualites %}
+        <!-- Liste des actualités en mode carte -->
+        <div class="row g-4 mb-5">
+            {% for actu in actualites %}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 card-hover border-0 shadow-sm">
+                    {% if actu.image %}
+                    <img src="{{ actu.image.url }}" class="card-img-top" alt="{{ actu.title }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-truncate" title="{{ actu.title }}">
+                            {{ actu.title }}
+                        </h5>
+                        
+                        <div class="card-text mb-3">
+                            <div class="read-more-content" id="content-{{ actu.id }}">
+                                {{ actu.contenu|truncatewords:30 }}
+                            </div>
+                            {% if actu.contenu|wordcount > 30 %}
+                            <button class="btn btn-link p-0 text-decoration-none read-more-btn" 
+                                    data-target="content-{{ actu.id }}">
+                                Lire la suite
+                            </button>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center text-muted small mb-3">
+                                <span>
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    {{ actu.date_created|date:"d/m/Y H:i" }}
+                                </span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <form method="post" action="{% url 'blog_create' %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-success" 
+                                            onclick="return confirm('Publier cette actualité ?')">
+                                        <i class="bi bi-send"></i>
+                                    </button>
+                                </form>
+
+                                <a href="{% url 'blog_modifie' actu.id %}" class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <form method="post" action="{% url 'blog_supprime' actu.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette actualité ? Cette action est irréversible.')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination Bootstrap -->
+        {% if actualites.has_other_pages %}
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="Pagination des actualités">
+                    <ul class="pagination justify-content-center">
+                        <!-- Première page -->
+                        {% if actualites.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1" aria-label="Première page">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ actualites.previous_page_number }}" aria-label="Précédent">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="bi bi-chevron-double-left"></i></span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="bi bi-chevron-left"></i></span>
+                        </li>
+                        {% endif %}
+
+                        <!-- Pages numérotées -->
+                        {% for num in actualites.paginator.page_range %}
+                            {% if actualites.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                            {% elif num > actualites.number|add:'-3' and num < actualites.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        <!-- Dernière page -->
+                        {% if actualites.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ actualites.next_page_number }}" aria-label="Suivant">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ actualites.paginator.num_pages }}" aria-label="Dernière page">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="bi bi-chevron-right"></i></span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="bi bi-chevron-double-right"></i></span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                
+                <!-- Informations sur la pagination -->
+                <div class="text-center text-muted mt-2">
+                    <small>
+                        Page {{ actualites.number }} sur {{ actualites.paginator.num_pages }} 
+                        - {{ actualites.paginator.count }} actualité{{ actualites.paginator.count|pluralize:"s" }} au total
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <!-- État vide -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-newspaper text-muted mb-3" style="font-size: 4rem;"></i>
+                        <h3 class="h4 text-muted mb-3">Aucune actualité trouvée</h3>
+                        <p class="text-muted mb-4">Commencez par ajouter votre première actualité</p>
+                        <a href="{% url 'blog_create' %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            Ajouter une actualité
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Fonctionnalité "Lire la suite"
+        document.addEventListener('DOMContentLoaded', function() {
+            const readMoreBtns = document.querySelectorAll('.read-more-btn');
+            
+            readMoreBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const content = document.getElementById(targetId);
+                    
+                    if (content.classList.contains('expanded')) {
+                        content.classList.remove('expanded');
+                        this.textContent = 'Lire la suite';
+                    } else {
+                        content.classList.add('expanded');
+                        this.textContent = 'Voir moins';
+                    }
+                });
+            });
+        });
+    </script>
+    {% endblock %}
+</body>
+</html>
