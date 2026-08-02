@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MinLengthValidator, EmailValidator #valideurs pour les champs
-from django.utils.text import slugify #transforme les chaînes de caractères en slugs
+from django.utils.text import slugify 
 from django.utils import timezone
 import os
 from django.contrib.auth import get_user_model
@@ -126,7 +126,7 @@ class Utilisateur(models.Model):
             font = ImageFont.load_default()
         
         # Ajouter le nom d'utilisateur
-        draw.text((10, 350), f" Membre de UDJK\n Nom : {self.user.get_full_name() or self.user.username}", fill="white", font=font)
+        draw.text((10, 350), f" Membre de UJK\n Nom : {self.user.get_full_name() or self.user.username}", fill="white", font=font)
         
        
 
@@ -148,13 +148,39 @@ class Utilisateur(models.Model):
 
 # ========= ACTUALITÉ ==========
 class actualite(models.Model):
+    CHOICE_CATEGORIE = [
+        ('éducation', 'Éducation'),
+        ('santé', 'Santé'),
+        ('environement', 'Énvironement'),
+        ('culturel', 'Culturel'),
+        
+    ]
     title = models.CharField(max_length=200)
     contenu = models.TextField()
     image = models.ImageField(upload_to='static/blog/', blank=True, null=True)
+    categorie = models.CharField(max_length=250, choices=CHOICE_CATEGORIE, default='Éducatif')
     date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
+
+
+class Temoin (models.Model):
+    GENRE_TEMOIN = [
+        ('M', 'm'),
+        ('F', 'f'),
+    ]
+    nom = models.CharField(max_length=100, null=True)
+    prenom = models.CharField(max_length=200, null=True)
+    image = models.ImageField(upload_to='temoin', blank=True, null=True)
+    genre = models.CharField(max_length=50, choices=GENRE_TEMOIN, default='M')
+    contenue = models.TextField()
+    date_creation = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f" {self.nom} - {self.prenom} - {self.genre}"
+
+
 
 
 
@@ -182,25 +208,16 @@ class albums(models.Model):
 
 # ========== BUREAU ===========
 class Bureau(models.Model):
-    """
-    Modèle pour gérer la structure organisationnelle de l'Association Communautaire de Kakony.
-    Représente les différents bureaux et comités de développement communautaire.
-    Structure : Bureau Principal → Comités Sectoriels → Groupes de Quartiers/Villages
-    """
+    
     
     TYPE_BUREAU_CHOICES = [
         ('PRINCIPAL', 'Bureau Principal'),
         ('EDUCATION', 'Comité Éducation & Formation'),
         ('SANTE', 'Comité Santé & Hygiène'),
-        ('AGRICULTURE', 'Comité Agriculture & Élevage'),
-        ('INFRASTRUCTURES', 'Comité Infrastructures'),
         ('JEUNESSE', 'Comité Jeunesse & Sport'),
         ('FEMMES', 'Comité des Femmes'),
         ('ENVIRONNEMENT', 'Comité Environnement'),
         ('CULTURE', 'Comité Culture & Tradition'),
-        ('QUARTIER', 'Groupe de Quartier'),
-        ('VILLAGE', 'Groupe de Village'),
-        ('PROJET', 'Comité de Projet Spécifique'),
     ]
     
     STATUT_CHOICES = [
@@ -212,13 +229,8 @@ class Bureau(models.Model):
 
     ZONE_INTERVENTION_CHOICES = [
         ('KAKONY_CENTRE', 'Kakony Centre'),
-        ('QUARTIER_MOSQUE', 'Quartier Mosquée'),
-        ('QUARTIER_MARCHE', 'Quartier Marché'),
-        ('QUARTIER_ECOLE', 'Quartier École'),
-        ('VILLAGES_PERIPHERIE', 'Villages Périphérie'),
-        ('ZONE_AGRICOLE', 'Zone Agricole'),
-        ('DIVERTISSEMENT', 'divertissement'),
-        ('ENSEMBLE_COMMUNE', 'Ensemble de la Commune'),
+        ('Village', 'Village'),
+        
     ]
 
     # Informations de base
@@ -239,7 +251,7 @@ class Bureau(models.Model):
         max_length=200,
         blank=True,
         verbose_name="Adresse locale",
-        help_text="Lieu précis à Kakony (ex: Près de la mosquée centrale, Marché de Kakony)"
+        help_text="Lieu précis à Kakony"
     )
     
     # Structure hiérarchique
@@ -274,15 +286,6 @@ class Bureau(models.Model):
         on_delete=models.PROTECT,
         related_name="bureaux_secretaire_kakony",
         verbose_name="Secrétaire"
-    )
-    
-    secretaire_adjoint = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="bureaux_secretaire_adjoint_kakony",
-        verbose_name="Secrétaire Adjoint(e)",
-        null=True,
-        blank=True
     )
     
     tresorier = models.ForeignKey(
@@ -418,8 +421,7 @@ class Bureau(models.Model):
         # Ajouter les postes optionnels
         if self.vice_president:
             membres_dirigeants.append(self.vice_president)
-        if self.secretaire_adjoint:
-            membres_dirigeants.append(self.secretaire_adjoint)
+        
         if self.responsable_technique:
             membres_dirigeants.append(self.responsable_technique)
         if self.animateur_communautaire:
@@ -635,6 +637,30 @@ class Bureau(models.Model):
     def __repr__(self):
         return f"<Bureau Kakony: {self.nom} - {self.get_type_bureau_display()}>"
 
+"""
+
+class BureauExecutif ( models.Model):
+
+class BureauSuivi (models.Model):
+
+class BureauLogistique (models.Model):
+
+class BureauEducatif (models.Model):
+
+class BureauSanté (models.Model):
+
+class BureauEducatif (models.Model):
+
+class BureauEnvoronement (models.Model):
+
+class BureauCulture (models.Model):
+
+class SalonPartenaire (models.Model):
+
+class SalonReceiveur(models.Model):
+
+
+"""
 
 
 # ========== PUBLICATION =======
@@ -644,7 +670,7 @@ class Publication(models.Model):
     contenu = models.TextField()
     image = models.ImageField(upload_to='publications/images/', blank=True, null=True, verbose_name="Image ")
     video = models.FileField(upload_to='publications/videos/', blank=True, null=True, verbose_name="Vidéo ")
-
+    date_creation = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self):
         return self.titre

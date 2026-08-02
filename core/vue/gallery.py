@@ -4,8 +4,13 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q  # <-- Ajout de l'import manquant
+from django.db.models import Q 
 from core.models import albums
+from core.forms import AlbumsForm
+from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+
 
 
 def gallery(request):
@@ -86,3 +91,89 @@ def gallery(request):
     }
     
     return render(request, 'gallery.html', context)
+
+
+# ========= SUPPRIMMER =========
+def gallery_supprime(request, pk):
+    """Supprimer un album"""
+    album = get_object_or_404(albums, pk=pk)
+    
+    if request.method == 'POST':
+        album_title = album.title
+        album.delete()
+        messages.success(request, f'L\'album "{album_title}" a été supprimé avec succès.')
+        return redirect('gallerie_status')
+
+    return render(request, 'gallery_supprime.html', {'album': album})
+
+
+# ========= GALLERY STATUS =======
+
+@login_required
+def gallery_status(request):
+    """Vue principale pour afficher tous les albums"""
+    # Filtrage par catégorie si demandé
+    category_filter = request.GET.get('category')
+    albums_list = albums.objects.all().order_by('-date_created')
+    
+    if category_filter:
+        albums_list = albums_list.filter(category=category_filter)
+    
+    # Pagination
+    paginator = Paginator(albums_list, 12)  # 12 albums par page
+    page_number = request.GET.get('page')
+    albums_page = paginator.get_page(page_number)
+    
+    # Statistiques par catégorie
+    categories_stats = {}
+    for choice_value, choice_label in albums.CATEGORY_CHOICES:
+        count = albums.objects.filter(category=choice_value).count()
+        categories_stats[choice_value] = {
+            'label': choice_label,
+            'count': count
+        }
+    
+    context = {
+        'albums': albums_page,
+        'categories': albums.CATEGORY_CHOICES,
+        'categories_stats': categories_stats,
+        'current_category': category_filter,
+        'total_albums': albums.objects.count(),
+        'title': 'Gestion de la gallerie'
+    }
+    return render(request, 'gallery_status.html', context)
+
+
+# ========= GALLERIE MODIFIE
+def gallery_modifie(request, pk):
+    """Modifier un album existant"""
+    album = get_object_or_404(albums, pk=pk)
+    
+    if request.method == 'POST':
+        form = AlbumsForm(request.POST, request.FILES, instance=album)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'L\'album "{album.title}" a été modifié avec succès.')
+            return redirect('gallery_status')
+        else:
+            messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
+    else:
+        form = AlbumsForm(instance=album)
+
+    return render(request, 'gallery_modifie.html', {
+        'form': form,
+        'album': album,
+        'title': 'Modifier l\'album'
+    })
+
+
+# ========== GALLLERIE AJOUTE ======
+def gallery_ajouter(request):
+    if request.method == 'POST':
+        form = AlbumsForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('gallery_status')
+    else:
+        form = AlbumsForm()
+    return render(request, 'gallery_ajouter.html', {'form': form})

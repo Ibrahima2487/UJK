@@ -20,10 +20,18 @@ from .vue.membre_create import membre_create
 from .vue.membre_status import membre_status
 from .vue.membre_profile import membre_profile
 
-from .vue.gallery_status import gallery_status
-from .vue.gallery_modifie import gallery_modifie
-from .vue.gallery_supprime import gallery_supprime
-from .vue.gallery_ajouter import gallery_ajouter
+
+# ======== TEMOIGNAGE ==========
+from .vue.actions import temoin
+from .vue.actions import temoin_create
+from .vue.actions import temoin_details
+from .vue.actions import temoin_edit
+
+
+from .vue.gallery import gallery_status
+from .vue.gallery import gallery_modifie
+from .vue.gallery import gallery_supprime
+from .vue.gallery import gallery_ajouter
 
 from .vue.blog import blog_status
 from .vue.blog import blog_create
@@ -31,9 +39,9 @@ from .vue.blog import blog_modifie
 from .vue.blog import blog_supprime
 
 from .vue.bureau import bureau
-from .vue.bureau_details import bureau_details
-from .vue.bureau_ajouter import bureau_ajouter
-from .vue.bureau_modifie import bureau_modifie
+from .vue.bureau import bureau_details
+from .vue.bureau import bureau_ajouter
+from .vue.bureau import bureau_modifie
 
 from .vue.pub_create import pub_create
 from .vue.main import main
@@ -47,14 +55,14 @@ from .vue.comment_modifie import comment_modifie
 
 #================================== DELETE
 from .vue.pub_likes import pub_likes
-#================================== DELETE
+#================================== 
 
 
 
 
 from .vue.comptable import comptable
 from .vue.comptable_form import comptable_form
-#from .vue.comptable import details_mois
+
 
 
 from .vue.contact_status import contact_status

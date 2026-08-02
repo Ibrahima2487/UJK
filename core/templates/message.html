@@ -99,24 +99,12 @@
 <div class="fixed inset-0 flex flex-col bg-gray-100">
     
     <!-- ==================== EN-TÊTE ==================== -->
-    <div class="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white px-4 py-3 shadow-lg">
-        <div class="container mx-auto max-w-4xl">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                    <i class="fas fa-comments text-white text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg">Messagerie UDJK</h1>
-                    <p class="text-xs text-white/80">Discutez avec les membres de la communauté</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 
     <!-- ==================== ZONE DES MESSAGES ==================== -->
     <div id="messages-container" class="flex-1 overflow-y-auto px-4 py-6 messages-scrollbar relative">
         <!-- Watermark logo en fond -->
-        <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+        <div class="absolute inset-0 flex items-center justify-center opacity-50 pointer-events-none">
             <img src="{% static 'image/logo.png' %}" alt="logo" class="w-64 h-64 object-contain">
         </div>
         
@@ -222,15 +210,13 @@
 
                 <!-- Bouton envoi à DROITE -->
                 <button type="submit" 
-                        class="bg-gradient-to-r from-[#128C7E] to-[#075E54] text-white p-3 md:p-4 rounded-full hover:shadow-lg transition-all duration-300 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 shadow-md hover:scale-105 flex-shrink-0 group">
+                        class="bg-gradient-to-r from-yellow-600 shadow-lg rounded-2xl to-blue-600 text-white p-3 md:p-4  hover:shadow-lg transition-all duration-300 flex items-center justify-center w-12 h-12 md:w-14 md:h-14  hover:scale-105 flex-shrink-0 group">
                     <i class="fas fa-paper-plane text-xl md:text-2xl group-hover:rotate-12 transition-transform"></i>
                 </button>
             </form>
             
             <!-- Indicateur clavier -->
-            <div class="text-xs text-gray-400 mt-2 px-2 text-center md:text-left">
-                <i class="far fa-keyboard"></i> Appuyez sur <kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">Enter</kbd> pour envoyer — <kbd class="px-1.5 py-0.5 bg-gray-100 rounded text-xs font-mono">Shift + Enter</kbd> pour nouvelle ligne
-            </div>
+            
         </div>
     </div>
 </div>

@@ -1,20 +1,26 @@
 
-
+{% load static %}
+{% load tailwind_tags %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="UJK - Union des Jeunes de Kakony, association engagée pour le développement communautaire à travers l'éducation, l'autonomisation et les infrastructures durables.">
+    <meta name="theme-color" content="#0a4a7b">
+    <title>{% block title %}Connexion{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    {% tailwind_css %}
+
     <style>
         body {
             font-family: Arial, sans-serif;
             max-width: 400px;
             margin: 50px auto;
             padding: 20px;
-            
-            background: url('data:image/svg+xml,<svg id="visual" viewBox="0 0 900 600" width="900" height="600" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"><rect x="0" y="0" width="900" height="600" fill="%230A4A7B"></rect><defs><linearGradient id="grad1_0" x1="33.3%" y1="0%" x2="100%" y2="100%"><stop offset="20%" stop-color="%230a4a7b" stop-opacity="1"></stop><stop offset="80%" stop-color="%230a4a7b" stop-opacity="1"></stop></linearGradient></defs><defs><linearGradient id="grad2_0" x1="0%" y1="0%" x2="66.7%" y2="100%"><stop offset="20%" stop-color="%230a4a7b" stop-opacity="1"></stop><stop offset="80%" stop-color="%230a4a7b" stop-opacity="1"></stop></linearGradient></defs><g transform="translate(900, 0)"><path d="M0 486.7C-43.5 435.5 -87 384.2 -153.1 369.6C-219.1 354.9 -307.8 377 -344.2 344.2C-380.6 311.4 -364.7 223.8 -379.7 157.3C-394.8 90.8 -440.8 45.4 -486.7 0L0 0Z" fill="%2336A9E1"></path></g><g transform="translate(0, 600)"><path d="M0 -486.7C52 -454.6 104.1 -422.4 167.6 -404.7C231.1 -386.9 306.1 -383.5 344.2 -344.2C382.2 -304.8 383.4 -229.5 401 -166.1C418.6 -102.7 452.7 -51.4 486.7 0L0 0Z" fill="%2336A9E1"></path></g></svg>') center/cover no-repeat fixed;
-        
+            background: linear-gradient(135deg, #0a4a7b 0%, #1a6da0 50%, #2a8ac0 100%);
+         
         }
         .login-container {
             background: white;
@@ -70,6 +76,8 @@
 </head>
 <body>
 
+   
+
     <div class="login-container">
         <h2>Connexion</h2>
         
@@ -108,7 +116,5 @@
             <a href="{% url 'index' %}">Retour à l'accueil</a>
         </p>
     </div>
-
-
 </body>
 </html>

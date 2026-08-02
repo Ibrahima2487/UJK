@@ -9,7 +9,7 @@
         font-weight: bold;
     }
     input{
-        border : 1px solid black;
+        border : 1px solid rgba(0, 0, 0, 0.883);
         padding: 5px;
     }
     textarea{
@@ -20,25 +20,7 @@
 
 <div class="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
     <!-- Header -->
-    <div class="mb-8">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                    </svg>
-                    Completé votre profile de la communauté UJK
-                </h1>
-                <p class="text-white text-extrabold ">Remplissez les informations de votre profile</p>
-            </div>
-            <a href="{% url 'main' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 hover:shadow-md transition-all duration-300">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-                Publication
-            </a>
-        </div>
-    </div>
+    
 
     <!-- Form Container -->
     <div class="bg-white rounded-2xl shadow-lg border border-blue-800 overflow-hidden">
@@ -51,8 +33,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h2 class="text-lg font-semibold text-gray-800">Mise à jour du profile </h2>
-                    <p class="text-sm text-gray-600">Ajouté une image à votre profile pour que la communauté UJK vous reconnaissent </p>
+                    <h6 class="text-lg font-semibold text-gray-800">Publié une témoignage d'un(e) béneficiant(e) </h6>
+                    <!-- <p class="text-sm text-gray-600">Ajouté une image à votre profile pour que la communauté UJK vous reconnaissent </p> -->
                 </div>
             </div>
         </div>
@@ -69,9 +51,9 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    Énregistrer
+                    Publier
                 </button>
-                <a href="{% url 'profile' %}" class="inline-flex items-center justify-center gap-2 px-8 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 hover:shadow-md transition-all duration-300 flex-1">
+                <a href="{% url 'trone' %}" class="inline-flex items-center justify-center gap-2 px-8 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 hover:shadow-md transition-all duration-300 flex-1">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>

@@ -156,9 +156,9 @@ def comptable(request):
             paiement = get_object_or_404(Payment, id=payment_id)
             if paiement.status != 'paye':
                 paiement.marquer_comme_paye(tresorier=request.user)
-                messages.success(request, f"✅ Cotisation de {paiement.utilisateur.username} validée")
+                messages.success(request, f" Cotisation de {paiement.utilisateur.username} validée")
             else:
-                messages.info(request, "ℹ️ Déjà payé")
+                messages.info(request, "Déjà payé")
             return redirect('comptable')
     
     # ===== REQUÊTE DE BASE =====

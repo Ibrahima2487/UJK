@@ -53,7 +53,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'udjkplatform.urls'
+ROOT_URLCONF = 'ujk.urls'
 
 TEMPLATES = [
     {
@@ -70,7 +70,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'udjkplatform.wsgi.application'
+WSGI_APPLICATION = 'ujk.wsgi.application'
 
 # Database - SQLite pure (sans Internet)
 DATABASES = {
@@ -129,7 +129,7 @@ LOGOUT_REDIRECT_URL = '/login/'
 PWA_APP_NAME = 'UJK'
 PWA_APP_SHORT_NAME = 'UJK'
 PWA_APP_DESCRIPTION = 'Site officiel de Union des jeunes de Kakony'
-PWA_APP_THEME_COLOR = "#099ab4"
+PWA_APP_THEME_COLOR = "#097e93"
 PWA_APP_BACKGROUND_COLOR = "#082b6f"
 PWA_APP_DISPLAY = 'standalone'
 PWA_APP_SCOPE = '/'
@@ -146,12 +146,12 @@ PWA_APP_ICONS = [
         'type': 'image/png'
     },
     {
-        'src': '/static/images/logo.png',
+        'src': '/static/image/logo.png',
         'sizes': '192x192',
         'type': 'image/png'
     },
     {
-        'src': '/static/images/logo.png',
+        'src': '/static/image/logo.png',
         'sizes': '512x512',
         'type': 'image/png'
     },
@@ -159,7 +159,7 @@ PWA_APP_ICONS = [
 
 PWA_APP_SPLASH_SCREEN = [
     {
-        'src': '/static/images/logo.png',
+        'src': '/static/image/logo.png',
         'sizes': '512x512',
         'type': 'image/png'
     }

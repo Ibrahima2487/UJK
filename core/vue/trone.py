@@ -12,10 +12,8 @@ def trone(request):
         return redirect('main')
     total_user = User.objects.count()
     paiements = Payment.objects.all()
-    paiements = paiements.count()
-
+    paiemnts = paiements.count()
     
     
-    
-    return render(request, 'trone.html', {"users" : users})
+    return render(request, 'trone.html', {"users" : users, "paiements" : paiemnts})
 

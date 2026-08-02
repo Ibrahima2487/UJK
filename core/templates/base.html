@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="UDJK - Union des Jeunes de Kakony, association engagée pour le développement communautaire à travers l'éducation, l'autonomisation et les infrastructures durables.">
     <meta name="theme-color" content="#0a4a7b">
-    <title>{% block title %}UDJK - Union des Jeunes de Kakony{% endblock %}</title>
+    <title>{% block title %}UJK - Union des Jeunes de Kakony{% endblock %}</title>
     
     <!-- Tailwind CSS -->
     {% tailwind_css %}
@@ -133,7 +133,7 @@
                 <a href="{% url 'about' %}" class="flex items-center gap-2 hover:opacity-80 transition-opacity animate-float">
                     <img src="{% static 'image/logo.png' %}" width="45" height="45" alt="UDJK Logo" class="rounded-full">
                     <span class="text-white font-bold text-lg hidden sm:inline">
-                        UDJK <span class="text-yellow-300">Kakony</span>
+                        UJK <span class="text-yellow-300">KAKONY</span>
                     </span>
                 </a>
                 
@@ -181,7 +181,10 @@
 
     <!-- ==================== CONTENU PRINCIPAL ==================== -->
     <main class="pt-20">
-        {% block content %}{% endblock %}
+        {% block content %}
+        
+        
+        {% endblock %}
     </main>
 
     <!-- ==================== FOOTER ==================== -->

@@ -1,0 +1,135 @@
+{% extends 'membre_base.html' %}
+
+{% block content %}
+    <div class="container mx-auto px-8 py-12">
+
+        <div class="max-w-4xl bg-blue-50 text-extrabold px-4 py-8 shadow-lg">
+
+            <h1 class="text-blue-800">Gérer les temoignage de la plateforme à partir de là</h1>
+        </div>
+
+         <!-- Tableau - Version Desktop -->
+            <div class="hidden py-6 lg:block overflow-x-auto">
+                <table class="w-full min-w-full">
+                    <thead class="bg-gray-50 border border-gray-500">
+                        <tr>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                #
+                            </th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Nom
+                            </th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Prénom
+                            </th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Genre
+                            </th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Contenu
+                            </th>
+                            <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Image
+                            </th>
+                            <th class="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y  border border-blue-200 divide-gray-200">
+                        {% for temoin in temoins %}
+                        <tr class="hover:bg-gray-50 transition-colors border border-gray-400 duration-150" data-contact-id="{{ contact.id }}">
+                            <!-- Colonne Contact -->
+                             <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="ml-3">
+                                    <div class="text-2xl text-extrabold text-gray-900">
+                                        {{ loop.count}}
+                                    </div>
+                                </div>
+                             </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                
+                                <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ temoin.nom|default:"Anonyme" }} 
+                                        </div>
+                                        
+                                    </div>
+                            </td>
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {{ temoin.prenom|default:"UJK" }}
+                                        </div>
+                                        
+                                    </div>
+                            </td>
+
+                            <!-- Colonne Coordonnées -->
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900 space-y-1">
+                                    <div class="flex items-center">
+                                        
+                                        <a href="mailto:{{ contact.email }}" class="text-blue-600 hover:text-blue-800 truncate block max-w-[150px]">
+                                            {{ temoin.genre }}
+                                        </a>
+                                    </div>
+                                    {% if temoin.telephone %}
+                                    <div class="flex items-center">
+                                        <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                                        </svg>
+                                        <span class="text-gray-600">{{ temoin.telephone }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Colonne Message -->
+                            <td class="px-4 sm:px-6 py-4">
+                                <div class="text-sm text-gray-900 max-w-xs">
+                                    {% if temoin.contenue %}
+                                    <div class="message-content">
+                                        <p class="text-gray-700 line-clamp-2 mb-1">{{ temoin.contenue|truncatewords:20 }}</p>
+                                        <button onclick="openMessageModal({{ temoin.id }}, '{{ temoin.nom }}', '{{ temoin.contenu|escapejs }}')" 
+                                                class="text-blue-600 hover:text-blue-800 text-xs font-medium">
+                                             Lire la suite
+                                        </button>
+                                    </div>
+                                    {% else %}
+                                    <span class="text-gray-400 italic text-sm">Aucun message</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            <!-- Colonne Date -->
+                            <td>
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-8 w-8 sm:h-10 sm:w-10">
+                                        {% if temoin.image %}
+                                        <img class="h-8 w-8 sm:h-10 sm:w-10 rounded-full object-cover border border-gray-200" 
+                                             src="{{ temoin.image.url }}" 
+                                             alt="{{ contact.nom }}">
+                                        {% else %}
+                                        <div class="h-8 w-8 sm:h-10 sm:w-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                                            <span class="text-white font-semibold text-xs sm:text-sm">
+                                                <p>Aucune image</p>
+                                            </span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                </div>
+                            </td>
+
+                            <!-- Colonne Actions -->
+                            <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+{% endblock %}

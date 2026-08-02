@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
-from core.models import actualite, albums, Utilisateur, Bureau, Publication, Commentaire, like, Contact, Payment
+from core.models import actualite, albums, Utilisateur, Bureau, Publication, Commentaire, like, Contact, Payment, Temoin
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
@@ -35,6 +35,20 @@ class ActualiteForm(forms.ModelForm):
             'contenu': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Contenu'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
         }
+
+
+# ============== TEMOIGNAGE ==========
+class TemoinForm(forms.ModelForm):
+    class Meta:
+        model = Temoin
+        fields = '__all__'
+        widgets = {
+            'nom': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Votre nom'}),
+            'prenom' : forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Votre prenom'}),
+            'genre' : forms.TextInput(attrs={'class' : 'form-control', 'placeholder': 'Votre genre'}),
+            'contenu': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Message'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+        }       
 
 
 
@@ -135,7 +149,7 @@ class BureauForm(forms.ModelForm):
         fields = [
             'nom', 'sigle', 'type_bureau', 'mission',
             'zone_intervention', 'adresse_locale', 'bureau_parent',
-            'president', 'vice_president', 'secretaire', 'secretaire_adjoint',
+            'president', 'vice_president', 'secretaire',
             'tresorier', 'responsable_technique', 'animateur_communautaire',
             'membres_actifs', 'benevoles',
             'date_creation', 'frequence_reunions',
@@ -145,11 +159,11 @@ class BureauForm(forms.ModelForm):
         widgets = {
             'nom': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ex: Comité Éducation de Kakony Centre'
+                'placeholder': 'Ex: Bureau Exécutif'
             }),
             'sigle': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ex: CEKC',
+                'placeholder': 'Ex: BE',
                 'maxlength': 15
             }),
             'type_bureau': forms.Select(attrs={'class': 'form-select'}),
@@ -161,13 +175,12 @@ class BureauForm(forms.ModelForm):
             'zone_intervention': forms.Select(attrs={'class': 'form-select'}),
             'adresse_locale': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Ex: Près de la mosquée centrale'
+                'placeholder': 'Ex: Kakony centre'
             }),
             'bureau_parent': forms.Select(attrs={'class': 'form-select'}),
             'president': forms.Select(attrs={'class': 'form-select'}),
             'vice_president': forms.Select(attrs={'class': 'form-select'}),
             'secretaire': forms.Select(attrs={'class': 'form-select'}),
-            'secretaire_adjoint': forms.Select(attrs={'class': 'form-select'}),
             'tresorier': forms.Select(attrs={'class': 'form-select'}),
             'responsable_technique': forms.Select(attrs={'class': 'form-select'}),
             'animateur_communautaire': forms.Select(attrs={'class': 'form-select'}),
@@ -196,7 +209,7 @@ class BureauForm(forms.ModelForm):
         users_actifs = User.objects.filter(is_active=True).order_by('first_name', 'last_name')
         
         user_fields = [
-            'president', 'vice_president', 'secretaire', 'secretaire_adjoint',
+            'president', 'vice_president', 'secretaire',
             'tresorier', 'responsable_technique', 'animateur_communautaire'
         ]
         
@@ -236,7 +249,6 @@ class BureauForm(forms.ModelForm):
             cleaned_data.get('president'),
             cleaned_data.get('vice_president'),
             cleaned_data.get('secretaire'),
-            cleaned_data.get('secretaire_adjoint'),
             cleaned_data.get('tresorier'),
             cleaned_data.get('responsable_technique'),
             cleaned_data.get('animateur_communautaire')

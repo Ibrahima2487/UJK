@@ -1,8 +1,0 @@
-{
-  "name": "udjkplatform",
-  "version": "1.0.0",
-  "description": "UDJK Platform",
-  "scripts": {
-    "build": "cd theme/static_src && npm install"
-  }
-}

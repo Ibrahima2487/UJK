@@ -138,7 +138,7 @@
                         Formation de 200 femmes en entrepreneuriat et gestion financière.
                     </p>
                     <div class="bg-pink-50 rounded-lg p-3 mb-4">
-                        <span class="text-sm font-semibold text-pink-600">📊 Résultat :</span>
+                        <span class="text-sm font-semibold text-pink-600">Résultat :</span>
                         <p class="text-sm text-gray-700 mt-1">30 micro-entreprises créées en seulement 6 mois.</p>
                     </div>
                     <button class="w-full px-4 py-2 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-lg font-semibold hover:from-pink-600 hover:to-pink-700 transition-all transform hover:scale-105">
@@ -165,7 +165,7 @@
                         Accès à l'eau potable pour 10 villages de la région.
                     </p>
                     <div class="bg-green-50 rounded-lg p-3 mb-4">
-                        <span class="text-sm font-semibold text-green-600">📊 Projet 2025 :</span>
+                        <span class="text-sm font-semibold text-green-600"> Projet 2025 :</span>
                         <p class="text-sm text-gray-700 mt-1">Construction d'un pont routier pour désenclaver la région.</p>
                     </div>
                     <button class="w-full px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105">
@@ -257,22 +257,22 @@
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
             <div class="animate-fade-up" x-data="{ count: 0 }" x-init="setTimeout(() => { const target = 8; const interval = setInterval(() => { if (count < target) count += Math.ceil(target / 30); else clearInterval(interval); }, 50); }, 200)">
-                <div class="text-4xl md:text-5xl font-bold text-yellow-400" x-text="Math.floor(count)">0</div>
+                <div class="text-4xl md:text-5xl font-bold text-yellow-400" x-text="Math.floor(count)">150</div>
                 <p class="text-white/90 mt-2 font-semibold">Projets réalisés</p>
             </div>
             
             <div class="animate-fade-up delay-1" x-data="{ count: 0 }" x-init="setTimeout(() => { const target = 700; const interval = setInterval(() => { if (count < target) count += Math.ceil(target / 40); else clearInterval(interval); }, 30); }, 200)">
-                <div class="text-4xl md:text-5xl font-bold text-yellow-400" x-text="Math.floor(count)">0</div>
+                <div class="text-4xl md:text-5xl font-bold text-yellow-400" x-text="Math.floor(count)">120</div>
                 <p class="text-white/90 mt-2 font-semibold">Bénéficiaires directs</p>
             </div>
             
             <div class="animate-fade-up delay-2" x-data="{ count: 0 }" x-init="setTimeout(() => { const target = 15; const interval = setInterval(() => { if (count < target) count += Math.ceil(target / 30); else clearInterval(interval); }, 50); }, 200)">
-                <div class="text-4xl md:text-5xl font-bold text-yellow-400" x-text="Math.floor(count)">0</div>
+                <div class="text-4xl md:text-5xl font-bold text-yellow-400" x-text="Math.floor(count)">85</div>
                 <p class="text-white/90 mt-2 font-semibold">Partenaires actifs</p>
             </div>
             
             <div class="animate-fade-up delay-3" x-data="{ count: 0 }" x-init="setTimeout(() => { const target = 200; const interval = setInterval(() => { if (count < target) count += Math.ceil(target / 35); else clearInterval(interval); }, 30); }, 200)">
-                <div class="text-4xl md:text-5xl font-bold text-yellow-400" x-text="Math.floor(count)">0</div>
+                <div class="text-4xl md:text-5xl font-bold text-yellow-400" x-text="Math.floor(count)">55</div>
                 <p class="text-white/90 mt-2 font-semibold">Bénévoles engagés</p>
             </div>
         </div>
@@ -290,7 +290,7 @@
                 Rejoignez-nous pour faire la différence ensemble. Chaque geste compte pour transformer notre communauté.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up delay-2">
-                <a href="#" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105">
+                <a href="{% url 'contact' %}" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105">
                     <i class="fas fa-hand-sparkles"></i>
                     Devenir bénévole
                 </a>

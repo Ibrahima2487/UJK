@@ -24,6 +24,13 @@ urlpatterns = [
     path('gallery_supprime/<int:pk>/', views.gallery_supprime, name='gallery_supprime'),
     path('gallery_ajouter/', views.gallery_ajouter, name="gallery_ajouter"),
 
+
+    # ======= TEMOIN ============
+    path('temoin/', views.temoin, name='temoin'),
+    path('temoin_create/', views.temoin_create, name="temoin_create"),
+    path('temoin_details/<int:pk>/', views.temoin_details, name='temoin_details'),
+    path('temoin_edit/<int:pk>/', views.temoin_edit, name='temoin_edit'),
+
     # =========== PROFILE ==============
     path('profile/', views.profile, name="profile"),
     path('profile_image/', views.profile_image, name="profile_image"),
