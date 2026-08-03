@@ -9,7 +9,7 @@ def message(request):
     """
     Vue unique pour afficher tous les messages et gérer l'ajout de nouveaux messages
     """
-    # Récupérer tous les messages par ordre chronologique (anciens en haut, nouveaux en bas)
+    
     tous_les_messages = Message.objects.all().order_by('date_envoi')
     
     # Gérer l'ajout de nouveau message

@@ -3,399 +3,307 @@
 
 {% block content %}
 
+<main class="max-w-2xl mx-auto px-0 sm:px-3 py-3">
 
-
-<!-- MAIN CONTENT -->
-<main class="max-w-2xl mx-auto px-0 sm:px-4 lg:px-4 py-4">
-    
-
-    <!-- Publications List -->
-    <div class="space-y-2">
+    <div class="space-y-3">
         {% for publication in page_obj %}
-            <article class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <!-- Publication Header -->
-                <div class="p-4">
-                    <div class="flex items-center justify-between mb-3">
-                        <div class="flex items-center space-x-3">
-                            
-                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
-                                <img src="{{ publication.auteur.image.url }}" alt="">
-                                <span class="text-blue-900nt-bold text-sm">
-                                    {{ publication.auteur.username|slice:":2"|upper }}
-                                </span>
+        <article class="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-150 overflow-hidden flex">
+
+            <!-- ==== COLONNE VOTE (style Reddit) ==== -->
+            <div class="hidden sm:flex flex-col items-center bg-gray-50 w-10 py-3 gap-1 flex-shrink-0">
+                <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+                </svg>
+                <span class="text-xs font-bold text-gray-700">{{ publication.total_likes|default:0 }}</span>
+                <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+            </div>
+
+            <!-- ==== CONTENU ==== -->
+            <div class="flex-1 min-w-0">
+                <div class="p-3">
+                    <!-- En-tête -->
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                {% if publication.auteur.image %}
+                                <img src="{{ publication.auteur.image.url }}" alt="" class="w-full h-full object-cover">
+                                {% else %}
+                                <span class="text-white font-bold text-[10px]">{{ publication.auteur.username|slice:":2"|upper }}</span>
+                                {% endif %}
                             </div>
-                            <div>
-                                <h3 class="font-semibold text-gray-900 text-sm">{{ publication.auteur.username }}</h3>
-                                <p class="text-xs text-gray-500 flex items-center">
-                                    <i class="fas fa-clock mr-1"></i>
-                                    {{ publication.date_creation|timesince }}
-                                </p>
+                            <span class="font-semibold text-gray-900 text-xs truncate">u/{{ publication.auteur.username }}</span>
+                            <span class="text-gray-400 text-xs">•</span>
+                            <span class="text-gray-500 text-xs flex-shrink-0">{{ publication.date_creation|timesince }}</span>
+                        </div>
+
+                        {% if user == publication.auteur %}
+                        <div class="relative flex-shrink-0">
+                            <button onclick="toggleMenu({{ publication.pk }})" class="text-gray-400 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-100 transition-colors duration-150">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
+                                </svg>
+                            </button>
+                            <div id="menu-{{ publication.pk }}" class="hidden absolute right-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-100 z-10">
+                                <a href="{% url 'pub_modifie' publication.pk %}" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg">
+                                    <svg class="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                    Modifier
+                                </a>
+                                <form action="#" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="w-full flex items-center gap-2 text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-lg">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        Supprimer
+                                    </button>
+                                </form>
                             </div>
                         </div>
-                        
-                        {% if user == publication.auteur %}
-                            <div class="relative">
-                                <button onclick="toggleMenu({{ publication.pk }})" class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div id="menu-{{ publication.pk }}" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-10">
-                                    <a href="{% url 'pub_modifie' publication.pk %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg">
-                                        <i class="fas fa-edit mr-2 text-blue-500"></i>Modifier
-                                    </a>
-                                    <form action="#" method="post" class="block">
-                                        {% csrf_token %}
-                                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-lg">
-                                            <i class="fas fa-trash mr-2"></i>Supprimer
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
                         {% endif %}
                     </div>
 
                     {% if publication.titre %}
-                        <h2 class="text-lg font-semibold text-blue-900 bg-gray-100 border-blue-600 hadow mb-3 leading-tight">
-                            {{ publication.titre }}
-                        </h2>
+                    <h2 class="text-base font-semibold text-gray-900 mb-1.5 leading-snug">
+                        {{ publication.titre }}
+                    </h2>
                     {% endif %}
 
-                    <div class="mb-4">
-                        <div id="content-{{ publication.pk }}" class="text-gray-800 leading-relaxed">
-                            {% if publication.contenu|length > 300 %}
-                                <p>{{ publication.contenu|slice:":300" }}...</p>
-                                <button onclick="expandContent({{ publication.pk }})" 
-                                        class="text-blue-600 hover:text-blue-800 font-medium text-sm mt-2 transition-colors duration-200">
-                                    Voir plus
-                                </button>
-                                <div id="full-content-{{ publication.pk }}" class="hidden">
-                                    <p>{{ publication.contenu }}</p>
-                                    <button onclick="collapseContent({{ publication.pk }})" 
-                                            class="text-blue-600 hover:text-blue-800 font-medium text-sm mt-2 transition-colors duration-200">
-                                        Voir moins
-                                    </button>
-                                </div>
-                            {% else %}
-                                <p>{{ publication.contenu }}</p>
-                            {% endif %}
+                    <div id="content-{{ publication.pk }}" class="text-gray-800 text-sm leading-relaxed">
+                        {% if publication.contenu|length > 300 %}
+                        <p>{{ publication.contenu|slice:":300" }}...</p>
+                        <button onclick="expandContent({{ publication.pk }})" class="text-blue-600 hover:underline font-medium text-xs mt-1">
+                            Voir plus
+                        </button>
+                        <div id="full-content-{{ publication.pk }}" class="hidden">
+                            <p>{{ publication.contenu }}</p>
+                            <button onclick="collapseContent({{ publication.pk }})" class="text-blue-600 hover:underline font-medium text-xs mt-1">
+                                Voir moins
+                            </button>
                         </div>
+                        {% else %}
+                        <p>{{ publication.contenu }}</p>
+                        {% endif %}
                     </div>
                 </div>
 
-                <!-- MEDIA DISPLAY - FACEBOOK STYLE -->
+                <!-- ==== MÉDIA ==== -->
                 {% if publication.image or publication.video %}
-                <div class="relative bg-gray-50 px-4 pb-4">
+                <div class="px-3 pb-3">
                     <div class="facebook-media-grid">
                         {% if publication.image and publication.video %}
-                            <!-- Image + Vidéo côte à côte -->
-                            <div class="media-grid-2">
-                                <div class="media-item" onclick="openLightbox('{{ publication.image.url }}', 'image', '{{ publication.titre|default:"Image" }}')">
-                                    <img src="{{ publication.image.url }}" 
-                                         alt="Image publication"
-                                         class="media-content">
-                                    <div class="media-overlay">
-                                        <i class="fas fa-expand"></i>
-                                    </div>
-                                </div>
-                                <div class="media-item video-item" onclick="openLightbox('{{ publication.video.url }}', 'video', '{{ publication.titre|default:"Vidéo" }}')">
-                                    <video class="media-content" preload="metadata">
-                                        <source src="{{ publication.video.url }}" type="video/mp4">
-                                    </video>
-                                    <div class="media-overlay video-overlay">
-                                        <i class="fas fa-play"></i>
-                                    </div>
-                                    <div class="video-duration">2:30</div>
+                        <div class="media-grid-2">
+                            <div class="media-item" onclick="openLightbox('{{ publication.image.url }}', 'image', '{{ publication.titre|default:"Image" }}')">
+                                <img src="{{ publication.image.url }}" alt="Image publication" class="media-content">
+                                <div class="media-overlay">
+                                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-5v4m0-4h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
                                 </div>
                             </div>
-                            
+                            <div class="media-item video-item" onclick="openLightbox('{{ publication.video.url }}', 'video', '{{ publication.titre|default:"Vidéo" }}')">
+                                <video class="media-content" preload="metadata">
+                                    <source src="{{ publication.video.url }}" type="video/mp4">
+                                </video>
+                                <div class="media-overlay video-overlay">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </div>
+                            </div>
+                        </div>
                         {% elif publication.image %}
-                            <!-- Image seule -->
-                            <div class="media-grid-1">
-                                <div class="media-item" onclick="openLightbox('{{ publication.image.url }}', 'image', '{{ publication.titre|default:"Image" }}')">
-                                    <img src="{{ publication.image.url }}" 
-                                         alt="Image publication"
-                                         class="media-content">
-                                    <div class="media-overlay">
-                                        <i class="fas fa-expand"></i>
-                                    </div>
+                        <div class="media-grid-1">
+                            <div class="media-item" onclick="openLightbox('{{ publication.image.url }}', 'image', '{{ publication.titre|default:"Image" }}')">
+                                <img src="{{ publication.image.url }}" alt="Image publication" class="media-content">
+                                <div class="media-overlay">
+                                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-5v4m0-4h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
                                 </div>
                             </div>
-                            
+                        </div>
                         {% elif publication.video %}
-                            <!-- Vidéo seule -->
-                            <div class="media-grid-1">
-                                <div class="media-item video-item" onclick="openLightbox('{{ publication.video.url }}', 'video', '{{ publication.titre|default:"Vidéo" }}')">
-                                    <video class="media-content" preload="metadata">
-                                        <source src="{{ publication.video.url }}" type="video/mp4">
-                                    </video>
-                                    <div class="media-overlay video-overlay">
-                                        <i class="fas fa-play"></i>
-                                    </div>
-                                    <div class="video-duration">2:30</div>
+                        <div class="media-grid-1">
+                            <div class="media-item video-item" onclick="openLightbox('{{ publication.video.url }}', 'video', '{{ publication.titre|default:"Vidéo" }}')">
+                                <video class="media-content" preload="metadata">
+                                    <source src="{{ publication.video.url }}" type="video/mp4">
+                                </video>
+                                <div class="media-overlay video-overlay">
+                                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                                 </div>
                             </div>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
                 {% endif %}
 
-                <!-- Likes and Comments -->
-                <div class="px-4 py-2 border-t border-gray-100">
-                    <div class="flex items-center justify-between text-sm text-gray-500">
-                        <div class="flex items-center space-x-1">
-                            {% if publication.total_likes > 0 %}
-                                <div class="flex -space-x-1">
-                                    <div class="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center border-2 border-white">
-                                        <i class="fas fa-heart text-white text-xs"></i>
-                                    </div>
-                                </div>
-                                <span class="ml-2">{{ publication.total_likes }} j'aime</span>
-                            {% endif %}
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            {% if publication.Commentaires.count > 0 %}
-                                <span>{{ publication.Commentaires.count }} commentaire{{ publication.Commentaires.count|pluralize }}</span>
-                            {% endif %}
-                        </div>
+                <!-- ==== BARRE D'ACTIONS (style Reddit) ==== -->
+                <div class="px-3 py-2 border-t border-gray-100 flex items-center gap-4">
+                    <div class="flex sm:hidden items-center gap-1 text-gray-500">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" /></svg>
+                        <span class="text-xs font-semibold">{{ publication.total_likes|default:0 }}</span>
                     </div>
+
+                    <button onclick="openCommentModal({{ publication.pk }})" class="flex items-center gap-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 px-2 py-1.5 rounded-md transition-colors duration-150">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                        <span class="text-xs font-medium">
+                            {{ publication.Commentaires.count|default:0 }} commentaire{{ publication.Commentaires.count|pluralize }}
+                        </span>
+                    </button>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="px-4 py-3 bg-gray-50 border-t border-gray-100">
-                    <div class="flex items-center justify-around">
-                        <button onclick="openCommentModal({{ publication.pk }})" 
-                                class="flex items-center justify-center space-x-2 flex-1 py-2 px-4 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200 font-medium text-sm">
-                            <i class="far fa-comment text-lg"></i>
-                            <span>Commenter</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Comment Modal -->
-                <div id="comment-modal-{{ publication.pk }}" 
-                     class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
-                    <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-90vh overflow-hidden flex flex-col">
+                <!-- ==== MODAL COMMENTAIRES ==== -->
+                <div id="comment-modal-{{ publication.pk }}" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+                    <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
                         <div class="flex items-center justify-between p-4 border-b">
-                            <h3 class="text-lg font-semibold text-gray-900">
+                            <h3 class="text-base font-semibold text-gray-900">
                                 Commentaires ({{ publication.Commentaires.count }})
                             </h3>
-                            <button onclick="closeCommentModal({{ publication.pk }})" class="text-gray-400 hover:text-gray-600 text-xl">
-                                <i class="fas fa-times"></i>
+                            <button onclick="closeCommentModal({{ publication.pk }})" class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
                         </div>
 
                         <div class="p-4 flex-1 overflow-y-auto" style="max-height: 60vh;">
                             {% for commentaire in publication.Commentaires.all %}
-                                <div class="mb-4 last:mb-0">
-                                    <div class="flex items-start space-x-3">
-                                        <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center">
-                                            <span class="text-white font-bold text-xs">
-                                                {{ commentaire.auteur.first_name|slice:":2"|upper }}
-                                            </span>
+                            <div class="mb-4 last:mb-0">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <span class="text-white font-bold text-xs">{{ commentaire.auteur.first_name|slice:":2"|upper }}</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="bg-gray-100 rounded-2xl px-3 py-2">
+                                            <p class="font-medium text-sm text-gray-900">{{ commentaire.auteur.get_full_name }}</p>
+                                            <p class="text-sm text-gray-800">{{ commentaire.texte }}</p>
                                         </div>
-                                        <div class="flex-1">
-                                            <div class="bg-gray-100 rounded-2xl px-3 py-2">
-                                                <p class="font-medium text-sm text-gray-900">{{ commentaire.auteur.get_full_name }}</p> 
-                                                <p class="text-sm text-gray-800">{{ commentaire.texte }}</p>
-                                            </div>
-                                            <div class="flex items-center space-x-4 mt-1 text-xs text-gray-500">
-                                                <span>{{ commentaire.date_com|timesince }}</span>
-                                            </div>
-                                        </div>
+                                        <div class="text-xs text-gray-500 mt-1">{{ commentaire.date_com|timesince }}</div>
                                     </div>
                                 </div>
+                            </div>
                             {% empty %}
-                                <div class="text-center py-8 text-gray-500">
-                                    <i class="far fa-comment fa-2x mb-2"></i>
-                                    <p>Aucun commentaire pour le moment</p>
-                                </div>
+                            <div class="text-center py-8 text-gray-500">
+                                <svg class="w-10 h-10 mx-auto mb-2 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                                <p>Aucun commentaire pour le moment</p>
+                            </div>
                             {% endfor %}
                         </div>
 
                         {% if user.is_authenticated %}
-                        <div class="p-4 border-t">
-                            <form method="post" action="{% url 'commentaire_create' publication.pk %}" class="flex space-x-2">
+                        <div class="p-3 border-t">
+                            <form method="post" action="{% url 'commentaire_create' publication.pk %}" class="flex gap-2">
                                 {% csrf_token %}
-                                <input type="text" name="texte" 
-                                       class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm" 
-                                       placeholder="Écrivez un commentaire..." required>
-                                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
-                                    <i class="fas fa-paper-plane"></i>
+                                <input type="text" name="texte" class="flex-1 border border-gray-300 rounded-full px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Écrivez un commentaire..." required>
+                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                                 </button>
                             </form>
                         </div>
                         {% endif %}
                     </div>
                 </div>
-            </article>
-        {% empty %}
-            <div class="text-center py-16 bg-white rounded-xl shadow-sm">
-                <div class="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-                    <i class="fas fa-newspaper text-gray-400 text-3xl"></i>
-                </div>
-                <h3 class="text-xl font-medium text-gray-900 mb-2">Aucune publication</h3>
-                <p class="text-gray-500 mb-6">Soyez le premier à partager quelque chose avec la communauté !</p>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200 shadow-sm">
-                    <i class="fas fa-plus mr-2"></i>Créer une publication
-                </button>
             </div>
+        </article>
+        {% empty %}
+        <div class="text-center py-16 bg-white rounded-lg border border-gray-200">
+            <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z" /></svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-1">Aucune publication</h3>
+            <p class="text-gray-500 text-sm mb-5">Soyez le premier à partager quelque chose avec la communauté !</p>
+            <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full font-medium text-sm transition-colors duration-150">
+                Créer une publication
+            </button>
+        </div>
         {% endfor %}
     </div>
 
     {% if page_obj.has_other_pages %}
-        <div class="mt-8 bg-white rounded-lg shadow-sm p-6">
-            <!-- Pagination code -->
-        </div>
+    <div class="mt-6 bg-white rounded-lg border border-gray-200 p-4">
+        <!-- Pagination code -->
+    </div>
     {% endif %}
 </main>
 
-<!-- LIGHTBOX AVEC ZOOM ET TÉLÉCHARGEMENT -->
-<div id="lightbox" class="lightbox hidden">
-    <div class="lightbox-backdrop" onclick="closeLightbox()"></div>
-    <div class="lightbox-content">
-        <!-- Bouton fermer -->
-        <button class="lightbox-close" onclick="closeLightbox()">
-            <i class="fas fa-times"></i>
-        </button>
-        
-        <!-- Bouton télécharger -->
-        <button class="lightbox-download" onclick="downloadMedia()">
-            <i class="fas fa-download"></i>
-        </button>
-        
-        <!-- Bouton zoom -->
-        <button class="lightbox-zoom" onclick="toggleZoom()">
-            <i class="fas fa-search-plus"></i>
-        </button>
-        
-        <!-- Contenu média -->
-        <div class="media-container">
-            <img id="lightbox-img" class="lightbox-media hidden" onclick="toggleZoom()">
-            <video id="lightbox-video" class="lightbox-media hidden" controls onclick="event.stopPropagation()">
-                <source src="" type="video/mp4">
-            </video>
-        </div>
-        
-        <!-- Indicateur -->
-        <div class="lightbox-indicator">
-            <span id="lightbox-type"></span>
-        </div>
+<!-- ==== LIGHTBOX PLEIN ÉCRAN (SANS ZOOM) ==== -->
+<div id="lightbox" class="fixed inset-0 z-[1000] hidden items-center justify-center bg-black">
+    <button onclick="closeLightbox()"
+            class="absolute top-4 right-4 z-[1002] w-11 h-11 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-colors duration-150">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
+
+    <button onclick="downloadMedia()"
+            class="absolute top-4 right-[70px] z-[1002] w-11 h-11 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-colors duration-150">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+    </button>
+
+    <div class="w-full h-full flex items-center justify-center p-4" onclick="closeLightbox()">
+        <img id="lightbox-img" class="max-w-full max-h-full object-contain hidden" onclick="event.stopPropagation()">
+        <video id="lightbox-video" class="max-w-full max-h-full object-contain hidden" controls onclick="event.stopPropagation()">
+            <source src="" type="video/mp4">
+        </video>
     </div>
 </div>
 
-<!-- JAVASCRIPT AVEC ZOOM ET TÉLÉCHARGEMENT -->
 <script>
-let currentMedia = {
-    src: '',
-    type: '',
-    filename: ''
-};
-let isZoomed = false;
+let currentMedia = { src: '', type: '', filename: '' };
 
-// Lightbox functions
 function openLightbox(src, type, filename) {
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
     const lightboxVideo = document.getElementById('lightbox-video');
-    const typeIndicator = document.getElementById('lightbox-type');
-    
-    // Sauvegarder les infos du média courant
+
     currentMedia = { src, type, filename };
-    
-    // Reset
+
     lightboxImg.classList.add('hidden');
     lightboxVideo.classList.add('hidden');
     lightboxVideo.pause();
-    resetZoom();
-    
+
     if (type === 'image') {
         lightboxImg.src = src;
         lightboxImg.classList.remove('hidden');
-        typeIndicator.textContent = 'Photo';
-        // Afficher le bouton zoom pour les images
-        document.querySelector('.lightbox-zoom').style.display = 'block';
     } else if (type === 'video') {
         lightboxVideo.innerHTML = `<source src="${src}" type="video/mp4">`;
         lightboxVideo.load();
         lightboxVideo.classList.remove('hidden');
-        typeIndicator.textContent = 'Vidéo';
-        // Cacher le bouton zoom pour les vidéos
-        document.querySelector('.lightbox-zoom').style.display = 'none';
     }
-    
+
     lightbox.classList.remove('hidden');
+    lightbox.classList.add('flex');
     document.body.style.overflow = 'hidden';
 }
 
 function closeLightbox() {
     const lightbox = document.getElementById('lightbox');
     const lightboxVideo = document.getElementById('lightbox-video');
-    
     lightboxVideo.pause();
     lightbox.classList.add('hidden');
+    lightbox.classList.remove('flex');
     document.body.style.overflow = 'auto';
-    resetZoom();
 }
 
-// Fonction de zoom
-function toggleZoom() {
-    const lightboxImg = document.getElementById('lightbox-img');
-    if (currentMedia.type !== 'image') return;
-    
-    if (!isZoomed) {
-        lightboxImg.style.transform = 'scale(2)';
-        lightboxImg.style.cursor = 'zoom-out';
-        isZoomed = true;
-    } else {
-        resetZoom();
-    }
-}
-
-function resetZoom() {
-    const lightboxImg = document.getElementById('lightbox-img');
-    lightboxImg.style.transform = 'scale(1)';
-    lightboxImg.style.cursor = 'zoom-in';
-    isZoomed = false;
-}
-
-// Fonction de téléchargement
 function downloadMedia() {
     if (!currentMedia.src) return;
-    
-    // Créer un lien de téléchargement
     const link = document.createElement('a');
     link.href = currentMedia.src;
-    
-    // Générer un nom de fichier
     const timestamp = new Date().getTime();
     let extension = currentMedia.type === 'image' ? '.jpg' : '.mp4';
     let filename = currentMedia.filename || `media_${timestamp}`;
-    
-    // Nettoyer le nom de fichier
     filename = filename.replace(/[^a-zA-Z0-9]/g, '_') + extension;
-    
     link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 }
 
-// Comment modal functions
 function openCommentModal(publicationId) {
-    const modal = document.getElementById(`comment-modal-${publicationId}`);
-    modal.classList.remove('hidden');
+    document.getElementById(`comment-modal-${publicationId}`).classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
 
 function closeCommentModal(publicationId) {
-    const modal = document.getElementById(`comment-modal-${publicationId}`);
-    modal.classList.add('hidden');
+    document.getElementById(`comment-modal-${publicationId}`).classList.add('hidden');
     document.body.style.overflow = 'auto';
 }
 
-// Other functions
 function toggleMenu(publicationId) {
-    const menu = document.getElementById(`menu-${publicationId}`);
-    menu.classList.toggle('hidden');
+    document.getElementById(`menu-${publicationId}`).classList.toggle('hidden');
 }
 
 function expandContent(publicationId) {
@@ -408,296 +316,28 @@ function collapseContent(publicationId) {
     document.getElementById(`full-content-${publicationId}`).classList.add('hidden');
 }
 
-// Event listeners
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
         closeLightbox();
-        const modals = document.querySelectorAll('[id^="comment-modal-"]');
-        modals.forEach(modal => modal.classList.add('hidden'));
+        document.querySelectorAll('[id^="comment-modal-"]').forEach(m => m.classList.add('hidden'));
         document.body.style.overflow = 'auto';
     }
-    
-    // Zoom avec la molette de la souris
-    if (event.key === 'z' || event.key === 'Z') {
-        if (!document.getElementById('lightbox').classList.contains('hidden')) {
-            toggleZoom();
-        }
-    }
-});
-
-// Close modals when clicking outside
-document.addEventListener('click', function(event) {
-    if (event.target.classList.contains('fixed')) {
-        const modals = document.querySelectorAll('[id^="comment-modal-"]');
-        modals.forEach(modal => modal.classList.add('hidden'));
-        document.body.style.overflow = 'auto';
-    }
-});
-
-// Zoom avec double-clic sur l'image
-document.getElementById('lightbox-img').addEventListener('dblclick', function() {
-    toggleZoom();
 });
 </script>
 
-<!-- STYLES AVEC BOUTONS DE TÉLÉCHARGEMENT ET ZOOM -->
 <style>
-/* Facebook Media Grid */
-.facebook-media-grid {
-    width: 100%;
-}
+.facebook-media-grid { width: 100%; }
+.media-grid-1 { display: grid; grid-template-columns: 1fr; gap: 2px; border-radius: 8px; overflow: hidden; }
+.media-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; border-radius: 8px; overflow: hidden; }
+.media-item { position: relative; background: #000; cursor: pointer; }
+.media-content { width: 100%; height: 280px; object-fit: cover; display: block; }
+.media-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s ease; }
+.media-item:hover .media-overlay { opacity: 1; }
+.media-overlay svg { background: rgba(0,0,0,0.7); border-radius: 50%; width: 44px; height: 44px; padding: 10px; }
 
-.media-grid-1 {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2px;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.media-grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.media-item {
-    position: relative;
-    background: #000;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-.media-item:hover {
-    transform: scale(1.01);
-}
-
-.media-content {
-    width: 100%;
-    height: 300px;
-    object-fit: cover;
-    display: block;
-}
-
-.media-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.media-item:hover .media-overlay {
-    opacity: 1;
-}
-
-.media-overlay i {
-    color: white;
-    font-size: 24px;
-    background: rgba(0, 0, 0, 0.7);
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.video-overlay {
-    background: rgba(0, 0, 0, 0.5);
-}
-
-.video-duration {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-/* Lightbox Styles avec boutons */
-.lightbox {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.lightbox-backdrop {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.9);
-}
-
-.lightbox-content {
-    position: relative;
-    z-index: 1001;
-    max-width: 90vw;
-    max-height: 90vh;
-    background: #000;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-/* Boutons lightbox */
-.lightbox-close {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: rgba(0, 0, 0, 0.7);
-    border: none;
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 1002;
-    transition: all 0.3s ease;
-}
-
-.lightbox-close:hover {
-    background: rgba(0, 0, 0, 0.9);
-    transform: scale(1.1);
-}
-
-.lightbox-download {
-    position: absolute;
-    top: 15px;
-    right: 65px;
-    background: rgba(0, 0, 0, 0.7);
-    border: none;
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 1002;
-    transition: all 0.3s ease;
-}
-
-.lightbox-download:hover {
-    background: rgba(0, 0, 0, 0.9);
-    transform: scale(1.1);
-}
-
-.lightbox-zoom {
-    position: absolute;
-    top: 15px;
-    right: 115px;
-    background: rgba(0, 0, 0, 0.7);
-    border: none;
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 1002;
-    transition: all 0.3s ease;
-}
-
-.lightbox-zoom:hover {
-    background: rgba(0, 0, 0, 0.9);
-    transform: scale(1.1);
-}
-
-.media-container {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    min-height: 0;
-    cursor: default;
-}
-
-.lightbox-media {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    transition: transform 0.3s ease;
-}
-
-#lightbox-img {
-    cursor: zoom-in;
-}
-
-#lightbox-img.zoomed {
-    cursor: zoom-out;
-}
-
-.lightbox-indicator {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 14px;
-}
-
-/* Utility */
-.hidden {
-    display: none !important;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .media-content {
-        height: 200px;
-    }
-    
-    .media-grid-2 {
-        grid-template-columns: 1fr;
-    }
-    
-    .lightbox-content {
-        max-width: 95vw;
-        max-height: 95vh;
-    }
-    
-    .lightbox-media {
-        padding: 10px;
-        max-height: 70vh;
-    }
-    
-    .lightbox-download {
-        right: 60px;
-    }
-    
-    .lightbox-zoom {
-        right: 105px;
-    }
+@media (max-width: 640px) {
+    .media-content { height: 200px; }
+    .media-grid-2 { grid-template-columns: 1fr; }
 }
 </style>
 
