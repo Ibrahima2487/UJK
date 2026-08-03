@@ -9,3 +9,4 @@ django-pwa==2.0.1
 django-tailwind==4.4.2
 pytailwindcss==0.3.0
 pillow==12.3.0
+qrcode==8.2
