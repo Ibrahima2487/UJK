@@ -1,272 +1,505 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from datetime import timedelta
+from datetime import date, datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum, Q
+from django.db.models.functions import TruncMonth
+from django.http import HttpResponseForbidden, JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.http import HttpResponse
-from datetime import datetime
-import io
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.platypus import Table, TableStyle, SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-from core.models import Payment, User
+
+from core.models import Bureau, Caisse, Payment, Depense, JournalCaisse, FicheControle
+from core.forms import PaymentForm, DepenseForm, FicheControleForm
 
 
+# ============================================================
+#  Permission comptabilité
+# ============================================================
+
+
+
+COULEURS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']
+
+
+def _caisse_selectionnee(request):
+    caisse_id = request.session.get('caisse_id')
+    if caisse_id:
+        try:
+            return Caisse.objects.get(pk=caisse_id)
+        except Caisse.DoesNotExist:
+            pass
+    return Caisse.get_ou_creer_principale()
+
+
+def peut_gerer_comptabilite(user):
+    return user.is_staff or user.is_superuser
+
+
+def _fmt(n):
+    """Formate un nombre avec POINT décimal pour SVG."""
+    return "{:.2f}".format(float(n))
+
+
+def _fmt0(n):
+    """Formate sans décimale, avec point."""
+    return "{:.0f}".format(float(n))
+
+
+def _format_compact(val):
+    n = float(val) if val else 0
+    if n >= 1000000:
+        return f"{n/1000000:.1f}M"
+    if n >= 1000:
+        return f"{n/1000:.0f}k"
+    return f"{n:.0f}"
+
+
+# ============================================================
+# VUE PRINCIPALE
+# ============================================================
 
 @login_required
 def comptable(request):
-    """
-    UNE SEULE FONCTION QUI FAIT TOUT :
-    - Liste des paiements
-    - Filtres par mois et année
-    - Statistiques
-    - Mes paiements (utilisateur connecté)
-    - Marquer comme payé (staff uniquement)
-    - Export PDF par mois
-    """
-    
-    # ===== GESTION DE L'EXPORT PDF =====
-    if request.GET.get('export_pdf') and request.user.is_staff:
-        # Récupérer les paramètres de filtrage
-        mois = request.GET.get('mois')
-        annee = request.GET.get('annee')
-        
-        if not mois or not annee:
-            messages.error(request, "❌ Veuillez sélectionner un mois et une année pour l'export PDF")
-            return redirect('comptable')
-        
-        try:
-            mois = int(mois)
-            annee = int(annee)
-        except (ValueError, TypeError):
-            messages.error(request, "❌ Paramètres de mois/année invalides")
-            return redirect('comptable')
-        
-        # Récupérer les paiements du mois
-        paiements = Payment.objects.filter(
-            mois__month=mois,
-            mois__year=annee
-        ).select_related('utilisateur').order_by('utilisateur__last_name')
-        
-        # Statistiques du mois
-        stats = {
-            'total': paiements.count(),
-            'payes': paiements.filter(status='paye').count(),
-            'en_attente': paiements.filter(status='en_attente').count(),
-            'en_retard': paiements.filter(status='retard').count(),
-            'montant_total': paiements.aggregate(Sum('montant'))['montant__sum'] or 0,
-            'montant_paye': paiements.filter(status='paye').aggregate(Sum('montant'))['montant__sum'] or 0,
-        }
-        
-        # Créer le buffer PDF
-        buffer = io.BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=1*inch)
-        elements = []
-        
-        # Styles
-        styles = getSampleStyleSheet()
-        style_heading = styles['Heading1']
-        style_normal = styles['Normal']
-        
-        # Titre
-        nom_mois = datetime(2000, mois, 1).strftime('%B')
-        titre = f"Rapport des Cotisations - {nom_mois} {annee}"
-        elements.append(Paragraph(titre, style_heading))
-        elements.append(Spacer(1, 0.2*inch))
-        
-        # Statistiques
-        stats_text = f"""
-        <b>Statistiques du mois :</b><br/>
-        Total cotisations: {stats['total']}<br/>
-        Cotisations payées: {stats['payes']}<br/>
-        En attente: {stats['en_attente']}<br/>
-        En retard: {stats['en_retard']}<br/>
-        Montant total: {stats['montant_total']} GNF<br/>
-        Montant payé: {stats['montant_paye']} GNF
-        """
-        elements.append(Paragraph(stats_text, style_normal))
-        elements.append(Spacer(1, 0.3*inch))
-        
-        # Tableau des paiements
-        if paiements.exists():
-            # En-têtes du tableau - SANS payment_method
-            data = [['Utilisateur', 'Mois', 'Montant', 'Statut', 'Date création']]
-            
-            # Données
-            for paiement in paiements:
-                status_display = dict(Payment.STATUS_CHOICES).get(paiement.status, paiement.status)
-                data.append([
-                    f"{paiement.utilisateur.get_full_name() or paiement.utilisateur.username}",
-                    paiement.mois.strftime('%m/%Y'),
-                    f"{paiement.montant} GNF",
-                    status_display,
-                    paiement.date_create.strftime('%d/%m/%Y')
-                ])
-            
-            # Créer le tableau avec 5 colonnes (sans méthode de paiement)
-            table = Table(data, colWidths=[2.2*inch, 0.8*inch, 1*inch, 1.2*inch, 1*inch])
-            table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2c3e50')),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 12),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#ecf0f1')),
-                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-                ('FONTSIZE', (0, 1), (-1, -1), 10),
-                ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#bdc3c7'))
-            ]))
-            
-            elements.append(table)
-        else:
-            elements.append(Paragraph("Aucune cotisation pour ce mois.", style_normal))
-        
-        # Pied de page
-        elements.append(Spacer(1, 0.3*inch))
-        elements.append(Paragraph(f"Généré le {timezone.now().strftime('%d/%m/%Y à %H:%M')}", style_normal))
-        elements.append(Paragraph(f"Par {request.user.get_full_name() or request.user.username}", style_normal))
-        
-        # Générer le PDF
-        doc.build(elements)
-        
-        # Préparer la réponse
-        buffer.seek(0)
-        response = HttpResponse(buffer, content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="cotisations_{nom_mois}_{annee}.pdf"'
-        
-        return response
+    # ── 1. Année ─────────────────────────────────────────────
+    try:
+        annee = int(request.GET.get('annee', timezone.now().year))
+    except (ValueError, TypeError):
+        annee = timezone.now().year
 
-    # ===== GESTION NORMALE DE LA PAGE COMPTABLE =====
-    
-    # Récupérer les paramètres
-    mois_filtre = request.GET.get('mois', '')
-    annee_filtre = request.GET.get('annee', '')
-    status_filtre = request.GET.get('status', '')
-    utilisateur_filtre = request.GET.get('utilisateur', '')
-    action = request.GET.get('action', '')
-    
-    # ===== MARQUER COMME PAYÉ =====
-    if action == 'payer' and request.user.is_staff:
-        payment_id = request.GET.get('payment_id')
-        if payment_id:
-            paiement = get_object_or_404(Payment, id=payment_id)
-            if paiement.status != 'paye':
-                paiement.marquer_comme_paye(tresorier=request.user)
-                messages.success(request, f" Cotisation de {paiement.utilisateur.username} validée")
-            else:
-                messages.info(request, "Déjà payé")
-            return redirect('comptable')
-    
-    # ===== REQUÊTE DE BASE =====
-    # Si utilisateur normal : voir uniquement ses paiements
-    # Si staff : voir tous les paiements
-    if request.user.is_staff:
-        paiements = Payment.objects.select_related('utilisateur').all()
-    else:
-        paiements = Payment.objects.filter(utilisateur=request.user)
-    
-    # ===== APPLIQUER LES FILTRES =====
-    if mois_filtre:
-        paiements = paiements.filter(mois__month=mois_filtre)
-    
-    if annee_filtre:
-        paiements = paiements.filter(mois__year=annee_filtre)
-    else:
-        # Par défaut : année en cours
-        annee_filtre = timezone.now().year
-        paiements = paiements.filter(mois__year=annee_filtre)
-    
-    if status_filtre:
-        paiements = paiements.filter(status=status_filtre)
-    
-    if utilisateur_filtre and request.user.is_staff:
-        paiements = paiements.filter(
-            Q(utilisateur__username__icontains=utilisateur_filtre) |
-            Q(utilisateur__first_name__icontains=utilisateur_filtre) |
-            Q(utilisateur__last_name__icontains=utilisateur_filtre)
-        )
-    
-    # ===== STATISTIQUES GLOBALES =====
-    stats = {
-        'total_paiements': paiements.count(),
-        'total_montant': paiements.aggregate(Sum('montant'))['montant__sum'] or 0,
-        'payes': paiements.filter(status='paye').count(),
-        'en_attente': paiements.filter(status='en_attente').count(),
-        'en_retard': paiements.filter(status='retard').count(),
-        'montant_paye': paiements.filter(status='paye').aggregate(Sum('montant'))['montant__sum'] or 0,
-        'montant_attente': paiements.filter(status='en_attente').aggregate(Sum('montant'))['montant__sum'] or 0,
-        'montant_retard': paiements.filter(status='retard').aggregate(Sum('montant'))['montant__sum'] or 0,
-    }
-    
-    # ===== STATISTIQUES PAR MOIS =====
-    stats_mensuelles = []
-    for mois in range(1, 13):
-        if request.user.is_staff:
-            paiements_mois = Payment.objects.filter(
-                mois__year=annee_filtre,
-                mois__month=mois
-            )
-        else:
-            paiements_mois = Payment.objects.filter(
-                utilisateur=request.user,
-                mois__year=annee_filtre,
-                mois__month=mois
-            )
-        
-        stats_mensuelles.append({
-            'mois': mois,
-            'nom_mois': datetime(2000, mois, 1).strftime('%B'),
-            'total': paiements_mois.count(),
-            'payes': paiements_mois.filter(status='paye').count(),
-            'en_attente': paiements_mois.filter(status='en_attente').count(),
-            'en_retard': paiements_mois.filter(status='retard').count(),
-            'montant': paiements_mois.aggregate(Sum('montant'))['montant__sum'] or 0,
+    # ── 2. Caisse ────────────────────────────────────────────
+    caisse = _caisse_selectionnee(request)
+
+    # ── 3. Stats ─────────────────────────────────────────────
+    stats = Payment.statistiques_globales()
+
+    # ── 4. Caisses enrichies ─────────────────────────────────
+    solde_global = float(Caisse.solde_consolide())
+    caisses_qs = Caisse.objects.all()
+    caisses_principales_count = caisses_qs.filter(est_principale=True).count()
+
+    for i, c in enumerate(caisses_qs):
+        c.couleur = COULEURS[i % len(COULEURS)]
+        c.pourcentage = (float(c.solde) / solde_global * 100) if solde_global > 0 else 0
+        c.solde_compact = _format_compact(c.solde)
+
+    # ── 5. KPI Entrées/Sorties du mois ───────────────────────
+    debut_mois = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    mouvements_mois = caisse.journal.filter(date_operation__gte=debut_mois)
+    total_entrees_mois = float(mouvements_mois.filter(type_operation='entree').aggregate(s=Sum('montant'))['s'] or 0)
+    total_sorties_mois = float(mouvements_mois.filter(type_operation='sortie').aggregate(s=Sum('montant'))['s'] or 0)
+    nombre_entrees = mouvements_mois.filter(type_operation='entree').count()
+    nombre_sorties = mouvements_mois.filter(type_operation='sortie').count()
+    total_mouvements_mois = total_entrees_mois + total_sorties_mois
+    if total_mouvements_mois == 0:
+        total_mouvements_mois = 1  # évite division par zéro
+
+    # ── 6. Dépenses par catégorie ────────────────────────────
+    depenses_categorie = (
+        Depense.objects.filter(caisse=caisse).values('categorie')
+        .annotate(total=Sum('montant')).order_by('-total')
+    )
+    labels_categories = dict(Depense.CATEGORIE_CHOICES)
+    depenses_par_categorie = []
+    total_depenses = 0
+    for i, e in enumerate(depenses_categorie):
+        total = float(e['total'] or 0)
+        total_depenses += total
+        depenses_par_categorie.append({
+            'label': labels_categories.get(e['categorie'], e['categorie']),
+            'total': total,
+            'couleur': COULEURS[i % len(COULEURS)],
         })
-    
-    # ===== ANNÉES DISPONIBLES =====
-    if request.user.is_staff:
-        annees_disponibles = Payment.objects.dates('mois', 'year', order='DESC')
+    max_depense = max((d['total'] for d in depenses_par_categorie), default=1)
+    for d in depenses_par_categorie:
+        d['pct'] = (d['total'] / max_depense * 100) if max_depense > 0 else 0
+        d['pct_total'] = (d['total'] / total_depenses * 100) if total_depenses > 0 else 0
+
+    # ── 7. Taux paiement mensuel (histogramme SVG) ───────────
+    mensuel = Payment.statistiques_mensuelles(annee)
+    max_mensuel = max((float(m['total_attendu']) for m in mensuel), default=1)
+    if max_mensuel == 0:
+        max_mensuel = 1
+    bar_width = 500 / 12
+    mensuel_data = []
+    taux_points = []
+    for i, m in enumerate(mensuel):
+        attendu = float(m['total_attendu'])
+        paye = float(m['total_paye'])
+        bar_h = (attendu / max_mensuel * 180) if max_mensuel else 0
+        pay_h = (paye / max_mensuel * 180) if max_mensuel else 0
+        mensuel_data.append({
+            'label': m['label'],
+            'bar_x': _fmt(i * bar_width + 4),
+            'bar_y': _fmt(200 - bar_h),
+            'bar_w': _fmt(bar_width - 8),
+            'bar_h': _fmt(bar_h),
+            'pay_x': _fmt(i * bar_width + 7),
+            'pay_y': _fmt(200 - pay_h),
+            'pay_w': _fmt(bar_width - 14),
+            'pay_h': _fmt(pay_h),
+        })
+        taux_y = 200 - (m['taux_paiement'] / 100 * 180)
+        taux_points.append({
+            'x': _fmt(i * bar_width + bar_width / 2),
+            'y': _fmt(taux_y),
+        })
+    taux_line_points = ' '.join(f"{p['x']},{p['y']}" for p in taux_points)
+
+    # ── 8. Évolution solde (courbe SVG) ──────────────────────
+    date_debut = timezone.now() - timedelta(days=60)
+    mouvements_periode = list(caisse.journal.filter(date_operation__gte=date_debut).order_by('date_operation'))
+
+    solde_initial = float(caisse.solde)
+    for mvt in mouvements_periode:
+        if mvt.type_operation == 'entree':
+            solde_initial -= float(mvt.montant)
+        else:
+            solde_initial += float(mvt.montant)
+
+    evolution_labels = []
+    evolution_vals = []
+    solde_courant = solde_initial
+    for mvt in mouvements_periode:
+        if mvt.type_operation == 'entree':
+            solde_courant += float(mvt.montant)
+        else:
+            solde_courant -= float(mvt.montant)
+        evolution_labels.append(mvt.date_operation.strftime('%d/%m'))
+        evolution_vals.append(solde_courant)
+
+    if not evolution_labels:
+        evolution_labels = [timezone.now().strftime('%d/%m')]
+        evolution_vals = [float(caisse.solde)]
+
+    max_val = max(evolution_vals) if evolution_vals else 1
+    min_val = min(evolution_vals) if evolution_vals else 0
+    range_val = max_val - min_val or 1
+
+    evolution_points = []
+    for i, v in enumerate(evolution_vals):
+        x = (i / (len(evolution_vals) - 1)) * 500 if len(evolution_vals) > 1 else 250
+        y = 200 - ((v - min_val) / range_val * 170) - 15
+        evolution_points.append({'x': _fmt(x), 'y': _fmt(y)})
+
+    line_points = ' '.join(f"{p['x']},{p['y']}" for p in evolution_points)
+    if evolution_points:
+        area_points = f"{evolution_points[0]['x']},200 {line_points} {evolution_points[-1]['x']},200"
     else:
-        annees_disponibles = Payment.objects.filter(
-            utilisateur=request.user
-        ).dates('mois', 'year', order='DESC')
-    
-    # ===== MOIS DISPONIBLES =====
-    mois_disponibles = [
-        {'num': 1, 'nom': 'Janvier'},
-        {'num': 2, 'nom': 'Février'},
-        {'num': 3, 'nom': 'Mars'},
-        {'num': 4, 'nom': 'Avril'},
-        {'num': 5, 'nom': 'Mai'},
-        {'num': 6, 'nom': 'Juin'},
-        {'num': 7, 'nom': 'Juillet'},
-        {'num': 8, 'nom': 'Août'},
-        {'num': 9, 'nom': 'Septembre'},
-        {'num': 10, 'nom': 'Octobre'},
-        {'num': 11, 'nom': 'Novembre'},
-        {'num': 12, 'nom': 'Décembre'},
-    ]
-    
-    # ===== VÉRIFIER SI ON PEUT EXPORTER =====
-    peut_exporter = bool(mois_filtre and annee_filtre and request.user.is_staff)
-    
+        area_points = ""
+
+    # ── 9. Camembert SVG ─────────────────────────────────────
+    pie_slices = []
+    current_angle = -90
+    for i, c in enumerate(caisses_qs):
+        pct = (float(c.solde) / solde_global) if solde_global > 0 else 0
+        arc = pct * 376.99
+        pie_slices.append({
+            'start_angle': _fmt(current_angle),
+            'arc': _fmt(arc),
+            'gap': _fmt(376.99 - arc),
+            'color': c.couleur,
+        })
+        current_angle += pct * 360
+
+    # ── 10. Derniers mouvements ──────────────────────────────
+    derniers_mouvements = (
+        caisse.journal
+        .select_related('caisse', 'cotisation__utilisateur', 'depense')
+        .order_by('-date_operation')[:10]
+    )
+
+    # ── 11. Contexte ─────────────────────────────────────────
     context = {
-        'paiements': paiements,
+        'caisse': caisse,
+        'caisses': caisses_qs,
+        'caisses_principales_count': caisses_principales_count,
+        'solde_consolide': solde_global,
+        'solde_consolide_compact': _format_compact(solde_global),
         'stats': stats,
-        'stats_mensuelles': stats_mensuelles,
-        'annees_disponibles': annees_disponibles,
-        'mois_disponibles': mois_disponibles,
-        'mois_filtre': mois_filtre,
-        'annee_filtre': annee_filtre,
-        'status_filtre': status_filtre,
-        'utilisateur_filtre': utilisateur_filtre,
-        'status_choices': Payment.STATUS_CHOICES,
-        'is_staff': request.user.is_staff,
-        'peut_exporter': peut_exporter,
+        'annee': annee,
+        'annees_disponibles': [timezone.now().year, timezone.now().year - 1, timezone.now().year - 2],
+        'date_du_jour': timezone.now().strftime('%A %d %B %Y').capitalize(),
+        'total_entrees_mois': total_entrees_mois,
+        'total_sorties_mois': total_sorties_mois,
+        'total_mouvements_mois': total_mouvements_mois,
+        'nombre_entrees': nombre_entrees,
+        'nombre_sorties': nombre_sorties,
+        'depenses_par_categorie': depenses_par_categorie,
+        'mensuel_data': mensuel_data,
+        'taux_points': taux_points,
+        'taux_line_points': taux_line_points,
+        'evolution_labels': evolution_labels,
+        'evolution_points': evolution_points,
+        'line_points': line_points,
+        'area_points': area_points,
+        'pie_slices': pie_slices,
+        'derniers_mouvements': derniers_mouvements,
+        'peut_gerer': peut_gerer_comptabilite(request.user),
     }
-    
+
+    # ── 12. JSON si AJAX ─────────────────────────────────────
+    est_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if est_ajax or request.GET.get('format') == 'json':
+        caisses_json = []
+        for c in caisses_qs:
+            caisses_json.append({
+                'id': c.id, 'nom': c.nom, 'solde': str(c.solde),
+                'est_principale': c.est_principale,
+                'date_maj': c.date_maj.strftime('%d/%m/%Y %H:%M'),
+            })
+        return JsonResponse({
+            'caisses': caisses_json,
+            'stats': {k: str(v) if isinstance(v, Decimal) else v for k, v in stats.items()},
+        })
+
     return render(request, 'comptable.html', context)
+
+
+@login_required
+def cotisation_ajouter(request):
+    if not peut_gerer_comptabilite(request.user):
+        return HttpResponseForbidden("Action réservée à la gestion de la comptabilité.")
+
+    if request.method == 'POST':
+        form = PaymentForm(request.POST)
+        if form.is_valid():
+            cotisation = form.save()
+            messages.success(
+                request,
+                f"Cotisation de {cotisation.utilisateur} enregistrée pour {cotisation.mois:%B %Y}."
+            )
+            return redirect('cotisation_liste')
+    else:
+        form = PaymentForm()
+
+    context = {'form': form}
+    return render(request, 'cotisation_ajouter.html', context)
+
+
+@login_required
+def cotisation_details(request, pk):
+    cotisation = get_object_or_404(Payment.objects.select_related('utilisateur', 'caisse'), pk=pk)
+    context = {
+        'cotisation': cotisation,
+        'historique': cotisation.historique.select_related('utilisateur_admin'),
+        'peut_gerer': peut_gerer_comptabilite(request.user),
+    }
+    return render(request, 'cotisation_details.html', context)
+
+
+@login_required
+def cotisation_marquer_paye(request, pk):
+    if not peut_gerer_comptabilite(request.user):
+        return HttpResponseForbidden("Action réservée à la gestion de la comptabilité.")
+
+    cotisation = get_object_or_404(Payment, pk=pk)
+
+    if request.method != 'POST':
+        return HttpResponseForbidden("Méthode non autorisée.")
+
+    if cotisation.est_paye:
+        messages.info(request, "Cette cotisation est déjà marquée payée.")
+    else:
+        # Le trésorier peut choisir la caisse de destination (multi-caisses) ;
+        # sinon la caisse principale. Tout l'encaissement se joue dans Payment.save().
+        cotisation.marquer_comme_paye(tresorier=request.user, caisse=_caisse_selectionnee(request))
+        messages.success(request, f"Cotisation de {cotisation.utilisateur} marquée payée.")
+
+    return redirect('cotisation_details', pk=cotisation.pk)
+
+
+# ============================================================
+#  DÉPENSES
+# ============================================================
+@login_required
+def depense_liste(request):
+    depenses = Depense.objects.select_related('caisse', 'projet', 'autorise_par').all()
+
+    categorie = request.GET.get('categorie')
+    if categorie:
+        depenses = depenses.filter(categorie=categorie)
+
+    caisse_id = request.GET.get('caisse')
+    if caisse_id:
+        depenses = depenses.filter(caisse_id=caisse_id)
+
+    context = {
+        'depenses': depenses,
+        'peut_gerer': peut_gerer_comptabilite(request.user),
+        'categorie_filtre': categorie or '',
+        'caisses': Caisse.objects.all(),
+    }
+    return render(request, 'depense_liste.html', context)
+
+
+@login_required
+def depense_ajouter(request):
+    if not peut_gerer_comptabilite(request.user):
+        return HttpResponseForbidden("Action réservée à la gestion de la comptabilité.")
+
+    if request.method == 'POST':
+        form = DepenseForm(request.POST, request.FILES)
+        if form.is_valid():
+            depense = form.save(commit=False)
+            depense.caisse = _caisse_selectionnee(request)  # multi-caisses : celle choisie dans le formulaire
+            depense.autorise_par = request.user
+            try:
+                depense.save()  # déclenche caisse.retirer() dans Depense.save()
+            except Exception as exc:
+                form.add_error(None, str(exc))
+                return render(request, 'depense_ajouter.html', {'form': form, 'caisses': Caisse.objects.all()})
+            messages.success(request, f"Dépense « {depense.libelle} » enregistrée sur « {depense.caisse.nom} ».")
+            return redirect('depense_liste')
+    else:
+        form = DepenseForm()
+
+    context = {'form': form, 'caisses': Caisse.objects.all()}
+    return render(request, 'depense_ajouter.html', context)
+
+
+@login_required
+def depense_details(request, pk):
+    depense = get_object_or_404(Depense.objects.select_related('caisse', 'projet', 'autorise_par'), pk=pk)
+    context = {'depense': depense}
+    return render(request, 'depense_details.html', context)
+
+
+# ============================================================
+#  JOURNAL DE CAISSE
+# ============================================================
+@login_required
+def journal_liste(request):
+    caisse = _caisse_selectionnee(request)
+    journal = JournalCaisse.objects.filter(caisse=caisse).select_related('cotisation__utilisateur', 'depense')
+
+    type_operation = request.GET.get('type')
+    if type_operation:
+        journal = journal.filter(type_operation=type_operation)
+
+    context = {
+        'journal': journal,
+        'caisse': caisse,
+        'caisses': Caisse.objects.all(),
+        'type_filtre': type_operation or '',
+    }
+    return render(request, 'journal_liste.html', context)
+
+
+# ============================================================
+#  FICHES DE CONTRÔLE
+# ============================================================
+@login_required
+def fiche_controle_liste(request):
+    fiches = FicheControle.objects.select_related('caisse', 'controleur').all()
+    context = {
+        'fiches': fiches,
+        'peut_gerer': peut_gerer_comptabilite(request.user),
+    }
+    return render(request, 'fiche_controle_liste.html', context)
+
+
+@login_required
+def fiche_controle_ajouter(request):
+    if not peut_gerer_comptabilite(request.user):
+        return HttpResponseForbidden("Action réservée à la gestion de la comptabilité.")
+
+    caisse = _caisse_selectionnee(request)
+
+    if request.method == 'POST':
+        form = FicheControleForm(request.POST)
+        if form.is_valid():
+            fiche = form.save(commit=False)
+            fiche.caisse = caisse
+            fiche.controleur = request.user
+            fiche.save()
+            messages.success(request, f"Fiche de contrôle enregistrée — écart : {fiche.ecart}.")
+            return redirect('fiche_controle_liste')
+    else:
+        form = FicheControleForm(initial={'solde_theorique': caisse.solde})
+
+    context = {'form': form, 'caisses': Caisse.objects.all()}
+    return render(request, 'fiche_controle_ajouter.html', context)
+
+
+@login_required
+def fiche_controle_details(request, pk):
+    fiche = get_object_or_404(FicheControle.objects.select_related('caisse', 'controleur'), pk=pk)
+    context = {'fiche': fiche}
+    return render(request, 'fiche_controle_details.html', context)
+
+
+# ============================================================
+#  DONNÉES POUR LES GRAPHES (endpoint JSON consommé par Chart.js)
+#  Tableau de bord complet : évolution, comparatifs mensuels,
+#  taux de paiement, répartition multi-caisses — style Excel.
+# ============================================================
+@login_required
+def comptabilite_statistiques(request):
+    annee = int(request.GET.get('annee', timezone.now().year))
+    caisse = _caisse_selectionnee(request)
+    stats = Payment.statistiques_globales()
+
+    # --- Répartition des cotisations (camembert) ---
+    repartition_cotisations = {
+        'labels': ['Payé', 'En attente', 'En retard'],
+        'data': [
+            Payment.objects.filter(status='paye').count(),
+            stats['nombre_en_attente'],
+            stats['nombre_en_retard'],
+        ],
+    }
+
+    # --- Taux de paiement mois par mois (barres attendu/payé + courbe %) ---
+    mensuel = Payment.statistiques_mensuelles(annee)
+    taux_paiement_mensuel = {
+        'labels': [m['label'] for m in mensuel],
+        'total_attendu': [float(m['total_attendu']) for m in mensuel],
+        'total_paye': [float(m['total_paye']) for m in mensuel],
+        'taux_paiement': [m['taux_paiement'] for m in mensuel],
+        'nombre_en_retard': [m['nombre_en_retard'] for m in mensuel],
+    }
+
+    # --- Recettes vs dépenses par mois (comparatif type Excel) ---
+    mouvements_mensuels = _mouvements_mensuels(caisse=caisse)
+
+    # --- Dépenses par catégorie ---
+    depenses_categorie = (
+        Depense.objects.filter(caisse=caisse).values('categorie')
+        .annotate(total=Sum('montant'))
+        .order_by('-total')
+    )
+    labels_categories = dict(Depense.CATEGORIE_CHOICES)
+    depenses_par_categorie = {
+        'labels': [labels_categories.get(e['categorie'], e['categorie']) for e in depenses_categorie],
+        'data': [float(e['total']) for e in depenses_categorie],
+    }
+
+    # --- Évolution du solde (courbe cumulative, caisse sélectionnée) ---
+    mouvements = list(caisse.journal.order_by('date_operation'))
+    solde_courant = 0.0
+    labels_solde, data_solde = [], []
+    for mvt in mouvements:
+        solde_courant += float(mvt.montant) if mvt.type_operation == 'entree' else -float(mvt.montant)
+        labels_solde.append(mvt.date_operation.strftime('%d/%m/%Y'))
+        data_solde.append(round(solde_courant, 2))
+
+    # --- Répartition multi-caisses (camembert des soldes) ---
+    repartition_caisses = Caisse.repartition()
+
+    return JsonResponse({
+        'annee': annee,
+        'caisse_selectionnee': caisse.nom,
+        'solde_caisse': float(caisse.solde),
+        'solde_consolide': float(Caisse.solde_consolide()),
+        'total_attendu': float(stats['total_attendu']),
+        'total_paye': float(stats['total_paye']),
+        'repartition_cotisations': repartition_cotisations,
+        'taux_paiement_mensuel': taux_paiement_mensuel,
+        'mouvements_mensuels': mouvements_mensuels,
+        'depenses_par_categorie': depenses_par_categorie,
+        'evolution_solde': {'labels': labels_solde, 'data': data_solde},
+        'repartition_caisses': {
+            'labels': [c['nom'] for c in repartition_caisses],
+            'data': [float(c['solde']) for c in repartition_caisses],
+        },
+    })

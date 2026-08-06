@@ -69,3 +69,25 @@ module.exports = {
     require('@tailwindcss/forms'),
   ],
 }
+
+
+// Animation ======
+theme: {
+  extend: {
+    animation: {
+      'marquee': 'marquee 18s linear infinite',
+      'float': 'float 8s ease-in-out infinite',
+      'float-slow': 'float 12s ease-in-out infinite',
+    },
+    keyframes: {
+      marquee: {
+        '0%': { transform: 'translateX(0)' },
+        '100%': { transform: 'translateX(-50%)' },
+      },
+      float: {
+        '0%, 100%': { transform: 'translateY(0)' },
+        '50%': { transform: 'translateY(-20px)' },
+      },
+    },
+  },
+},

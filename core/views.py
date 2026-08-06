@@ -9,6 +9,7 @@ from .vue.blog import blog
 from .vue.gallery import gallery
 from .vue.profile import profile
 from .vue.contact import contact
+from .vue.equipe_list import equipe_list
 
 # ====== PARTIE MEMBRE WEB ====================
 from .vue.profile_image import profile_image
@@ -42,6 +43,7 @@ from .vue.bureau import bureau
 from .vue.bureau import bureau_details
 from .vue.bureau import bureau_ajouter
 from .vue.bureau import bureau_modifie
+from .vue.bureau import bureau_affecter
 
 from .vue.pub_create import pub_create
 from .vue.main import main

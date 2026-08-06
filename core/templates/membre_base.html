@@ -38,8 +38,7 @@
             <div class="flex justify-between items-center">
 
                 <a href="#" class="flex items-center gap-2 transition-transform duration-300 hover:scale-105">
-                    <img src="{% static 'image/logo.png' %}" alt="logo UJK"
-                         class="w-11 h-11 md:w-12 md:h-12 rounded-full border-2 border-white object-cover">
+                    
                     <span class="hidden sm:block font-bold text-white text-lg lg:text-xl">UJK</span>
                 </a>
 
@@ -56,7 +55,7 @@
                     {% endif %}
 
                     <a href="{% url 'comptable' %}" class="relative px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
-                        <i class="fas fa-envelope"></i>Paiements
+                        <i class="fas fa-coins"></i>Comptabilité
                         <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-pulse">!</span>
                     </a>
 
@@ -64,8 +63,11 @@
                         <i class="fas fa-newspaper"></i>Publications
                     </a>
 
-                    <a href="{% url 'profile_image' %}" class="px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
-                        <i class="fas fa-image"></i>Profile
+                    <a href="#" class="px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
+                        <i class="fas fa-folder"></i>Projet
+                    </a>
+                    <a href="#" class="px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
+                        <i class="fas fa-users"></i>Reunion
                     </a>
 
                     <a href="{% url 'bureau' %}" class="px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
@@ -73,8 +75,8 @@
                     </a>
 
                     {% if user.is_authenticated %}
-                    <a href="{% url 'profile' %}" class="px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
-                        <i class="fas fa-user"></i>Profil
+                    <a href="{% url 'profile_image' %}" class="px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
+                        <i class="fas fa-image"></i>à jour
                     </a>
                     {% endif %}
 
@@ -96,17 +98,26 @@
                     {% endif %}
 
                     <a href="{% url 'comptable' %}" class="relative w-12 h-12 flex items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Paiements">
-                        <i class="fas fa-envelope text-2xl"></i>
+                        <i class="fas fa-coins text-2xl"></i>
                         <span class="absolute top-1 right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center animate-pulse">!</span>
                     </a>
 
                     <a href="{% url 'main' %}" class="w-12 h-12 flex items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Publications">
                         <i class="fas fa-newspaper text-2xl"></i>
                     </a>
+                    <a href="{% url 'bureau' %}" class="w-12 h-12 flex items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Publications">
+                        <i class="fas fa-briefcase text-2xl"></i>
+                    </a>
+                    <a href="#" class="w-12 h-12 flex items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Publications">
+                        <i class="fas fa-diagram-project text-2xl"></i>
+                    </a>
+                    <a href="#" class="w-12 h-12 flex items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Publications">
+                        <i class="fas fa-people-group text-2xl"></i>
+                    </a>
 
                     {% if user.is_authenticated %}
-                    <a href="{% url 'profile' %}" class="w-12 h-12 flex items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Mon Profil">
-                        <i class="fas fa-user text-2xl"></i>
+                    <a href="{% url 'profile_image' %}" class="w-12 h-12 flex items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Mon Profil">
+                        <i class="fas fa-image text-2xl"></i>
                     </a>
                     {% endif %}
 
@@ -122,10 +133,38 @@
 
     <div class="pt-20 md:pt-24"></div>
 
+
+<!-- MODAL FORMULAIRE -->
+<div id="mf" class="fixed inset-0 z-50 hidden">
+    <div onclick="closeModalForm()" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-hidden flex flex-col animate-[mi_0.2s_ease-out]">
+            <div class="flex justify-between items-center px-5 py-3 bg-indigo-600">
+                <span class="text-white font-bold text-sm">Formulaire</span>
+                <button onclick="closeModalForm()" class="text-white/70 hover:text-white">✕</button>
+            </div>
+            <div id="mfc" class="overflow-y-auto p-5"></div>
+        </div>
+    </div>
+</div>
+<style>@keyframes mi{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}</style>
+
+
     <main class="container mx-auto mt-1 relative z-10">
         {% block content %}
+
+
+
+
+
         {% endblock %}
     </main>
+
+
+
+
+
+
 
     <!-- ==================== ACCÈS RAPIDE — GAUCHE, ICÔNES AGRANDIES ==================== -->
     <div class="fixed bottom-4 left-4 z-40 flex flex-col items-center gap-3">
@@ -150,6 +189,21 @@
             <span class="text-[10px] mt-0.5">Haut</span>
         </a>
     </div>
+
+    <!-- ====== POUR MOADL -->
+
+
+
+
+
+<script>
+function openModalForm(e,url){e.preventDefault();fetch(url,{headers:{'X-Requested-With':'XMLHttpRequest'}}).then(r=>r.text()).then(h=>{document.getElementById('mfc').innerHTML=h;document.getElementById('mf').classList.remove('hidden');document.body.style.overflow='hidden';let f=document.getElementById('mfc').querySelector('form');if(f)f.onsubmit=handleModalSubmit;}).catch(()=>alert('Erreur'));}
+function closeModalForm(){document.getElementById('mf').classList.add('hidden');document.getElementById('mfc').innerHTML='';document.body.style.overflow='';}
+function handleModalSubmit(e){e.preventDefault();let f=e.target,b=f.querySelector('button[type=submit]');if(b){b.disabled=true;b.innerText='...';}fetch(f.action||window.location.href,{method:'POST',body:new FormData(f),headers:{'X-Requested-With':'XMLHttpRequest'}}).then(r=>{if(r.ok||r.redirected){closeModalForm();window.location.reload();}else return r.text().then(h=>{document.getElementById('mfc').innerHTML=h;let nf=document.getElementById('mfc').querySelector('form');if(nf)nf.onsubmit=handleModalSubmit;});}).finally(()=>{if(b){b.disabled=false;b.innerText='Enregistrer';}});}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalForm();});
+</script>
+
+    <!-- ===== POUR MODAL   -->
 
     <script>
         window.addEventListener('scroll', function () {

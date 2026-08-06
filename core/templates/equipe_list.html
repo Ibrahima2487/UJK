@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<section class="relative min-h-screen bg-gradient-to-b from-slate-50 via-indigo-50/30 to-purple-50/20 py-8 md:py-12 overflow-hidden">
+    
+    <!-- SVG décoratifs fond -->
+    <svg class="absolute top-[5%] left-[3%] w-24 h-24 md:w-44 md:h-44 opacity-[0.04] animate-[float_10s_ease-in-out_infinite]" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="60" fill="#4f46e5"/>
+    </svg>
+    <svg class="absolute top-[15%] right-[5%] w-16 h-16 md:w-28 md:h-28 opacity-[0.03] animate-[float_14s_ease-in-out_infinite_reverse]" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="40" fill="#a855f7"/>
+    </svg>
+    <svg class="absolute bottom-[20%] left-[8%] w-20 h-20 md:w-36 md:h-36 opacity-[0.04] animate-[float_12s_ease-in-out_infinite]" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="50" fill="#ec4899"/>
+    </svg>
+    <svg class="absolute bottom-[10%] right-[10%] w-14 h-14 md:w-24 md:h-24 opacity-[0.05] animate-[float_9s_ease-in-out_infinite]" viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="30" fill="#6366f1"/>
+    </svg>
+    
+    <svg class="absolute top-0 left-0 w-full h-12 md:h-20 opacity-[0.04]" viewBox="0 0 1440 80" preserveAspectRatio="none">
+        <path d="M0,40 C360,80 720,0 1080,40 C1260,60 1380,50 1440,40 L1440,0 L0,0 Z" fill="#4f46e5"/>
+    </svg>
+
+    <div class="container mx-auto px-3 md:px-4 relative z-10">
+        
+        <!-- Header compact -->
+        <div class="text-center mb-6 md:mb-10">
+            <h1 class="text-2xl md:text-4xl font-bold text-slate-800 mb-1">
+                Notre <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500">Équipe</span>
+            </h1>
+            <p class="text-xs md:text-sm text-slate-500 font-medium">
+                {{ utilisateurs|length }} membre{{ utilisateurs|length|pluralize }}
+            </p>
+        </div>
+
+        <!-- Grille serrée, profils grands -->
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-3 md:gap-4 justify-items-center">
+            
+            {% for u in utilisateurs %}
+            <div class="group flex flex-col items-center text-center w-full">
+                
+                <!-- Cercle large -->
+                <div class="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 xl:w-32 xl:h-32 2xl:w-28 2xl:h-28">
+                    <!-- Glow -->
+                    <div class="absolute inset-[-6px] rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-30 blur-lg transition-opacity duration-500"></div>
+                    
+                    <!-- SVG bordure -->
+                    <svg class="absolute inset-0 w-full h-full transition-transform duration-300 group-hover:scale-[1.03]" viewBox="0 0 100 100">
+                        <defs>
+                            <linearGradient id="g-{{ forloop.counter }}" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#6366f1"/>
+                                <stop offset="50%" stop-color="#a855f7"/>
+                                <stop offset="100%" stop-color="#ec4899"/>
+                            </linearGradient>
+                        </defs>
+                        <circle cx="50" cy="50" r="47" fill="none" stroke="url(#g-{{ forloop.counter }})" stroke-width="3"/>
+                    </svg>
+                    
+                    <!-- Photo -->
+                    <img src="{% if u.image %}{{ u.image.url }}{% else %}{% static 'profiles/default.png' %}{% endif %}" 
+                         alt="{{ u.user.first_name }} {{ u.user.last_name }}"
+                         class="absolute inset-[4px] md:inset-[5px] w-[calc(100%-8px)] md:w-[calc(100%-10px)] h-[calc(100%-8px)] md:h-[calc(100%-10px)] rounded-full object-cover border-[2.5px] border-white shadow-md group-hover:scale-105 transition-transform duration-300"
+                         onerror="this.src='{% static 'profiles/default.png' %}'">
+                </div>
+
+                <!-- Nom -->
+                <div class="mt-2 md:mt-3 w-full px-1">
+                    <p class="text-[11px] sm:text-xs md:text-sm font-bold text-slate-800 group-hover:text-indigo-600 transition-colors truncate leading-tight">
+                        {{ u.user.first_name }} {{ u.user.last_name }}
+                    </p>
+                </div>
+            </div>
+            {% empty %}
+            
+            <div class="col-span-full flex flex-col items-center py-16">
+                <svg class="w-14 h-14 text-slate-200 mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><line x1="3" y1="3" x2="21" y2="21"/>
+                </svg>
+                <h3 class="text-base font-semibold text-slate-600">Aucun membre</h3>
+                <p class="text-xs text-slate-400 mt-1">Aucun compte créé pour l'instant.</p>
+            </div>
+            {% endfor %}
+            
+        </div>
+    </div>
+</section>
+
+<style>
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+</style>
+
+{% endblock %}

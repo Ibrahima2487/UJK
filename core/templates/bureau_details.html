@@ -1,303 +1,282 @@
 {% extends 'membre_base.html' %}
 {% load static %}
 
+{% block title %}{{ bureau.nom }} — UJK Kakony{% endblock %}
+
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-4 sm:py-6">
-    <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
-        
-        <!-- En-tête compact du bureau -->
-        <div class="bg-white shadow-sm rounded-lg mb-4 sm:mb-6 overflow-hidden">
-            <div class="px-3 py-3 sm:px-4 sm:py-4 border-b border-gray-100">
-                <div class="flex items-center justify-between flex-wrap gap-3">
-                    <div class="flex items-center min-w-0 flex-1">
-                        <div class="flex-shrink-0">
-                            <div class="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-sm">
-                                <span class="text-white font-bold text-xs sm:text-sm">{{ bureau.sigle }}</span>
-                            </div>
-                        </div>
-                        <div class="ml-3 min-w-0 flex-1">
-                            <h1 class="text-lg sm:text-xl font-bold text-gray-900 truncate">{{ bureau.nom }}</h1>
-                            <div class="flex items-center flex-wrap gap-2 mt-1">
-                                <span class="text-xs sm:text-sm text-gray-500">{{ bureau.get_type_bureau_display }}</span>
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium 
-                                    {% if bureau.statut == 'ACTIF' %}bg-green-100 text-green-700
-                                    {% elif bureau.statut == 'INACTIF' %}bg-red-100 text-red-700
-                                    {% elif bureau.statut == 'EN_PROJET' %}bg-yellow-100 text-yellow-700
-                                    {% else %}bg-gray-100 text-gray-700{% endif %}">
-                                    {{ bureau.get_statut_display }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    {% if peut_modifier %}
-                    <div class="flex-shrink-0">
-                        <a href="{% url 'bureau_modifie' bureau.pk %}" 
-                           class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent rounded-lg shadow-sm text-xs sm:text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition duration-200">
-                            <i class="fas fa-edit mr-1 sm:mr-2"></i>
-                            <span class="hidden sm:inline">Modifier</span>
-                            <span class="sm:hidden">Modifier</span>
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&display=swap');
 
-        <!-- Grid responsive avec gap réduit -->
-        <div class="grid grid-cols-1 gap-4 xl:grid-cols-4">
-            
-            <!-- Colonne principale - 3/4 sur xl -->
-            <div class="xl:col-span-3 space-y-4">
-                
-                <!-- Mission - Compact -->
-                <div class="bg-white shadow-sm rounded-lg overflow-hidden">
-                    <div class="px-3 py-3 sm:px-4 sm:py-3 border-b border-gray-100">
-                        <h3 class="text-base font-medium text-gray-900 flex items-center">
-                            <i class="fas fa-bullseye text-indigo-500 mr-2 text-sm"></i>
-                            Mission et objectifs
-                        </h3>
-                    </div>
-                    <div class="px-3 py-3 sm:px-4 sm:py-4">
-                        <p class="text-gray-700 text-sm leading-relaxed">{{ bureau.mission }}</p>
-                    </div>
-                </div>
+  .ujk-bureau {
+    --cream: #FAF7F0; --ink: #24211D; --mist: #E5DFD0; --mist-line: #D8D0BC;
+    /* Couleur de domaine par défaut, écrasée plus bas selon bureau.type_bureau */
+    --domain: #1F4D3A; --domain-soft: #1F4D3A1A;
+    background: var(--cream); color: var(--ink);
+    font-family: 'Work Sans', system-ui, sans-serif;
+  }
+  .ujk-bureau .display { font-family: 'Fraunces', Georgia, serif; }
+  .ujk-bureau :focus-visible { outline: 2px solid var(--domain); outline-offset: 2px; }
+  .card { background: #fff; border: 1px solid var(--mist-line); border-radius: 1rem; }
+  .dot { width: .5rem; height: .5rem; border-radius: 9999px; }
+</style>
 
-                <!-- Membres dirigeants - Compact -->
-                <div class="bg-white shadow-sm rounded-lg overflow-hidden">
-                    <div class="px-3 py-3 sm:px-4 sm:py-3 border-b border-gray-100">
-                        <h3 class="text-base font-medium text-gray-900 flex items-center">
-                            <i class="fas fa-users text-indigo-500 mr-2 text-sm"></i>
-                            Membres dirigeants
-                        </h3>
-                    </div>
-                    <div class="divide-y divide-gray-100">
-                        {% for role, membre in membres_dirigeants %}
-                        <div class="px-3 py-3 sm:px-4 sm:py-3">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center min-w-0 flex-1">
-                                    <div class="flex-shrink-0">
-                                        <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center">
-                                            <span class="text-indigo-700 font-medium text-xs">{{ membre.first_name|first }}{{ membre.last_name|first }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="ml-3 min-w-0 flex-1">
-                                        <div class="text-sm font-medium text-gray-900 truncate">{{ membre.get_full_name }}</div>
-                                        <div class="text-xs text-gray-500 truncate">{{ role }}</div>
-                                    </div>
-                                </div>
-                                {% if membre.email %}
-                                <div class="flex-shrink-0 ml-2">
-                                    <a href="mailto:{{ membre.email }}" class="text-indigo-600 hover:text-indigo-800 text-xs sm:text-sm">
-                                        <i class="fas fa-envelope sm:mr-1"></i>
-                                        <span class="hidden sm:inline">{{ membre.email|truncatechars:20 }}</span>
-                                    </a>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
+<div class="ujk-bureau min-h-screen"
+     style="
+      {% if bureau.type_bureau == 'EXECUTIF' %} --domain:#1F4D3A; --domain-soft:#1F4D3A17;
+      {% elif bureau.type_bureau == 'LOGISTIQUE' %} --domain:#8A5A2B; --domain-soft:#8A5A2B17;
+      {% elif bureau.type_bureau == 'SUIVI_EVALUATION' %} --domain:#45586B; --domain-soft:#45586B17;
+      {% elif bureau.type_bureau == 'EDUCATIF' %} --domain:#2E4C8A; --domain-soft:#2E4C8A17;
+      {% elif bureau.type_bureau == 'SANTE' %} --domain:#B23A48; --domain-soft:#B23A4817;
+      {% elif bureau.type_bureau == 'CULTUREL' %} --domain:#C1852D; --domain-soft:#C1852D17;
+      {% elif bureau.type_bureau == 'ENVIRONNEMENT' %} --domain:#3C8F5C; --domain-soft:#3C8F5C17;
+      {% endif %}">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 
-                <!-- Informations générales - Grid responsive -->
-                <div class="bg-white shadow-sm rounded-lg overflow-hidden">
-                    <div class="px-3 py-3 sm:px-4 sm:py-3 border-b border-gray-100">
-                        <h3 class="text-base font-medium text-gray-900 flex items-center">
-                            <i class="fas fa-info-circle text-indigo-500 mr-2 text-sm"></i>
-                            Informations générales
-                        </h3>
-                    </div>
-                    <div class="divide-y divide-gray-100">
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 px-3 py-3 sm:px-4 sm:py-3 bg-gray-25">
-                            <dt class="text-xs font-medium text-gray-500 sm:text-sm">Zone d'intervention</dt>
-                            <dd class="text-xs text-gray-900 sm:text-sm sm:col-span-2">{{ bureau.get_zone_intervention_display }}</dd>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 px-3 py-3 sm:px-4 sm:py-3">
-                            <dt class="text-xs font-medium text-gray-500 sm:text-sm">Adresse locale</dt>
-                            <dd class="text-xs text-gray-900 sm:text-sm sm:col-span-2">{{ bureau.adresse_locale|default:"Non spécifiée" }}</dd>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 px-3 py-3 sm:px-4 sm:py-3 bg-gray-25">
-                            <dt class="text-xs font-medium text-gray-500 sm:text-sm">Date de création</dt>
-                            <dd class="text-xs text-gray-900 sm:text-sm sm:col-span-2">{{ bureau.date_creation }}</dd>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 px-3 py-3 sm:px-4 sm:py-3">
-                            <dt class="text-xs font-medium text-gray-500 sm:text-sm">Fréquence réunions</dt>
-                            <dd class="text-xs text-gray-900 sm:text-sm sm:col-span-2">{{ bureau.frequence_reunions }}</dd>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-1 px-3 py-3 sm:px-4 sm:py-3 bg-gray-25">
-                            <dt class="text-xs font-medium text-gray-500 sm:text-sm">Dernière assemblée</dt>
-                            <dd class="text-xs text-gray-900 sm:text-sm sm:col-span-2">{{ bureau.date_derniere_assemblee|default:"Non spécifiée" }}</dd>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Colonne latérale - 1/4 sur xl -->
-            <div class="space-y-4">
-                
-                <!-- Hiérarchie - Compact -->
-                <div class="bg-white shadow-sm rounded-lg overflow-hidden">
-                    <div class="px-3 py-3 sm:px-4 sm:py-3 border-b border-gray-100">
-                        <h3 class="text-base font-medium text-gray-900 flex items-center">
-                            <i class="fas fa-sitemap text-indigo-500 mr-2 text-sm"></i>
-                            Structure
-                        </h3>
-                    </div>
-                    <div class="px-3 py-3 sm:px-4 sm:py-4 space-y-3">
-                        {% if bureau.bureau_parent %}
-                        <div>
-                            <p class="text-xs font-medium text-gray-500 mb-1">Bureau parent</p>
-                            <a href="{% url 'bureau_details' bureau.bureau_parent.id %}" 
-                               class="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center">
-                                <i class="fas fa-arrow-up mr-1 text-xs"></i>
-                                {{ bureau.bureau_parent.nom|truncatechars:25 }}
-                            </a>
-                        </div>
-                        {% endif %}
-                        
-                        {% if structures_filiales %}
-                        <div>
-                            <p class="text-xs font-medium text-gray-500 mb-2">
-                                Filiales ({{ structures_filiales|length }})
-                            </p>
-                            <div class="space-y-1 max-h-32 overflow-y-auto">
-                                {% for filiale in structures_filiales %}
-                                <a href="{% url 'bureau_details' filiale.id %}" 
-                                   class="block text-indigo-600 hover:text-indigo-800 text-xs hover:bg-gray-50 rounded px-2 py-1 -mx-2">
-                                    <i class="fas fa-arrow-right mr-1 text-xs"></i>
-                                    {{ filiale.nom|truncatechars:20 }}
-                                    <span class="text-gray-500">({{ filiale.get_type_bureau_display|truncatechars:10 }})</span>
-                                </a>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Contacts - Plus compact -->
-                <div class="bg-white shadow-sm rounded-lg overflow-hidden">
-                    <div class="px-3 py-3 sm:px-4 sm:py-3 border-b border-gray-100">
-                        <h3 class="text-base font-medium text-gray-900 flex items-center">
-                            <i class="fas fa-address-book text-indigo-500 mr-2 text-sm"></i>
-                            Contacts
-                        </h3>
-                    </div>
-                    <div class="px-3 py-3 sm:px-4 sm:py-4 space-y-2">
-                        {% if bureau.telephone_contact %}
-                        <div class="flex items-center">
-                            <i class="fas fa-phone text-gray-400 mr-2 text-sm flex-shrink-0"></i>
-                            <span class="text-sm text-gray-900 truncate">{{ bureau.telephone_contact }}</span>
-                        </div>
-                        {% endif %}
-                        
-                        {% if bureau.email_contact %}
-                        <div class="flex items-center">
-                            <i class="fas fa-envelope text-gray-400 mr-2 text-sm flex-shrink-0"></i>
-                            <a href="mailto:{{ bureau.email_contact }}" 
-                               class="text-sm text-indigo-600 hover:text-indigo-800 truncate">
-                                {{ bureau.email_contact }}
-                            </a>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Statistiques - Compact -->
-                <div class="bg-white shadow-sm rounded-lg overflow-hidden">
-                    <div class="px-3 py-3 sm:px-4 sm:py-3 border-b border-gray-100">
-                        <h3 class="text-base font-medium text-gray-900 flex items-center">
-                            <i class="fas fa-chart-bar text-indigo-500 mr-2 text-sm"></i>
-                            Statistiques
-                        </h3>
-                    </div>
-                    <div class="px-3 py-3 sm:px-4 sm:py-4">
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center">
-                                <dt class="text-xs font-medium text-gray-500">Effectif total</dt>
-                                <dd class="text-sm font-semibold text-gray-900 bg-blue-50 px-2 py-1 rounded">
-                                    {{ effectif_total }}
-                                </dd>
-                            </div>
-                            
-                            {% if bureau.taux_reussite %}
-                            <div class="flex justify-between items-center">
-                                <dt class="text-xs font-medium text-gray-500">Taux réussite</dt>
-                                <dd class="text-sm font-semibold text-green-700 bg-green-50 px-2 py-1 rounded">
-                                    {{ bureau.taux_reussite }}%
-                                </dd>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Localisation - Compact -->
-                <div class="bg-white shadow-sm rounded-lg overflow-hidden">
-                    <div class="px-3 py-3 sm:px-4 sm:py-3 border-b border-gray-100">
-                        <h3 class="text-base font-medium text-gray-900 flex items-center">
-                            <i class="fas fa-map-marker-alt text-indigo-500 mr-2 text-sm"></i>
-                            Localisation
-                        </h3>
-                    </div>
-                    <div class="px-3 py-3 sm:px-4 sm:py-4">
-                        <p class="text-sm text-gray-700 leading-relaxed">{{ bureau.adresse_complete_kakony }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Actions flottantes sur mobile -->
-        <div class="fixed bottom-4 right-4 sm:hidden">
-            {% if peut_modifier %}
-            <a href="{% url 'bureau_modifie' bureau.pk %}" 
-               class="inline-flex items-center justify-center w-12 h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg transition duration-200">
-                <i class="fas fa-edit"></i>
-            </a>
-            {% endif %}
-        </div>
+    {% if lecture_seule %}
+    <div class="mb-6 rounded-xl px-4 py-3 text-sm flex items-center gap-2"
+         style="background: var(--domain-soft); color: var(--domain);">
+      <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 118 0v3"/>
+      </svg>
+      Vous consultez ce Bureau en lecture seule (accès de visite via un Bureau central).
     </div>
+    {% endif %}
+
+    <!-- En-tête -->
+    <div class="card p-5 sm:p-7 mb-6 sm:mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center flex-shrink-0"
+             style="background: var(--domain-soft); color: var(--domain);">
+          {% if bureau.type_bureau == 'EXECUTIF' %}
+            <svg class="w-8 h-8 sm:w-9 sm:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/></svg>
+          {% elif bureau.type_bureau == 'LOGISTIQUE' %}
+            <svg class="w-8 h-8 sm:w-9 sm:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M21 12h-3M6 12H3M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1M18.4 18.4l-2.1-2.1M7.7 7.7L5.6 5.6"/></svg>
+          {% elif bureau.type_bureau == 'SUIVI_EVALUATION' %}
+            <svg class="w-8 h-8 sm:w-9 sm:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3"/></svg>
+          {% elif bureau.type_bureau == 'EDUCATIF' %}
+            <svg class="w-8 h-8 sm:w-9 sm:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 5.5C3 5.5 6 4 12 6c6-2 9-.5 9-.5v13S18 17 12 19c-6-2-9-.5-9-.5v-13z"/><path d="M12 6v13"/></svg>
+          {% elif bureau.type_bureau == 'SANTE' %}
+            <svg class="w-8 h-8 sm:w-9 sm:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>
+          {% elif bureau.type_bureau == 'CULTUREL' %}
+            <svg class="w-8 h-8 sm:w-9 sm:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.2M12 19.8V22M22 12h-2.2M4.2 12H2M19 5l-1.5 1.5M6.5 17.5L5 19M19 19l-1.5-1.5M6.5 6.5L5 5"/></svg>
+          {% elif bureau.type_bureau == 'ENVIRONNEMENT' %}
+            <svg class="w-8 h-8 sm:w-9 sm:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 4C10 4 4 10 4 18v2h2c8 0 14-6 14-16z"/><path d="M6 20C10 14 14 10 20 4"/></svg>
+          {% endif %}
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <div class="flex flex-wrap items-center gap-2 mb-1">
+            <h1 class="display text-xl sm:text-2xl font-semibold truncate" style="color: var(--domain);">{{ bureau.nom }}</h1>
+            {% if bureau.est_central %}
+              <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background: var(--domain-soft); color: var(--domain);">Central</span>
+            {% else %}
+              <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background: var(--domain-soft); color: var(--domain);">Opérationnel</span>
+            {% endif %}
+          </div>
+          <p class="text-sm" style="color: color-mix(in srgb, var(--ink) 55%, transparent);">{{ bureau.get_type_bureau_display }} · {{ effectif_total }} membre{{ effectif_total|pluralize }}</p>
+        </div>
+
+        {% if peut_modifier %}
+        <a href="{% url 'bureau_modifie' bureau.pk %}"
+           class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium text-white flex-shrink-0"
+           style="background: var(--domain);">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.4-9.4a2 2 0 112.8 2.8L11.8 15H9v-2.8l8.6-8.6z"/></svg>
+          Modifier
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+      <!-- Colonne principale -->
+      <div class="xl:col-span-2 space-y-6">
+
+        <!-- Description -->
+        {% if bureau.description %}
+        <div class="card p-5 sm:p-6">
+          <h2 class="display text-base font-medium mb-2" style="color: var(--domain);">Mission</h2>
+          <p class="text-sm leading-relaxed" style="color: color-mix(in srgb, var(--ink) 80%, transparent);">{{ bureau.description }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Profils des membres -->
+        <div class="card overflow-hidden">
+          <div class="px-5 sm:px-6 py-4 border-b" style="border-color: var(--mist-line);">
+            <h2 class="display text-base font-medium" style="color: var(--domain);">Membres du Bureau</h2>
+          </div>
+          {% if membres %}
+          <div class="divide-y" style="border-color: var(--mist-line);">
+            {% for affectation in membres %}
+            <a href="#"
+               class="flex items-center gap-3 sm:gap-4 px-5 sm:px-6 py-3.5 hover:bg-[--mist]/40">
+              <div class="relative flex-shrink-0">
+                {% if affectation.membre.image %}
+                  <img src="{{ affectation.membre.image.url }}" alt=""
+                       class="w-11 h-11 rounded-full object-cover">
+                {% else %}
+                  <div class="w-11 h-11 rounded-full flex items-center justify-center text-sm font-medium"
+                       style="background: var(--domain-soft); color: var(--domain);">
+                    {{ affectation.membre.user.first_name|first|default:affectation.membre.user.username|first|upper }}
+                  </div>
+                {% endif %}
+                <span class="dot absolute bottom-0 right-0 border-2 border-white"
+                      style="background: {% if affectation.membre.en_ligne %}#3C8F5C{% else %}#C9C2AE{% endif %};"
+                      title="{% if affectation.membre.en_ligne %}En ligne{% else %}Hors ligne{% endif %}"></span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium truncate" style="color: var(--ink);">
+                  {{ affectation.membre.user.get_full_name|default:affectation.membre.user.username }}
+                </p>
+                <p class="text-xs truncate" style="color: color-mix(in srgb, var(--ink) 55%, transparent);">
+                  {{ affectation.poste }}
+                </p>
+              </div>
+              {% if affectation.est_responsable %}
+                <span class="text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0" style="background: var(--domain-soft); color: var(--domain);">
+                  Responsable
+                </span>
+              {% endif %}
+            </a>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="px-5 sm:px-6 py-6 text-sm" style="color: color-mix(in srgb, var(--ink) 55%, transparent);">Aucun membre affecté pour le moment.</p>
+          {% endif %}
+          {% if peut_affecter %}
+          <div class="px-5 sm:px-6 py-3 border-t" style="border-color: var(--mist-line);">
+            <a href="{% url 'bureau_affecter' bureau.pk %}" class="text-sm font-medium" style="color: var(--domain);">+ Affecter un membre</a>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Chat interne -->
+        <div class="card overflow-hidden">
+          <div class="px-5 sm:px-6 py-4 border-b flex items-center justify-between" style="border-color: var(--mist-line);">
+            <h2 class="display text-base font-medium" style="color: var(--domain);">Espace de discussion</h2>
+            {% if lecture_seule %}
+              <span class="text-xs" style="color: color-mix(in srgb, var(--ink) 50%, transparent);">Lecture seule</span>
+            {% endif %}
+          </div>
+
+          <div class="max-h-96 overflow-y-auto px-5 sm:px-6 py-4 space-y-4">
+            {% for message in messages_bureau %}
+            <div class="flex gap-3">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0"
+                   style="background: var(--domain-soft); color: var(--domain);">
+                {{ message.auteur.first_name|first|default:message.auteur.username|first|upper }}
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-baseline gap-2">
+                  <span class="text-sm font-medium">{{ message.auteur.get_full_name|default:message.auteur.username }}</span>
+                  <span class="text-xs" style="color: color-mix(in srgb, var(--ink) 45%, transparent);">{{ message.date_envoi|date:"d/m H:i" }}</span>
+                </div>
+                <p class="text-sm mt-0.5 break-words" style="color: color-mix(in srgb, var(--ink) 85%, transparent);">{{ message.contenu }}</p>
+                {% if message.fichier %}
+                  <a href="{{ message.fichier.url }}" class="text-xs font-medium mt-1 inline-block" style="color: var(--domain);">Pièce jointe</a>
+                {% endif %}
+              </div>
+            </div>
+            {% empty %}
+            <p class="text-sm text-center py-4" style="color: color-mix(in srgb, var(--ink) 50%, transparent);">Aucun message pour l'instant.</p>
+            {% endfor %}
+          </div>
+
+          {% if peut_publier %}
+          <form method="post" action="{% url 'bureau_details' bureau.pk %}" enctype="multipart/form-data"
+                class="px-5 sm:px-6 py-4 border-t flex items-end gap-2" style="border-color: var(--mist-line);">
+            {% csrf_token %}
+            <label for="id_contenu" class="sr-only">Message</label>
+            <textarea id="id_contenu" name="contenu" rows="1" required
+                      placeholder="Écrire un message au Bureau…"
+                      class="flex-1 rounded-xl border px-4 py-2.5 text-sm resize-none"
+                      style="border-color: var(--mist-line);"></textarea>
+            <button type="submit"
+                    class="flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center text-white"
+                    style="background: var(--domain);" aria-label="Envoyer">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            </button>
+          </form>
+          {% else %}
+          <div class="px-5 sm:px-6 py-4 border-t text-sm" style="border-color: var(--mist-line); color: color-mix(in srgb, var(--ink) 55%, transparent);">
+            Seuls les membres affectés à ce Bureau peuvent écrire ici.
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Colonne latérale -->
+      <div class="space-y-6">
+
+        <div class="card p-5 sm:p-6">
+          <h2 class="display text-base font-medium mb-3" style="color: var(--domain);">En bref</h2>
+          <dl class="space-y-2.5 text-sm">
+            <div class="flex justify-between">
+              <dt style="color: color-mix(in srgb, var(--ink) 55%, transparent);">Type</dt>
+              <dd class="font-medium text-right">{{ bureau.get_type_bureau_display }}</dd>
+            </div>
+            <div class="flex justify-between">
+              <dt style="color: color-mix(in srgb, var(--ink) 55%, transparent);">Catégorie</dt>
+              <dd class="font-medium">{% if bureau.est_central %}Central{% else %}Opérationnel{% endif %}</dd>
+            </div>
+            <div class="flex justify-between">
+              <dt style="color: color-mix(in srgb, var(--ink) 55%, transparent);">Effectif</dt>
+              <dd class="font-medium">{{ effectif_total }}</dd>
+            </div>
+            <div class="flex justify-between">
+              <dt style="color: color-mix(in srgb, var(--ink) 55%, transparent);">Créé le</dt>
+              <dd class="font-medium">{{ bureau.date_creation }}</dd>
+            </div>
+          </dl>
+        </div>
+
+        {% if responsables %}
+        <div class="card p-5 sm:p-6">
+          <h2 class="display text-base font-medium mb-3" style="color: var(--domain);">Responsables</h2>
+          <ul class="space-y-3">
+            {% for affectation in responsables %}
+            <li class="flex items-center gap-3">
+              {% if affectation.membre.image %}
+                <img src="{{ affectation.membre.image.url }}" alt="" class="w-9 h-9 rounded-full object-cover">
+              {% else %}
+                <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-medium" style="background: var(--domain-soft); color: var(--domain);">
+                  {{ affectation.membre.user.first_name|first|default:affectation.membre.user.username|first|upper }}
+                </div>
+              {% endif %}
+              <div class="min-w-0">
+                <p class="text-sm font-medium truncate">{{ affectation.membre.user.get_full_name|default:affectation.membre.user.username }}</p>
+                <p class="text-xs truncate" style="color: color-mix(in srgb, var(--ink) 55%, transparent);">
+                  {{ affectation.poste }}{% if affectation.membre.numero %} · {{ affectation.membre.numero }}{% endif %}
+                </p>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        {% if bureau.est_central %}
+        <div class="card p-5 sm:p-6" style="background: var(--domain-soft);">
+          <p class="text-xs leading-relaxed" style="color: var(--domain);">
+            En tant que Bureau central, ses membres peuvent aussi consulter (lecture seule)
+            les Bureaux Santé, Environnement, Educatif et Culturel, ainsi que les deux
+            autres Bureaux centraux.
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- CSS supplémentaire pour des détails fins -->
-<style>
-    .bg-gray-25 {
-        background-color: #fafafa;
-    }
-    
-    /* Scroll bar custom pour les listes */
-    .overflow-y-auto::-webkit-scrollbar {
-        width: 4px;
-    }
-    
-    .overflow-y-auto::-webkit-scrollbar-track {
-        background: #f1f5f9;
-        border-radius: 2px;
-    }
-    
-    .overflow-y-auto::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 2px;
-    }
-    
-    .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-    }
-    
-    /* Animation au hover pour les cards */
-    .bg-white {
-        transition: all 0.2s ease;
-    }
-    
-    .bg-white:hover {
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    }
-    
-    /* Responsive breakpoints personnalisés */
-    @media (max-width: 640px) {
-        .truncate-mobile {
-            max-width: 120px;
-        }
-    }
-</style>
+<!-- Bouton flottant mobile -->
+{% if peut_modifier %}
+<div class="fixed bottom-5 right-5 sm:hidden">
+  <a href="{% url 'bureau_modifie' bureau.pk %}"
+     class="w-13 h-13 flex items-center justify-center rounded-full text-white shadow-lg"
+     style="width:3.25rem;height:3.25rem;background: var(--domain, #1F4D3A);" aria-label="Modifier le Bureau">
+    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.4-9.4a2 2 0 112.8 2.8L11.8 15H9v-2.8l8.6-8.6z"/></svg>
+  </a>
+</div>
+{% endif %}
 {% endblock %}

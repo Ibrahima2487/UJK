@@ -14,6 +14,7 @@ urlpatterns = [
     path('actions/', views.actions, name='actions'),
     path('blog/', views.blog, name="blog"),
     path('gallery/', views.gallery, name="gallery"),
+    path('equipe_list/', views.equipe_list, name="equipe_list"),
 
     # ============ MEMBRE WEB ==================
     path('membre_base/', views.membre_base, name='membre_base'),
@@ -54,8 +55,9 @@ urlpatterns = [
     path('bureau_details/<int:pk>/', views.bureau_details, name="bureau_details"),
     path('bureau_ajouter/', views.bureau_ajouter, name="bureau_ajouter"),
     path('bureau_modifie/<int:pk>/', views.bureau_modifie, name="bureau_modifie"),
+    path('bureau_affecter/<int:pk>/', views.bureau_affecter, name="bureau_affecter"),
 
-    # ========= PUBLICATION ==============
+    # ==================== PUBLICATION ====================
     path('pub_create/', views.pub_create, name="pub_create"),
     path('pub_modifie/<int:pk>/', views.pub_modifie, name="pub_modifie"),
 

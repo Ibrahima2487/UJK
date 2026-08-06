@@ -17,6 +17,9 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 if 'RENDER' in os.environ:
     ALLOWED_HOSTS.append(os.environ.get('RENDER_EXTERNAL_HOSTNAME'))
 
+
+
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',

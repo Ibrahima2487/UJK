@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from core.models import actualite, albums, Utilisateur, Bureau, Publication, Commentaire, like, Contact, Payment, Temoin
+from core.models import MessageBureau, Affectation, Caisse, Payment, Depense, JournalCaisse, FicheControle
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 
@@ -142,135 +143,11 @@ class ContactForm(forms.ModelForm):
 
 
 class BureauForm(forms.ModelForm):
-    """Formulaire pour créer/modifier un bureau"""
+    
     
     class Meta:
         model = Bureau
-        fields = [
-            'nom', 'sigle', 'type_bureau', 'mission',
-            'zone_intervention', 'adresse_locale', 'bureau_parent',
-            'president', 'vice_president', 'secretaire',
-            'tresorier', 'responsable_technique', 'animateur_communautaire',
-            'membres_actifs', 'benevoles',
-            'date_creation', 'frequence_reunions',
-            'telephone_contact', 'email_contact', 'statut'
-        ]
-        
-        widgets = {
-            'nom': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ex: Bureau Exécutif'
-            }),
-            'sigle': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ex: BE',
-                'maxlength': 15
-            }),
-            'type_bureau': forms.Select(attrs={'class': 'form-select'}),
-            'mission': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 4,
-                'placeholder': 'Décrivez la mission et les objectifs du bureau/comité...'
-            }),
-            'zone_intervention': forms.Select(attrs={'class': 'form-select'}),
-            'adresse_locale': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ex: Kakony centre'
-            }),
-            'bureau_parent': forms.Select(attrs={'class': 'form-select'}),
-            'president': forms.Select(attrs={'class': 'form-select'}),
-            'vice_president': forms.Select(attrs={'class': 'form-select'}),
-            'secretaire': forms.Select(attrs={'class': 'form-select'}),
-            'tresorier': forms.Select(attrs={'class': 'form-select'}),
-            'responsable_technique': forms.Select(attrs={'class': 'form-select'}),
-            'animateur_communautaire': forms.Select(attrs={'class': 'form-select'}),
-            'membres_actifs': forms.SelectMultiple(attrs={'class': 'form-select', 'size': '6'}),
-            'benevoles': forms.SelectMultiple(attrs={'class': 'form-select', 'size': '6'}),
-            'date_creation': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'frequence_reunions': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ex: Mensuelle'
-            }),
-            'telephone_contact': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': '+224 XXX XXX XXX'
-            }),
-            'email_contact': forms.EmailInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'email@exemple.com'
-            }),
-            'statut': forms.Select(attrs={'class': 'form-select'}),
-        }
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        # Utilisateurs actifs pour les postes
-        users_actifs = User.objects.filter(is_active=True).order_by('first_name', 'last_name')
-        
-        user_fields = [
-            'president', 'vice_president', 'secretaire',
-            'tresorier', 'responsable_technique', 'animateur_communautaire'
-        ]
-        
-        for field_name in user_fields:
-            self.fields[field_name].queryset = users_actifs
-        
-        self.fields['membres_actifs'].queryset = users_actifs
-        self.fields['benevoles'].queryset = users_actifs
-        
-        # Bureaux parents possibles
-        if self.instance and self.instance.pk:
-            self.fields['bureau_parent'].queryset = Bureau.objects.exclude(
-                pk=self.instance.pk
-            ).filter(statut='ACTIF')
-        else:
-            self.fields['bureau_parent'].queryset = Bureau.objects.filter(statut='ACTIF')
-    
-    def clean_sigle(self):
-        """Validation du sigle"""
-        sigle = self.cleaned_data['sigle'].upper()
-        
-        queryset = Bureau.objects.filter(sigle=sigle)
-        if self.instance.pk:
-            queryset = queryset.exclude(pk=self.instance.pk)
-        
-        if queryset.exists():
-            raise ValidationError(f"Le sigle '{sigle}' est déjà utilisé.")
-        
-        return sigle
-    
-    def clean(self):
-        """Validation croisée"""
-        cleaned_data = super().clean()
-        
-        # Vérifier les postes dirigeants
-        dirigeants = [
-            cleaned_data.get('president'),
-            cleaned_data.get('vice_president'),
-            cleaned_data.get('secretaire'),
-            cleaned_data.get('tresorier'),
-            cleaned_data.get('responsable_technique'),
-            cleaned_data.get('animateur_communautaire')
-        ]
-        
-        dirigeants_valides = [d for d in dirigeants if d is not None]
-        
-        if len(set(dirigeants_valides)) != len(dirigeants_valides):
-            raise ValidationError(
-                "Une personne ne peut pas occuper plusieurs postes dirigeants."
-            )
-        
-        # Validation hiérarchique
-        bureau_parent = cleaned_data.get('bureau_parent')
-        type_bureau = cleaned_data.get('type_bureau')
-        
-        if type_bureau == 'PRINCIPAL' and bureau_parent:
-            raise ValidationError(
-                "Un bureau principal ne peut pas avoir de structure de rattachement."
-            )
-        
-        return cleaned_data
+        fields = "__all__"
 
 
 class PublicationForm(forms.ModelForm):
@@ -342,4 +219,61 @@ class ChangePasswordForm(forms.Form):
         if new_password != confirm_password:
             raise forms.ValidationError("Les mots de passe ne correspondent pas")
         
-        return cleaned_data
+        return cleaned_data 
+
+
+# =========== TEMOIN ========= START
+class TemoinForm(forms.ModelForm):
+    class Meta:
+        model = Temoin
+        fields = "__all__"
+
+
+# ============ BUREAU ========= SATRT
+class BureauForm(forms.ModelForm):
+    class Meta:
+        model = Bureau
+        fields = "__all__"
+
+
+# ========== AFFECTATION ===== START
+class AffectationForm(forms.ModelForm):
+    class Meta:
+        model = Affectation
+        fields = "__all__"
+
+# ========= MESSAGE BUREAU ===== START
+class MessageBureauForm(forms.ModelForm):
+    class Meta:
+        model = MessageBureau
+        fields = "__all__"
+
+
+
+
+#=============== COMPTABLITÉ ==========
+
+#=== CAISSE
+class CaisseForm(forms.ModelForm):
+    class Meta:
+        model = Caisse
+        fields = "__all__"
+
+#===== DEPENSE ========
+class DepenseForm(forms.ModelForm):
+    class Meta:
+        model = Depense
+        fields = "__all__"
+
+#===== JOURNALCAISSE =====
+class JournalCaisseForm(forms.ModelForm):
+    class Meta:
+        model = JournalCaisse
+        fields = "__all__"
+
+
+# ===== FICHECONTROLE 
+class FicheControleForm(forms.ModelForm):
+    class Meta:
+        model = FicheControle
+        fields = "__all__"

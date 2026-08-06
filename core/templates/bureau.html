@@ -2,271 +2,262 @@
 {% extends 'membre_base.html' %}
 {% load static %}
 
-{% block title %}Liste des Bureaux - Association Kakony{% endblock %}
+{% block title %}Registre des Bureaux — UJK Kakony{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 py-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <!-- Header avec titre et bouton -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900 flex items-center">
-                    <svg class="w-8 h-8 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                    </svg>
-                    Liste des Bureaux
-                </h1>
-                <p class="mt-2 text-gray-600">Gestion des bureaux et comités de l'Association Communautaire de Kakony</p>
-            </div>
-            <div class="mt-4 sm:mt-0">
-                <a href="{% url 'bureau_ajouter' %}" 
-                   class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm transition duration-200">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                    Nouveau Bureau
-                </a>
-            </div>
-        </div>
+<style>
+  /* Idéalement à déplacer dans le <head> de membre_base.html une fois validé */
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&display=swap');
 
-        <!-- Statistiques Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <!-- Total Bureaux -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Total Bureaux</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ total_bureaux }}</p>
-                    </div>
-                </div>
-            </div>
+  .ujk-registre {
+    --forest: #1F4D3A;
+    --forest-deep: #163A2B;
+    --clay: #C1622D;
+    --gold: #D9A441;
+    --cream: #FAF7F0;
+    --ink: #24211D;
+    --mist: #E5DFD0;
+    --mist-line: #D8D0BC;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Work Sans', system-ui, sans-serif;
+  }
+  .ujk-registre .display { font-family: 'Fraunces', Georgia, serif; }
+  .ujk-registre a, .ujk-registre button { transition: color .15s ease, background-color .15s ease, border-color .15s ease, transform .15s ease; }
+  .ujk-registre :focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
 
-            <!-- Bureaux Actifs -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Bureaux Actifs</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ bureaux_actifs }}</p>
-                    </div>
-                </div>
-            </div>
+  .seal {
+    width: 46px; height: 46px; border-radius: 9999px;
+    border: 1.5px solid currentColor;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif; font-weight: 600; letter-spacing: .02em;
+    flex-shrink: 0;
+  }
+  .row-line { border-bottom: 1px solid var(--mist-line); }
+  .row-line:last-child { border-bottom: none; }
 
-            <!-- Taux d'Activité -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Taux d'Activité</p>
-                        <p class="text-2xl font-bold text-gray-900">
-                            {% if total_bureaux > 0 %}
-                                {% widthratio bureaux_actifs total_bureaux 100 %}%
-                            {% else %}
-                                0%
-                            {% endif %}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+  .tag-central {
+    background: color-mix(in srgb, var(--forest) 10%, transparent);
+    color: var(--forest-deep);
+    border: 1px solid color-mix(in srgb, var(--forest) 30%, transparent);
+  }
+  .tag-operationnel {
+    background: color-mix(in srgb, var(--clay) 10%, transparent);
+    color: var(--clay);
+    border: 1px solid color-mix(in srgb, var(--clay) 30%, transparent);
+  }
+</style>
 
-        
+<div class="ujk-registre min-h-screen">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
 
-        <!-- Liste des bureaux -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            {% if bureaux %}
-                <!-- En-tête du tableau -->
-                <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
-                    <div class="grid grid-cols-12 gap-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <div class="col-span-4">Bureau</div>
-                        <div class="col-span-2">Type</div>
-                        <div class="col-span-2">Zone</div>
-                        <div class="col-span-2">Président</div>
-                        <div class="col-span-1">Statut</div>
-                        <div class="col-span-1">Actions</div>
-                    </div>
-                </div>
+    <!-- En-tête -->
+    <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between mb-10 sm:mb-12">
+      <div>
+        <p class="uppercase tracking-[0.2em] text-xs font-medium mb-2" style="color: var(--clay);">
+          Association Communautaire de Kakony
+        </p>
+        <h1 class="display text-3xl sm:text-4xl font-semibold" style="color: var(--forest-deep);">
+          Registre des Bureaux
+        </h1>
+        <p class="mt-2 text-sm sm:text-base" style="color: color-mix(in srgb, var(--ink) 65%, transparent);">
+          {{ total_bureaux }} bureau{{ total_bureaux|pluralize }} — Exécutif, Logistique et Suivi-évaluation
+          coordonnent l'ensemble ; Educatif, Santé, Culturel et Environnement portent les actions de terrain.
+        </p>
+      </div>
 
-                <!-- Corps du tableau -->
-                <div class="divide-y divide-gray-200">
-                    {% for bureau in bureaux %}
-                    <div class="px-6 py-4 hover:bg-gray-50 transition duration-200">
-                        <div class="grid grid-cols-12 gap-4 items-center">
-                            
-                            <!-- Nom du bureau -->
-                            <div class="col-span-4">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0">
-                                        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                                            <span class="text-white font-bold text-sm">
-                                                {{ bureau.sigle|slice:":2"|upper }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="ml-4">
-                                        <h3 class="text-sm font-medium text-gray-900 hover:text-blue-600">
-                                            <a href="{% url 'bureau_details' bureau.pk %}">
-                                                {{ bureau.nom }}
-                                            </a>
-                                        </h3>
-                                        <p class="text-sm text-gray-500">{{ bureau.sigle }}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Type -->
-                            <div class="col-span-2">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                                    {{ bureau.get_type_bureau_display }}
-                                </span>
-                            </div>
-
-                            <!-- Zone -->
-                            <div class="col-span-2">
-                                <p class="text-sm text-gray-900">{{ bureau.get_zone_intervention_display }}</p>
-                            </div>
-
-                            <!-- Président -->
-                            <div class="col-span-2">
-                                <div class="flex items-center">
-                                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                                        <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-                                        </svg>
-                                    </div>
-                                    <div class="ml-2">
-                                        <p class="text-sm font-medium text-gray-900">{{ bureau.president }}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Statut -->
-                            <div class="col-span-1">
-                                {% if bureau.statut == 'ACTIF' %}
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        <svg class="w-1.5 h-1.5 mr-1.5" fill="currentColor" viewBox="0 0 8 8">
-                                            <circle cx="4" cy="4" r="3" />
-                                        </svg>
-                                        {{ bureau.get_statut_display }}
-                                    </span>
-                                {% elif bureau.statut == 'EN_PROJET' %}
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                        <svg class="w-1.5 h-1.5 mr-1.5" fill="currentColor" viewBox="0 0 8 8">
-                                            <circle cx="4" cy="4" r="3" />
-                                        </svg>
-                                        {{ bureau.get_statut_display }}
-                                    </span>
-                                {% else %}
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                        <svg class="w-1.5 h-1.5 mr-1.5" fill="currentColor" viewBox="0 0 8 8">
-                                            <circle cx="4" cy="4" r="3" />
-                                        </svg>
-                                        {{ bureau.get_statut_display }}
-                                    </span>
-                                {% endif %}
-                            </div>
-
-                            <!-- Actions -->
-                            <div class="col-span-1">
-                                <div class="flex items-center space-x-2">
-                                    <a href="{% url 'bureau_details' bureau.pk %}" 
-                                        class="text-blue-600 hover:text-blue-800 p-1 rounded-md hover:bg-blue-100 transition duration-200"
-                                        title="Voir les détails">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                            </svg>
-                                        </a>
-                                    
-                                    {% if bureau.peut_modifier == user %}
-                                    <a href="#" 
-                                       class="text-amber-600 hover:text-amber-800 p-1 rounded-md hover:bg-amber-100 transition duration-200"
-                                       title="Modifier">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                        </svg>
-                                    </a>
-                                    
-                                    <a href="#" 
-                                       class="text-red-600 hover:text-red-800 p-1 rounded-md hover:bg-red-100 transition duration-200"
-                                       title="Supprimer"
-                                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce bureau ?')">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
-                                    </a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <!-- État vide -->
-                <div class="text-center py-12">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                    <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun bureau trouvé</h3>
-                    <p class="mt-1 text-sm text-gray-500">
-                        {% if request.GET.search %}
-                            Aucun bureau ne correspond à votre recherche "{{ request.GET.search }}".
-                        {% else %}
-                            Commencez par créer votre premier bureau.
-                        {% endif %}
-                    </p>
-                    <div class="mt-6">
-                        {% if request.GET.search %}
-                            <a href="{% url 'bureau:list' %}" 
-                               class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                </svg>
-                                Réinitialiser la recherche
-                            </a>
-                        {% else %}
-                            <a href="{% url 'bureau_ajouter' %}" 
-                               class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                                Créer un bureau
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-            {% endif %}
-        </div>
-
-        <!-- Footer de pagination (si nécessaire dans le futur) -->
-        <div class="mt-6 flex justify-between items-center text-sm text-gray-700">
-            <div>
-                Affichage de {{ bureaux|length }} bureau{{ bureaux|length|pluralize }} sur {{ total_bureaux }}
-            </div>
-        </div>
+      
+      <a href="{% url 'bureau_ajouter' %}"
+         class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-medium text-white shadow-sm w-full sm:w-auto"
+         style="background: var(--forest);">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        Nouveau Bureau
+      </a>
+     
     </div>
+
+    <!-- Recherche -->
+    <form method="get" class="mb-8 sm:mb-10">
+      <label for="search" class="sr-only">Rechercher un bureau</label>
+      <div class="relative">
+        <svg class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2" style="color: color-mix(in srgb, var(--ink) 45%, transparent);"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+        </svg>
+        <input
+          type="text" id="search" name="search" value="{{ request.GET.search }}"
+          placeholder="Rechercher par nom de bureau…"
+          class="w-full pl-11 pr-4 py-3 rounded-full border bg-white text-sm"
+          style="border-color: var(--mist-line);"
+        >
+      </div>
+    </form>
+
+    <!-- Registre -->
+    <div class="rounded-2xl border bg-white overflow-hidden" style="border-color: var(--mist-line);">
+      {% if bureaux %}
+
+        <!-- En-tête colonnes (desktop uniquement) -->
+        <div class="hidden md:grid grid-cols-12 gap-4 px-6 py-3 text-xs font-medium uppercase tracking-wider"
+             style="background: var(--mist); color: color-mix(in srgb, var(--ink) 60%, transparent);">
+          <div class="col-span-5">Bureau</div>
+          <div class="col-span-2">Catégorie</div>
+          <div class="col-span-2">Effectif</div>
+          <div class="col-span-2">Accès</div>
+          <div class="col-span-1 text-right">Actions</div>
+        </div>
+
+        {% for bureau in bureaux %}
+          <div class="row-line">
+
+            <!-- ===== Ligne desktop ===== -->
+            <div class="hidden md:grid grid-cols-12 gap-4 items-center px-6 py-4 hover:bg-[--mist]/40">
+              <div class="col-span-5 flex items-center gap-4 min-w-0">
+                <div class="seal" style="color: {% if bureau.est_central %}var(--forest){% else %}var(--clay){% endif %};">
+                  {{ bureau.nom|slice:":2"|upper }}
+                </div>
+                <div class="min-w-0">
+                  <a href="{% url 'bureau_details' bureau.pk %}"
+                     class="display text-base font-medium block truncate"
+                     style="color: var(--forest-deep);">
+                    {{ bureau.nom }}
+                  </a>
+                  <p class="text-xs mt-0.5 truncate" style="color: color-mix(in srgb, var(--ink) 55%, transparent);">
+                    {{ bureau.get_type_bureau_display }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="col-span-2">
+                {% if bureau.est_central %}
+                  <span class="tag-central inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium">Central</span>
+                {% else %}
+                  <span class="tag-operationnel inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium">Opérationnel</span>
+                {% endif %}
+              </div>
+
+              <div class="col-span-2 text-sm">
+                {{ bureau.effectif }} membre{{ bureau.effectif|pluralize }}
+              </div>
+
+              <div class="col-span-2">
+                {% if bureau.pk in bureaux_accessibles %}
+                  <span class="inline-flex items-center gap-1 text-xs font-medium" style="color: var(--forest);">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    Accessible
+                  </span>
+                {% else %}
+                  <span class="inline-flex items-center gap-1 text-xs" style="color: color-mix(in srgb, var(--ink) 45%, transparent);">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 118 0v3"/></svg>
+                    Restreint
+                  </span>
+                {% endif %}
+              </div>
+
+              <div class="col-span-1 flex justify-end gap-1">
+                <a href="{% url 'bureau_details' bureau.pk %}" title="Voir le détail"
+                   class="p-2 rounded-full hover:bg-[--mist]" style="color: var(--forest);">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </a>
+                {% if peut_affecter %}
+                <a href="{% url 'bureau_modifie' bureau.pk %}" title="Modifier"
+                   class="p-2 rounded-full hover:bg-[--mist]" style="color: var(--gold);">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.4-9.4a2 2 0 112.8 2.8L11.8 15H9v-2.8l8.6-8.6z"/>
+                  </svg>
+                </a>
+                <a href="{% url 'bureau_supprime' bureau.pk %}" title="Supprimer"
+                   class="p-2 rounded-full hover:bg-[--mist]" style="color: #B4483A;">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.9 12.1a2 2 0 01-2 1.9H7.9a2 2 0 01-2-1.9L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </a>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- ===== Carte mobile ===== -->
+            <div class="md:hidden px-4 py-4">
+              <div class="flex items-start gap-3">
+                <div class="seal" style="color: {% if bureau.est_central %}var(--forest){% else %}var(--clay){% endif %};">
+                  {{ bureau.nom|slice:":2"|upper }}
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-start justify-between gap-2">
+                    <a href="{% url 'bureau_details' bureau.pk %}" class="display text-base font-medium" style="color: var(--forest-deep);">
+                      {{ bureau.nom }}
+                    </a>
+                    {% if bureau.pk in bureaux_accessibles %}
+                      <svg class="w-4 h-4 mt-1 flex-shrink-0" style="color: var(--forest);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    {% else %}
+                      <svg class="w-4 h-4 mt-1 flex-shrink-0" style="color: color-mix(in srgb, var(--ink) 40%, transparent);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 118 0v3"/></svg>
+                    {% endif %}
+                  </div>
+                  <p class="text-xs mt-0.5" style="color: color-mix(in srgb, var(--ink) 55%, transparent);">
+                    {{ bureau.get_type_bureau_display }} · {{ bureau.effectif }} membre{{ bureau.effectif|pluralize }}
+                  </p>
+                  <div class="mt-2 flex items-center justify-between">
+                    
+                      <span class="tag-central inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium">Central</span>
+                    
+                      <span class="tag-operationnel inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium">Opérationnel</span>
+                   
+                    <div class="flex items-center gap-3">
+                      
+                      <a href="{% url 'bureau_modifie' bureau.pk %}" class="text-xs font-medium" style="color: var(--gold);">Modifier</a>
+                      <a href="{% url 'bureau_affecter' bureau.pk %}" class="text-xs font-medium" style="color: #B4483A;">Supprimer</a>
+                      
+                      <a href="{% url 'bureau_details' bureau.pk %}" class="text-xs font-medium" style="color: var(--forest);">Ouvrir →</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        {% endfor %}
+
+      {% else %}
+        <!-- État vide -->
+        <div class="text-center py-16 px-6">
+          <svg class="mx-auto w-10 h-10 mb-4" style="color: color-mix(in srgb, var(--ink) 35%, transparent);"
+               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5V6a2 2 0 012-2h12a2 2 0 012 2v14M4 19.5V17"/>
+          </svg>
+          <h3 class="display text-lg font-medium" style="color: var(--forest-deep);">Aucun bureau trouvé</h3>
+          <p class="mt-1 text-sm" style="color: color-mix(in srgb, var(--ink) 55%, transparent);">
+            {% if request.GET.search %}
+              Aucun résultat pour « {{ request.GET.search }} ».
+            {% else %}
+              Le registre est vide pour le moment.
+            {% endif %}
+          </p>
+          <div class="mt-6">
+            {% if request.GET.search %}
+              <a href="{% url 'bureau' %}"
+                 class="inline-flex items-center px-4 py-2.5 rounded-full text-sm font-medium text-white" style="background: var(--forest);">
+                Réinitialiser la recherche
+              </a>
+            {% elif peut_affecter %}
+              <a href="{% url 'bureau_ajouter' %}"
+                 class="inline-flex items-center px-4 py-2.5 rounded-full text-sm font-medium text-white" style="background: var(--forest);">
+                Créer un bureau
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <p class="mt-6 text-xs text-center sm:text-left" style="color: color-mix(in srgb, var(--ink) 45%, transparent);">
+      Affichage de {{ bureaux|length }} bureau{{ bureaux|length|pluralize }} sur {{ total_bureaux }}.
+    </p>
+
+  </div>
 </div>
 {% endblock %}

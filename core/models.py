@@ -3,6 +3,7 @@ from django.core.validators import MinLengthValidator, EmailValidator #valideurs
 from django.utils.text import slugify 
 from django.utils import timezone
 import os
+from datetime import date, datetime, timedelta
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.core.validators import FileExtensionValidator
@@ -17,6 +18,7 @@ from django.core.validators import MinValueValidator
 from decimal import Decimal
 from datetime import datetime, timedelta
 import json
+from django.db import models, transaction
 import uuid
 from django.db import models
 from django.contrib.auth.models import User
@@ -25,124 +27,48 @@ from io import BytesIO
 from django.core.files import File
 from django.conf import settings
 import qrcode
+from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.dispatch import receiver
+
 
 # ========= UTILISATEUR ======== 
+
+
+# ========= UTILISATEUR (version allégée) ========
 class Utilisateur(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     numero = models.CharField(max_length=200, blank=True, null=True)
     image = models.ImageField(upload_to='profiles/')
     adresse = models.CharField(max_length=100, default="Kakony")
-    #en_ligne = models.BooleanField(default=False)
-    badge_png = models.ImageField(upload_to="profiles/", blank=True, null=True)
 
-    def marquer_en_ligne(self):
-        self.en_ligne = True
-        self.derniere_activite = timezone.now()
-        self.save()
-
-    def marquer_hors_ligne(self):
-        self.en_ligne = False
-        self.save()
-
-    
+    # Identifiant public non-devinable pour l'URL de profil (remplace le pk)
+    profil_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    # Statut en ligne — mis à jour par les signaux login/logout ci-dessous
+    en_ligne = models.BooleanField(default=False)
+    derniere_activite = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.user.username
-    
-    def save(self, *args, **kwargs):
-        # Sauvegarde initiale pour avoir un ID
-        super().save(*args, **kwargs)
-        
-        # Redimensionner l'image de profil
-        if self.image:
-            img = Image.open(self.image.path)
-            if img.height > 600 or img.width > 600:
-                output_size = (600, 600)
-                img.thumbnail(output_size)
-                img.save(self.image.path)
-        
-        # Générer le badge
-        self.generer_badge()
-        
-        # Sauvegarder à nouveau pour enregistrer le badge
-        super().save(*args, **kwargs)
-    
-    def generer_badge(self):
-    # Design minimaliste futuriste
-        badge = Image.new("RGB", (500, 600), "#2c3e50")
-        draw = ImageDraw.Draw(badge)
-    
-        width, height = 500, 600
-        center_x, center_y = width // 2, height // 2
 
-    # Grand cercle central avec gradient
-        for r in range(200, 0, -2):
-            alpha = int(255 * (r / 200))
-            color = (242, 130, 65, alpha)
-            draw.ellipse([center_x-r, center_y-r, center_x+r, center_y+r], 
-                    outline=(242, 130, 65), width=2)
     
-    # Grille de triangles
-            triangle_size = 40
-        for x in range(0, width, triangle_size):
-             for y in range(0, height, triangle_size):
-                if (x // triangle_size + y // triangle_size) % 2 == 0:
-                    points = [(x, y), (x+triangle_size, y), (x, y+triangle_size)]
-                    draw.polygon(points, outline="#F28241", width=1)
+
     
-    # Lignes de connexion diagonales
-        for i in range(0, width + height, 20):
-            draw.line([(i, 0), (0, i)], fill="#F28241", width=1)
-            draw.line([(width-i, height), (width, height-i)], fill="#F28241", width=1)
-    
-            return badge
 
-        
+    def bureaux_affectes(self):
+        """Tous les Bureaux où ce membre a un poste formel actif (accès complet)."""
+        return Bureau.objects.filter(
+            affectations__membre=self, affectations__actif=True
+        ).distinct()
 
-        # Ajouter le logo
-        try:
-            logo_path = f"{settings.BASE_DIR}/media/profiles/logo.png"
-            logo = Image.open(logo_path).resize((250, 250))
-            badge.paste(logo, (10, 50))
-        except:
-            pass
-    
-        # Ajouter l'image de l'utilisateur
-        if self.image:
-            try:
-                user_image = Image.open(self.image.path).resize((200, 250))
-                badge.paste(user_image, (10, 10))
-                
-            except:
-                pass
+    def bureau_redirection(self):
+        """
+        Pour la vue qui gère le clic sur la page BUREAU :
+        - un seul Bureau affecté -> retourne ce Bureau (redirection directe)
+        - plusieurs -> retourne None (la vue affiche la liste de choix)
+        """
+        bureaux = list(self.bureaux_affectes())
+        return bureaux[0] if len(bureaux) == 1 else None
 
-        
-        # Ajouter le texte
-        try:
-            # Essayer de charger une police, sinon utiliser la police par défaut
-            font_path = f"{settings.BASE_DIR}/static/fonts/arial.ttf"
-            font = ImageFont.truetype(font_path, 26)
-        except:
-            font = ImageFont.load_default()
-        
-        # Ajouter le nom d'utilisateur
-        draw.text((10, 350), f" Membre de UJK\n Nom : {self.user.get_full_name() or self.user.username}", fill="white", font=font)
-        
-       
-
-        # Générer et ajouter le QR code
-        qr_data = f"{settings.SITE_URL}/udjkplatform/profiles/{self.id}/"
-        qr_img = qrcode.make(qr_data)
-        qr_img = qr_img.resize((250, 250))
-        badge.paste(qr_img, (200, 200))
-
-        # Sauvegarder le badge
-        buffer = BytesIO()
-        badge.save(buffer, format="PNG")
-        file_png = File(buffer, name=f"Badge_{self.id}.png")
-        
-        # Sauvegarder le badge dans le champ badge_png
-        self.badge_png.save(file_png.name, file_png, save=False)
   
 
 
@@ -206,461 +132,7 @@ class albums(models.Model):
         return self.title
 
 
-# ========== BUREAU ===========
-class Bureau(models.Model):
-    
-    
-    TYPE_BUREAU_CHOICES = [
-        ('PRINCIPAL', 'Bureau Principal'),
-        ('EDUCATION', 'Comité Éducation & Formation'),
-        ('SANTE', 'Comité Santé & Hygiène'),
-        ('JEUNESSE', 'Comité Jeunesse & Sport'),
-        ('FEMMES', 'Comité des Femmes'),
-        ('ENVIRONNEMENT', 'Comité Environnement'),
-        ('CULTURE', 'Comité Culture & Tradition'),
-    ]
-    
-    STATUT_CHOICES = [
-        ('ACTIF', 'Actif'),
-        ('INACTIF', 'Inactif'),
-        ('EN_PROJET', 'En Projet'),
-        ('SUSPENDU', 'Suspendu'),
-    ]
 
-    ZONE_INTERVENTION_CHOICES = [
-        ('KAKONY_CENTRE', 'Kakony Centre'),
-        ('Village', 'Village'),
-        
-    ]
-
-    # Informations de base
-    nom = models.CharField(max_length=200, verbose_name="Nom du bureau", help_text="Nom complet du bureau que vous voullez créez")
-    sigle = models.CharField(max_length=15, unique=True, verbose_name="Sigle", help_text="Code unique (ex: BPK, CEK, CSK, CAK)")
-    type_bureau = models.CharField(max_length=20, choices=TYPE_BUREAU_CHOICES, default='UDJK', verbose_name="Type de structure")
-    mission = models.TextField(verbose_name="Mission et objectifs", help_text="Description de la mission et des objectifs du bureau/comité")
-    
-    # Localisation spécifique à Kakony
-    zone_intervention = models.CharField(
-        max_length=30,
-        choices=ZONE_INTERVENTION_CHOICES,
-        default='ENSEMBLE_COMMUNE',
-        verbose_name="Zone d'intervention"
-    )
-    
-    adresse_locale = models.CharField(
-        max_length=200,
-        blank=True,
-        verbose_name="Adresse locale",
-        help_text="Lieu précis à Kakony"
-    )
-    
-    # Structure hiérarchique
-    bureau_parent = models.ForeignKey(
-        "self", 
-        on_delete=models.CASCADE, 
-        null=True, 
-        blank=True,
-        related_name="structures_filiales",
-        verbose_name="Structure de rattachement"
-    )
-    
-    # Membres dirigeants
-    president = models.ForeignKey(
-        User, 
-        on_delete=models.PROTECT,
-        related_name="bureaux_presides_kakony",
-        verbose_name="Président(e)"
-    )
-    
-    vice_president = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="bureaux_vice_president_kakony",
-        verbose_name="Vice-président(e)",
-        null=True,
-        blank=True
-    )
-    
-    secretaire = models.ForeignKey(
-        User, 
-        on_delete=models.PROTECT,
-        related_name="bureaux_secretaire_kakony",
-        verbose_name="Secrétaire"
-    )
-    
-    tresorier = models.ForeignKey(
-        User, 
-        on_delete=models.PROTECT,
-        related_name="bureaux_tresorier_kakony",
-        verbose_name="Trésorier(ère)"
-    )
-    
-    # Responsables techniques (selon le type de comité)
-    responsable_technique = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="bureaux_technique_kakony",
-        verbose_name="Responsable Technique",
-        null=True,
-        blank=True,
-        help_text="Expert ou technicien spécialisé dans le domaine"
-    )
-    
-    animateur_communautaire = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="bureaux_animateur_kakony",
-        verbose_name="Animateur Communautaire",
-        null=True,
-        blank=True,
-        help_text="Personne chargée de la mobilisation communautaire"
-    )
-    
-    # Membres actifs
-    membres_actifs = models.ManyToManyField(
-        User,
-        blank=True,
-        related_name="bureaux_membre_actif_kakony",
-        verbose_name="Membres actifs",
-        help_text="Membres participant régulièrement aux activités"
-    )
-    
-    # Bénévoles et sympathisants
-    benevoles = models.ManyToManyField(
-        User,
-        blank=True,
-        related_name="bureaux_benevole_kakony",
-        verbose_name="Bénévoles"
-    )
-    
-    # Informations sur la constitution
-    date_creation = models.DateField(
-        verbose_name="Date de création",
-        help_text="Date de création du bureau/comité"
-    )
-    
-    date_derniere_assemblee = models.DateField(
-        null=True,
-        blank=True,
-        verbose_name="Dernière assemblée",
-        help_text="Date de la dernière assemblée générale"
-    )
-    
-    frequence_reunions = models.CharField(
-        max_length=50,
-        default='Mensuelle',
-        verbose_name="Fréquence des réunions",
-        help_text="Ex: Hebdomadaire, Mensuelle, Trimestrielle"
-    )
-    
-    # Métadonnées
-    
-    
-    date_modification = models.DateTimeField(
-        auto_now=True,
-        verbose_name="Dernière modification"
-    )
-    
-    statut = models.CharField(
-        max_length=15,
-        choices=STATUT_CHOICES,
-        default='ACTIF',
-        verbose_name="Statut"
-    )
-    
-    niveau_hierarchique = models.PositiveIntegerField(
-        default=0,
-        editable=False,
-        verbose_name="Niveau hiérarchique"
-    )
-    # Contacts et communication
-    telephone_contact = models.CharField(
-        max_length=20,
-        blank=True,
-        verbose_name="Téléphone de contact"
-    )
-    
-    email_contact = models.EmailField(
-        blank=True,
-        verbose_name="Email de contact"
-    )
-    taux_reussite = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        verbose_name="Taux de réussite (%)",
-        help_text="Pourcentage de projets menés à bien"
-    )
-
-
-    class Meta:
-        verbose_name = "Bureau"
-        verbose_name_plural = "Bureaux"
-        ordering = ['niveau_hierarchique', 'type_bureau', 'nom']
-        unique_together = [['nom', 'zone_intervention']]
-        permissions = [
-            ("export_bureaux", "Peut exporter les données des bureaux"),
-            ("gerer_tous_bureaux", "Peut gérer tous les bureaux sans restriction"),
-        ]
-
-    def __str__(self):
-        return f"{self.nom} - {self.get_zone_intervention_display()}"
-
-    def clean(self):
-        """Validation personnalisée du modèle"""
-        super().clean()
-        
-        # Récupérer tous les membres dirigeants
-        membres_dirigeants = [
-            self.president,
-            self.secretaire,
-            self.tresorier,
-        ]
-        
-        # Ajouter les postes optionnels
-        if self.vice_president:
-            membres_dirigeants.append(self.vice_president)
-        
-        if self.responsable_technique:
-            membres_dirigeants.append(self.responsable_technique)
-        if self.animateur_communautaire:
-            membres_dirigeants.append(self.animateur_communautaire)
-        
-        # Vérifier l'unicité
-        if len(set(membres_dirigeants)) != len(membres_dirigeants):
-            raise ValidationError(
-                "Une personne ne peut pas occuper plusieurs postes dirigeants dans le même bureau"
-            )
-        
-        # Validation hiérarchique
-        if self.bureau_parent:
-            current = self.bureau_parent
-            while current:
-                if current == self:
-                    raise ValidationError("Un bureau ne peut pas être son propre parent")
-                current = current.bureau_parent
-
-    def save(self, *args, **kwargs):
-        """Calcule le niveau hiérarchique et met à jour les statistiques"""
-        if self.bureau_parent:
-            self.niveau_hierarchique = self.bureau_parent.niveau_hierarchique + 1
-        else:
-            self.niveau_hierarchique = 0
-            
-        super().save(*args, **kwargs)
-
-    # Propriétés et méthodes utilitaires
-    @property
-    def est_bureau_principal(self):
-        """Vérifie si c'est le bureau principal"""
-        return self.type_bureau == 'PRINCIPAL'
-
-    @property
-    def adresse_complete_kakony(self):
-        """Retourne l'adresse complète dans Kakony"""
-        adresse = f"{self.get_zone_intervention_display()}, Kakony"
-        if self.adresse_locale:
-            adresse = f"{self.adresse_locale}, {adresse}"
-        return f"{adresse}, Sous-Préfecture de Gaoual, Préfecture de Gaoual, Région de Boké, Guinée"
-
-    def get_membres_dirigeants(self):
-        """Retourne tous les membres dirigeants avec leurs postes"""
-        dirigeants = [
-            ('Président(e)', self.president),
-            ('Secrétaire', self.secretaire),
-            ('Trésorier(ère)', self.tresorier),
-        ]
-        
-        # Ajouter les postes optionnels
-        if self.vice_president:
-            dirigeants.insert(1, ('Vice-président(e)', self.vice_president))
-        if self.secretaire_adjoint:
-            dirigeants.append(('Secrétaire Adjoint(e)', self.secretaire_adjoint))
-        if self.responsable_technique:
-            dirigeants.append(('Responsable Technique', self.responsable_technique))
-        if self.animateur_communautaire:
-            dirigeants.append(('Animateur Communautaire', self.animateur_communautaire))
-        
-        return dirigeants
-
-    def get_tous_les_membres(self):
-        """Retourne tous les membres (dirigeants + actifs + bénévoles)"""
-        dirigeants = [membre for _, membre in self.get_membres_dirigeants()]
-        membres_actifs = list(self.membres_actifs.all())
-        benevoles = list(self.benevoles.all())
-        
-        # Éliminer les doublons
-        tous_membres = list(set(dirigeants + membres_actifs + benevoles))
-        return tous_membres
-
-    def get_effectif_total(self):
-        """Retourne l'effectif total du bureau/comité"""
-        return len(self.get_tous_les_membres())
-
-    def get_impact_total(self):
-        """Calcule l'impact total (bénéficiaires directs + indirects)"""
-        return self.nombre_beneficiaires_directs + self.nombre_beneficiaires_indirects
-
-    # Méthodes de contrôle d'accès
-    def is_president(self, user):
-        """Vérifie si l'utilisateur est président"""
-        return self.president == user
-
-    def is_membre_dirigeant(self, user):
-        """Vérifie si l'utilisateur fait partie de l'équipe dirigeante"""
-        dirigeants = [membre for _, membre in self.get_membres_dirigeants()]
-        return user in dirigeants
-
-    def is_membre_actif(self, user):
-        """Vérifie si l'utilisateur est membre actif"""
-        return (self.is_membre_dirigeant(user) or 
-                self.membres_actifs.filter(id=user.id).exists() or
-                self.benevoles.filter(id=user.id).exists())
-
-    def peut_modifier(self, user):
-        """Vérifie si l'utilisateur peut modifier les informations"""
-        if self.is_president(user):
-            return True
-        if self.bureau_parent and self.bureau_parent.is_president(user):
-            return True
-        return False
-
-    # Méthodes pour la structure organisationnelle
-    def get_chemin_organisationnel(self):
-        """Retourne le chemin organisationnel complet"""
-        chemin = []
-        bureau_actuel = self
-        while bureau_actuel:
-            chemin.insert(0, bureau_actuel.nom)
-            bureau_actuel = bureau_actuel.bureau_parent
-        return " → ".join(chemin)
-
-    def get_structures_filiales_actives(self):
-        """Retourne les structures filiales actives"""
-        return self.structures_filiales.filter(statut='ACTIF')
-
-    def get_tous_les_descendants(self):
-        """Retourne tous les descendants dans la hiérarchie"""
-        descendants = []
-        for filiale in self.get_structures_filiales_actives():
-            descendants.append(filiale)
-            descendants.extend(filiale.get_tous_les_descendants())
-        return descendants
-
-    # Méthodes de suivi et évaluation
-    def calculer_taux_reussite(self):
-        """Calcule automatiquement le taux de réussite"""
-        total_projets = self.projets_realises + self.projets_en_cours
-        if total_projets > 0:
-            self.taux_reussite = (self.projets_realises / total_projets) * 100
-            self.save(update_fields=['taux_reussite'])
-
-    
-
-    def get_impact_consolide(self):
-        """Calcule l'impact consolidé avec les structures filiales"""
-        impact = {
-            'beneficiaires_directs': self.nombre_beneficiaires_directs,
-            'beneficiaires_indirects': self.nombre_beneficiaires_indirects,
-            'projets_realises': self.projets_realises,
-            'projets_en_cours': self.projets_en_cours,
-        }
-        
-        for filiale in self.get_structures_filiales_actives():
-            impact_filiale = filiale.get_impact_consolide()
-            for cle, valeur in impact_filiale.items():
-                impact[cle] += valeur
-        
-        return impact
-
-    def generer_rapport_communautaire(self):
-        """Génère un rapport d'activité communautaire"""
-        impact = self.get_impact_consolide()
-        
-        return {
-            'structure': self.nom,
-            'type': self.get_type_bureau_display(),
-            'zone': self.get_zone_intervention_display(),
-            'president': str(self.president),
-            'effectif': self.get_effectif_total(),
-            'beneficiaires_directs': impact['beneficiaires_directs'],
-            'beneficiaires_indirects': impact['beneficiaires_indirects'],
-            'impact_total': impact['beneficiaires_directs'] + impact['beneficiaires_indirects'],
-            'projets_realises': impact['projets_realises'],
-            'projets_en_cours': impact['projets_en_cours'],
-            
-            'taux_reussite': self.taux_reussite,
-            'statut': self.get_statut_display(),
-            'derniere_assemblee': self.date_derniere_assemblee,
-            'partenaires': {
-                'locaux': self.partenaires_locaux,
-                'externes': self.partenaires_externes,
-            },
-            'contact': {
-                'telephone': self.telephone_contact,
-                'email': self.email_contact,
-            }
-        }
-
-    # Méthodes d'analyse et recommandations
-    def get_recommandations_amelioration(self):
-        """Suggère des améliorations basées sur les indicateurs"""
-        recommandations = []
-        
-        if self.taux_reussite and self.taux_reussite < 70:
-            recommandations.append("Améliorer le suivi des projets pour augmenter le taux de réussite")
-        
-        if self.get_effectif_total() < 5:
-            recommandations.append("Recruter plus de membres actifs pour renforcer les capacités")
-        
-        if not self.date_derniere_assemblee or (timezone.now().date() - self.date_derniere_assemblee).days > 90:
-            recommandations.append("Organiser une assemblée générale pour dynamiser les activités")
-        
-        
-        
-        if not self.partenaires_externes:
-            recommandations.append("Développer des partenariats avec des ONG ou institutions externes")
-        
-        return recommandations
-
-    # URL et représentation
-    def get_absolute_url(self):
-        """URL de détail du bureau/comité"""
-        return reverse('bureau:detail', kwargs={'pk': self.pk})
-
-    @property 
-    def nom_avec_localisation(self):
-        """Nom avec la zone d'intervention"""
-        return f"{self.nom} ({self.get_zone_intervention_display()})"
-
-    def __repr__(self):
-        return f"<Bureau Kakony: {self.nom} - {self.get_type_bureau_display()}>"
-
-"""
-
-class BureauExecutif ( models.Model):
-
-class BureauSuivi (models.Model):
-
-class BureauLogistique (models.Model):
-
-class BureauEducatif (models.Model):
-
-class BureauSanté (models.Model):
-
-class BureauEducatif (models.Model):
-
-class BureauEnvoronement (models.Model):
-
-class BureauCulture (models.Model):
-
-class SalonPartenaire (models.Model):
-
-class SalonReceiveur(models.Model):
-
-
-"""
 
 
 # ========== PUBLICATION =======
@@ -715,46 +187,7 @@ class Contact(models.Model):
 from django.contrib.auth.models import User
 
 
-class Payment(models.Model):
-    STATUS_CHOICES = [
-        ('en_attente', 'En attente'),
-        ('paye', 'Payé'),
-        ('retard', 'En retard'),
-    ]
 
-    
-    utilisateur = models.ForeignKey(User, on_delete=models.CASCADE, related_name="cotisations")
-    montant = models.DecimalField(max_digits=10, decimal_places=2, default='10000.00', verbose_name="Montant")
-    date_create = models.DateTimeField(auto_now_add=True)
-    mois = models.DateField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="en_attente")
-
-    class Meta:
-        verbose_name = "Cotisation"
-        verbose_name_plural = "Cotisations"
-        ordering = ["-mois"]
-        unique_together = ('utilisateur', 'mois')
-
-    def __str__(self):
-        return f"{self.utilisateur.username} - {self.mois.strftime('%B %Y')} - {self.get_status_display()}"
-
-    def marquer_comme_paye(self, tresorier=None):
-        """Marquer la cotisation comme payée par le trésorier"""
-        self.status = 'paye'
-        self.date_paiement = timezone.now()
-        self.save()
-        
-        # Créer une entrée dans l'historique
-        HistoriquePaiement.objects.create(
-            cotisation=self,
-            action="Paiement validé",
-            montant=self.montant,
-            utilisateur_admin=tresorier
-        )
-
-    @property
-    def est_paye(self):
-        return self.status == 'paye'
 
 
 
@@ -773,3 +206,547 @@ class Message(models.Model):
     
     def __str__(self):
         return self.contenu
+
+
+
+
+
+
+# --- Signaux : en_ligne = True dès la connexion, False à la déconnexion ---
+# NB : ceci ne couvre pas la fermeture d'onglet sans déconnexion explicite.
+# Si tu veux couvrir ce cas plus tard, on pourra ajouter un middleware qui
+# repasse en_ligne à False après N minutes d'inactivité (session expirée).
+
+@receiver(user_logged_in)
+def _marquer_en_ligne(sender, user, request, **kwargs):
+    Utilisateur.objects.filter(user=user).update(
+        en_ligne=True, derniere_activite=timezone.now()
+    )
+
+
+@receiver(user_logged_out)
+def _marquer_hors_ligne(sender, user, request, **kwargs):
+    if user is not None:
+        Utilisateur.objects.filter(user=user).update(en_ligne=False)
+
+
+# ========= RÉUNION (globale, toute l'association) ========
+class Reunion(models.Model):
+    STATUT_CHOICES = [
+        ('planifiee', 'Planifiée'),
+        ('tenue', 'Tenue'),
+        ('annulee', 'Annulée'),
+        ('reportee', 'Reportée'),
+    ]
+
+    date_reunion = models.DateField(verbose_name="Date")
+    lieu = models.CharField(max_length=200, verbose_name="Lieu")
+    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='planifiee')
+    ordre_du_jour = models.TextField(verbose_name="Ordre du jour")
+    decisions_prises = models.TextField(blank=True, verbose_name="Décisions prises")
+    responsable_cr = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='reunions_compte_rendu', verbose_name="Responsable du CR"
+    )
+    # Assomption : liste des présents utile pour le suivi — dis-moi si tu ne le veux pas.
+    participants = models.ManyToManyField(User, blank=True, related_name='reunions')
+    observations = models.TextField(blank=True)
+    date_creation = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date_reunion']
+
+    def __str__(self):
+        return f"Réunion du {self.date_reunion} ({self.get_statut_display()})"
+
+
+# ========= PROJET ========
+# Assomption sur les champs (le point 5 était juste "PROJET ..") — à ajuster.
+class Projet(models.Model):
+    STATUT_CHOICES = [
+        ('planifie', 'Planifié'),
+        ('en_cours', 'En cours'),
+        ('termine', 'Terminé'),
+        ('suspendu', 'Suspendu'),
+    ]
+
+    nom = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    responsable = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='projets_responsable'
+    )
+    date_debut = models.DateField()
+    date_fin_prevue = models.DateField(null=True, blank=True)
+    date_fin_reelle = models.DateField(null=True, blank=True)
+    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='planifie')
+    budget_prevu = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0'))
+    beneficiaires_directs = models.PositiveIntegerField(default=0)
+    beneficiaires_indirects = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return self.nom
+
+    @property
+    def depense_totale(self):
+        return self.depenses.aggregate(total=models.Sum('montant'))['total'] or Decimal('0')
+
+    @property
+    def solde_restant(self):
+        return self.budget_prevu - self.depense_totale
+
+
+# ========= COMPTABILITÉ ========
+# Choix retenu en l'absence de préférence : une Caisse globale pour l'UJK,
+# facile à faire évoluer en "une Caisse par Bureau" plus tard si besoin.
+class Caisse(models.Model):
+    nom = models.CharField(max_length=100, default="Caisse UJK")
+    solde = models.DecimalField(max_digits=14, decimal_places=2, default=Decimal('0'))
+    est_principale = models.BooleanField(
+        default=False,
+        help_text="Caisse utilisée par défaut quand aucune n'est précisée (une seule à la fois)"
+    )
+    date_maj = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.nom} — Solde : {self.solde}"
+
+    def save(self, *args, **kwargs):
+        # Une seule caisse principale à la fois
+        if self.est_principale:
+            Caisse.objects.exclude(pk=self.pk).update(est_principale=False)
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_ou_creer_principale(cls):
+        """Renvoie toujours une caisse utilisable — jamais None."""
+        caisse = cls.objects.filter(est_principale=True).first()
+        if caisse:
+            return caisse
+        caisse = cls.objects.first()
+        if caisse:
+            caisse.est_principale = True
+            caisse.save(update_fields=['est_principale'])
+            return caisse
+        return cls.objects.create(nom="Caisse UJK", est_principale=True)
+
+    def deposer(self, montant):
+        with transaction.atomic():
+            c = Caisse.objects.select_for_update().get(pk=self.pk)
+            c.solde += montant
+            c.save(update_fields=['solde', 'date_maj'])
+            self.solde = c.solde
+
+    def retirer(self, montant):
+        with transaction.atomic():
+            c = Caisse.objects.select_for_update().get(pk=self.pk)
+            if montant > c.solde:
+                raise ValidationError(
+                    f"Fonds insuffisants dans « {c.nom} » (solde : {c.solde}, demandé : {montant})"
+                )
+            c.solde -= montant
+            c.save(update_fields=['solde', 'date_maj'])
+            self.solde = c.solde
+
+    def recalculer_solde(self):
+        """Reconstitue le solde à partir du journal — source de vérité comptable.
+        À utiliser pour les Fiches de contrôle / audit."""
+        agg = self.journal.aggregate(
+            entrees=models.Sum('montant', filter=models.Q(type_operation='entree')),
+            sorties=models.Sum('montant', filter=models.Q(type_operation='sortie')),
+        )
+        solde_reel = (agg['entrees'] or Decimal('0')) - (agg['sorties'] or Decimal('0'))
+        self.solde = solde_reel
+        self.save(update_fields=['solde', 'date_maj'])
+        return solde_reel
+
+    @classmethod
+    def solde_consolide(cls):
+        """Somme de toutes les caisses — vue globale multi-caisses."""
+        return cls.objects.aggregate(total=models.Sum('solde'))['total'] or Decimal('0')
+
+    @classmethod
+    def repartition(cls):
+        """Pour un graphe en camembert : solde par caisse."""
+        return list(cls.objects.values('nom', 'solde').order_by('-solde'))
+
+
+class JournalCaisse(models.Model):
+    TYPE_CHOICES = [('entree', 'Entrée'), ('sortie', 'Sortie')]
+
+    caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE, related_name='journal')
+    type_operation = models.CharField(max_length=10, choices=TYPE_CHOICES)
+    montant = models.DecimalField(max_digits=12, decimal_places=2)
+    libelle = models.CharField(max_length=200)
+    cotisation = models.ForeignKey(
+        'Payment', on_delete=models.SET_NULL, null=True, blank=True, related_name='journal_entries'
+    )
+    depense = models.ForeignKey(
+        'Depense', on_delete=models.SET_NULL, null=True, blank=True, related_name='journal_entries'
+    )
+    date_operation = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date_operation']
+
+    def __str__(self):
+        return f"{self.get_type_operation_display()} — {self.montant} ({self.date_operation:%d/%m/%Y})"
+
+
+class Depense(models.Model):
+    CATEGORIE_CHOICES = [
+        ('fonctionnement', 'Fonctionnement'),
+        ('projet', 'Projet'),
+        ('evenement', 'Événement'),
+        ('materiel', 'Matériel'),
+        ('autre', 'Autre'),
+    ]
+
+    caisse = models.ForeignKey(Caisse, on_delete=models.PROTECT, related_name='depenses')
+    projet = models.ForeignKey('Projet', on_delete=models.SET_NULL, null=True, blank=True, related_name='depenses')
+    libelle = models.CharField(max_length=200)
+    montant = models.DecimalField(max_digits=12, decimal_places=2)
+    categorie = models.CharField(max_length=20, choices=CATEGORIE_CHOICES, default='fonctionnement')
+    justificatif = models.FileField(upload_to='comptabilite/justificatifs/', blank=True, null=True)
+    autorise_par = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='depenses_autorisees')
+    date_depense = models.DateField(default=timezone.now)
+    date_creation = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date_depense']
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            if self._state.adding:
+                super().save(*args, **kwargs)
+                self.caisse.retirer(self.montant)
+                JournalCaisse.objects.create(
+                    caisse=self.caisse, type_operation='sortie',
+                    montant=self.montant, libelle=self.libelle, depense=self,
+                )
+            else:
+                ancien = Depense.objects.get(pk=self.pk)
+                super().save(*args, **kwargs)
+                diff = self.montant - ancien.montant
+                if diff != 0:
+                    if diff > 0:
+                        self.caisse.retirer(diff)
+                    else:
+                        self.caisse.deposer(-diff)
+                    JournalCaisse.objects.create(
+                        caisse=self.caisse,
+                        type_operation='sortie' if diff > 0 else 'entree',
+                        montant=abs(diff),
+                        libelle=f"Ajustement — {self.libelle}",
+                        depense=self,
+                    )
+
+    def delete(self, *args, **kwargs):
+        with transaction.atomic():
+            self.caisse.deposer(self.montant)
+            JournalCaisse.objects.create(
+                caisse=self.caisse, type_operation='entree',
+                montant=self.montant, libelle=f"Annulation dépense — {self.libelle}",
+            )
+            super().delete(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.libelle} — {self.montant}"
+
+
+class Payment(models.Model):
+    STATUS_CHOICES = [
+        ('en_attente', 'En attente'),
+        ('paye', 'Payé'),
+        ('retard', 'En retard'),
+    ]
+
+    utilisateur = models.ForeignKey(User, on_delete=models.CASCADE, related_name="cotisations")
+    montant = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('10000.00'))
+    date_create = models.DateTimeField(auto_now_add=True)
+    mois = models.DateField(default=timezone.now, verbose_name="Mois concerné")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="en_attente")
+    date_paiement = models.DateTimeField(null=True, blank=True)
+    caisse = models.ForeignKey(Caisse, on_delete=models.SET_NULL, null=True, blank=True, related_name='cotisations')
+
+    class Meta:
+        verbose_name = "Cotisation"
+        verbose_name_plural = "Cotisations"
+        ordering = ["-mois"]
+        unique_together = ('utilisateur', 'mois')
+
+    def __str__(self):
+        return f"{self.utilisateur.username} - {self.mois.strftime('%B %Y')} - {self.get_status_display()}"
+
+    @property
+    def est_paye(self):
+        return self.status == 'paye'
+
+    @property
+    def est_en_retard(self):
+        return self.status != 'paye' and self.mois.replace(day=28) < timezone.now().date()
+
+    def verifier_retard(self):
+        if self.est_en_retard and self.status != 'retard':
+            self.status = 'retard'
+            self.save(update_fields=['status'])
+
+    def save(self, *args, **kwargs):
+        """LE cœur de la comptabilité : quel que soit le chemin utilisé pour passer
+        un paiement à 'paye' (admin, vue, shell...), l'argent arrive en caisse ici,
+        une seule fois. Aucune autre méthode n'a le droit de bouger la caisse."""
+        ancien_statut = None
+        if self.pk:
+            ancien_statut = Payment.objects.filter(pk=self.pk).values_list('status', flat=True).first()
+
+        if self.status == 'paye' and self.caisse_id is None:
+            self.caisse = Caisse.get_ou_creer_principale()
+
+        with transaction.atomic():
+            devient_paye = self.status == 'paye' and ancien_statut != 'paye'
+            if devient_paye and self.date_paiement is None:
+                self.date_paiement = timezone.now()
+
+            super().save(*args, **kwargs)
+
+            if devient_paye and self.caisse:
+                self.caisse.deposer(self.montant)
+                JournalCaisse.objects.create(
+                    caisse=self.caisse, type_operation='entree',
+                    montant=self.montant,
+                    libelle=f"Cotisation {self.utilisateur.username} — {self.mois:%B %Y}",
+                    cotisation=self,
+                )
+            elif ancien_statut == 'paye' and self.status != 'paye' and self.caisse:
+                # Annulation d'un paiement déjà encaissé : on sort l'argent
+                self.caisse.retirer(self.montant)
+                JournalCaisse.objects.create(
+                    caisse=self.caisse, type_operation='sortie',
+                    montant=self.montant,
+                    libelle=f"Annulation cotisation {self.utilisateur.username} — {self.mois:%B %Y}",
+                    cotisation=self,
+                )
+
+    def marquer_comme_paye(self, tresorier=None, caisse=None):
+        """Simple raccourci — toute la vraie logique est dans save()."""
+        if caisse is not None:
+            self.caisse = caisse
+        self.status = 'paye'
+        self.save()
+        HistoriquePaiement.objects.create(
+            cotisation=self, action="Paiement validé",
+            montant=self.montant, utilisateur_admin=tresorier,
+        )
+
+    @classmethod
+    def statistiques_globales(cls):
+        agg = cls.objects.aggregate(
+            total_attendu=models.Sum('montant'),
+            total_paye=models.Sum('montant', filter=models.Q(status='paye')),
+        )
+        return {
+            'total_attendu': agg['total_attendu'] or Decimal('0'),
+            'total_paye': agg['total_paye'] or Decimal('0'),
+            'nombre_en_retard': cls.objects.filter(status='retard').count(),
+            'nombre_en_attente': cls.objects.filter(status='en_attente').count(),
+        }
+
+    @classmethod
+    def statistiques_mensuelles(cls, annee=None):
+        """Taux de paiement (%) par mois — prêt pour un graphe (labels + data)."""
+        annee = annee or timezone.now().year
+        resultats = []
+        for m in range(1, 13):
+            qs = cls.objects.filter(mois__year=annee, mois__month=m)
+            agg = qs.aggregate(
+                total_attendu=models.Sum('montant'),
+                total_paye=models.Sum('montant', filter=models.Q(status='paye')),
+            )
+            attendu = agg['total_attendu'] or Decimal('0')
+            paye = agg['total_paye'] or Decimal('0')
+            taux = float(paye / attendu * 100) if attendu > 0 else 0.0
+            resultats.append({
+                'mois': m,
+                'label': date(annee, m, 1).strftime('%B'),
+                'total_attendu': attendu,
+                'total_paye': paye,
+                'taux_paiement': round(taux, 1),
+                'nombre_en_retard': qs.filter(status='retard').count(),
+            })
+        return resultats
+
+
+class HistoriquePaiement(models.Model):
+    cotisation = models.ForeignKey(Payment, on_delete=models.CASCADE, related_name='historique')
+    action = models.CharField(max_length=200)
+    montant = models.DecimalField(max_digits=10, decimal_places=2)
+    utilisateur_admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='validations_paiement')
+    date_action = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date_action']
+
+    def __str__(self):
+        return f"{self.action} — {self.cotisation} — {self.date_action:%d/%m/%Y}"
+
+
+class FicheControle(models.Model):
+    STATUT_CHOICES = [
+        ('conforme', 'Conforme'),
+        ('ecart', 'Écart constaté'),
+        ('en_cours', 'En cours de vérification'),
+    ]
+
+    caisse = models.ForeignKey(Caisse, on_delete=models.CASCADE, related_name='fiches_controle')
+    periode_debut = models.DateField()
+    periode_fin = models.DateField()
+    solde_theorique = models.DecimalField(max_digits=14, decimal_places=2)
+    solde_reel_constate = models.DecimalField(max_digits=14, decimal_places=2)
+    ecart = models.DecimalField(max_digits=14, decimal_places=2, default=Decimal('0'), editable=False)
+    controleur = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='fiches_controle')
+    statut = models.CharField(max_length=20, choices=STATUT_CHOICES, default='en_cours')
+    observations = models.TextField(blank=True)
+    date_controle = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        self.ecart = self.solde_reel_constate - self.solde_theorique
+        self.statut = 'conforme' if self.ecart == 0 else 'ecart'
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Contrôle {self.periode_debut:%m/%Y} — {self.get_statut_display()}"
+
+# ============================================================
+#  BUREAUX — affectation des membres, règles d'accès, chat interne
+#  Règle d'accès retenue (confirmée en discussion) :
+#   - "central" = Exécutif, Logistique, Suivi-évaluation : accès de VISITE
+#     mutuel entre eux, + accès de VISITE (lecture seule) vers les 4 bureaux
+#     opérationnels.
+#   - accès COMPLET (écrire dans le chat, agir comme membre) uniquement
+#     là où le membre a une Affectation active.
+#   - un membre peut avoir une Affectation active dans plusieurs Bureaux.
+#   - seuls les responsables de Logistique et Exécutif peuvent créer une
+#     Affectation (formulaire réservé — vérifié via Bureau.peut_affecter_membres).
+# ============================================================
+
+class Bureau(models.Model):
+    TYPE_CHOICES = [
+        ('EXECUTIF', 'Bureau Exécutif'),
+        ('LOGISTIQUE', 'Bureau Logistique'),
+        ('SUIVI_EVALUATION', 'Bureau Suivi-évaluation'),
+        ('EDUCATIF', 'Bureau Educatif'),
+        ('SANTE', 'Bureau Santé'),
+        ('CULTUREL', 'Bureau Culturel'),
+        ('ENVIRONNEMENT', 'Bureau Environnement'),
+    ]
+    # Trio central : accès mutuel entre eux + visite (lecture seule) des bureaux opérationnels
+    TYPES_CENTRAUX = {'EXECUTIF', 'LOGISTIQUE', 'SUIVI_EVALUATION'}
+    # Seuls ces deux bureaux peuvent affecter des membres
+    TYPES_HABILITES_AFFECTATION = {'LOGISTIQUE', 'EXECUTIF'}
+
+    nom = models.CharField(max_length=200)
+    type_bureau = models.CharField(max_length=20, choices=TYPE_CHOICES, unique=True)
+    description = models.TextField(blank=True)
+    date_creation = models.DateField(default=timezone.now)
+
+    class Meta:
+        verbose_name = "Bureau"
+        verbose_name_plural = "Bureaux"
+        ordering = ['type_bureau']
+
+    def __str__(self):
+        return self.nom
+
+    @property
+    def est_central(self):
+        return self.type_bureau in self.TYPES_CENTRAUX
+
+    def utilisateur_a_acces(self, user):
+        """Accès en consultation (membre direct, ou visiteur via un bureau central)."""
+        if not user or not user.is_authenticated:
+            return False
+        if Affectation.objects.filter(bureau=self, membre__user=user, actif=True).exists():
+            return True
+        return Affectation.objects.filter(
+            bureau__type_bureau__in=self.TYPES_CENTRAUX,
+            membre__user=user, actif=True,
+        ).exists()
+
+    def utilisateur_peut_publier(self, user):
+        """Accès complet : uniquement en cas d'affectation directe et active."""
+        if not user or not user.is_authenticated:
+            return False
+        return Affectation.objects.filter(bureau=self, membre__user=user, actif=True).exists()
+
+    @classmethod
+    def peut_affecter_membres(cls, user):
+        """Seuls les responsables actifs de Logistique ou Exécutif peuvent affecter des membres."""
+        if not user or not user.is_authenticated:
+            return False
+        return Affectation.objects.filter(
+            bureau__type_bureau__in=cls.TYPES_HABILITES_AFFECTATION,
+            membre__user=user, actif=True,
+        ).exists()
+
+
+class Affectation(models.Model):
+    """Table de liaison Membre <-> Bureau avec poste. Un membre peut en avoir plusieurs."""
+
+    membre = models.ForeignKey(
+        Utilisateur, on_delete=models.CASCADE, related_name='affectations'
+    )
+    bureau = models.ForeignKey(
+        Bureau, on_delete=models.CASCADE, related_name='affectations'
+    )
+    poste = models.CharField(
+        max_length=100,
+        help_text="Ex: Président, Vice-Président, Secrétaire Général, Conseiller, "
+                   "Directeur, Membre..."
+    )
+    est_responsable = models.BooleanField(
+        default=False,
+        help_text="Poste de responsable du bureau (donne le droit d'affecter des "
+                   "membres si le bureau est Logistique ou Exécutif)"
+    )
+    actif = models.BooleanField(default=True)
+    affecte_par = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='affectations_realisees'
+    )
+    date_affectation = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Affectation"
+        verbose_name_plural = "Affectations"
+        unique_together = ('membre', 'bureau', 'poste')
+        ordering = ['-date_affectation']
+
+    
+
+    def __str__(self):
+        return f"{self.membre} → {self.bureau} ({self.poste})"
+
+
+class MessageBureau(models.Model):
+    """Chat interne à un Bureau — réservé aux membres ayant une Affectation active."""
+
+    bureau = models.ForeignKey(Bureau, on_delete=models.CASCADE, related_name='messages')
+    auteur = models.ForeignKey(User, on_delete=models.CASCADE, related_name='messages_bureau')
+    contenu = models.TextField()
+    fichier = models.FileField(upload_to='bureaux/messages/', null=True, blank=True)
+    date_envoi = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Message de Bureau"
+        verbose_name_plural = "Messages de Bureau"
+        ordering = ['date_envoi']
+
+    def clean(self):
+        if not self.bureau.utilisateur_peut_publier(self.auteur):
+            raise ValidationError(
+                "Cet utilisateur n'a pas de poste actif dans ce Bureau : accès lecture "
+                "seule ou aucun accès, impossible d'écrire dans ce chat."
+            )
+
+    def __str__(self):
+        return f"{self.auteur} dans {self.bureau} — {self.date_envoi:%d/%m/%Y %H:%M}"

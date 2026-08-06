@@ -73,6 +73,15 @@
             overflow: hidden;
             line-height: 0;
         }
+        @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
     </style>
 </head>
 
@@ -80,42 +89,109 @@
 
 {% block content %}
 
-<!-- ==================== SECTION 1: HERO PRINCIPALE ==================== -->
-<section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-900 via-gray-600 to-blue-500">
-    <!-- Arrière-plan animé -->
-    <div class="absolute inset-0 opacity-20">
-        <div class="absolute top-20 left-10 w-72 h-72 bg-white rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-20 right-10 w-96 h-96 bg-blue-300 rounded-full blur-3xl animate-pulse delay-1000"></div>
+{% load static %}
+
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <!-- ===== ARRIÈRE-PLAN ===== -->
+    <div class="absolute inset-0">
+        <img src="{% static 'image/ujk-5.png' %}" alt="Arrière-plan UJK" class="w-full h-full object-cover opacity-40">
+        <div class="absolute inset-0 bg-gradient-to-br from-gray-500/50 via-blue-500/30 to-gray-500/20"></div>
     </div>
-    
-    <!-- Contenu principal -->
-    <div class="container mx-auto px-4 relative z-10">
+
+    <!-- ===== SVG DÉCORATIFS ===== -->
+    <!-- Cercles flottants -->
+    <svg class="absolute top-[8%] left-[3%] w-20 md:w-32 h-20 md:h-32 opacity-[0.05] animate-[float_8s_ease-in-out_infinite]" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="60" fill="white"/>
+    </svg>
+    <svg class="absolute top-[55%] right-[5%] w-16 md:w-24 h-16 md:h-24 opacity-[0.04] animate-[float_10s_ease-in-out_infinite_reverse]" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="40" fill="white"/>
+    </svg>
+    <svg class="absolute bottom-[25%] left-[12%] w-12 md:w-20 h-12 md:h-20 opacity-[0.05] animate-[float_12s_ease-in-out_infinite]" viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="30" fill="white"/>
+    </svg>
+
+    <!-- Formes géométriques -->
+    <svg class="absolute top-[15%] right-[12%] w-8 md:w-12 h-8 md:h-12 opacity-[0.08] animate-[float_9s_ease-in-out_infinite]" viewBox="0 0 40 40">
+        <polygon points="20,0 40,40 0,40" fill="white"/>
+    </svg>
+    <svg class="absolute bottom-[30%] left-[8%] w-6 md:w-10 h-6 md:h-10 opacity-[0.06] animate-[float_11s_ease-in-out_infinite_reverse]" viewBox="0 0 30 30">
+        <rect width="30" height="30" rx="6" fill="white"/>
+    </svg>
+
+    <!-- Vague en bas -->
+    <svg class="absolute bottom-0 left-0 w-full h-14 md:h-20 opacity-20 pointer-events-none" viewBox="0 0 1440 80" preserveAspectRatio="none">
+        <path d="M0,40 C360,80 720,0 1080,40 C1260,60 1380,50 1440,40 L1440,80 L0,80 Z" fill="white"/>
+        <path d="M0,55 C240,25 480,70 720,45 C960,20 1200,65 1440,50 L1440,80 L0,80 Z" fill="white" opacity="0.5"/>
+    </svg>
+
+    <!-- Lignes décoratives subtils -->
+    <svg class="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <line x1="0" y1="20" x2="100" y2="20" stroke="white" stroke-width="0.2"/>
+        <line x1="0" y1="50" x2="100" y2="50" stroke="white" stroke-width="0.2"/>
+        <line x1="0" y1="80" x2="100" y2="80" stroke="white" stroke-width="0.2"/>
+    </svg>
+
+    <!-- ===== CONTENU PRINCIPAL ===== -->
+    <div class="container mx-auto px-4 relative z-10 py-12 md:py-0">
         <div class="max-w-4xl mx-auto text-center">
-            <div class="bg-white/10 backdrop-blur-xl rounded-2xl p-8 md:p-12 border border-white/20 shadow-2xl animate-fade-in">
-                <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+            <div class="bg-white/10 backdrop-blur-xl rounded-2xl md:rounded-3xl p-6 md:p-10 lg:p-12 border border-white/20 shadow-2xl">
+                
+                <!-- Titre -->
+                <h1 class="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-3 md:mb-5 leading-tight">
                     UNION DES JEUNES DE KAKONY
-                    <span class="block text-yellow-300 mt-2">Agissons ensemble</span>
+                    <span class="block text-yellow-300 mt-1 md:mt-2 text-xl sm:text-2xl md:text-4xl lg:text-5xl">Agissons ensemble</span>
                 </h1>
-                <p class="text-lg md:text-xl text-white/90 mb-8 leading-relaxed">
+
+                <!-- ===== CAROUSEL MARQUETTE INFINI ===== -->
+                <div class="relative w-full h-20 md:h-32 overflow-hidden my-4 md:my-8 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] [-webkit-mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+                    
+                    <!-- Orbes lumineux aux extrémités -->
+                    <div class="absolute left-0 top-1/2 -translate-y-1/2 w-12 md:w-20 h-12 md:h-20 rounded-full bg-yellow-400/20 blur-2xl pointer-events-none z-10"></div>
+                    <div class="absolute right-0 top-1/2 -translate-y-1/2 w-12 md:w-20 h-12 md:h-20 rounded-full bg-purple-400/20 blur-2xl pointer-events-none z-10"></div>
+                    
+                    <!-- Piste défilante (dupliquée pour boucle infinie) -->
+                    <div class="flex gap-3 md:gap-4 w-max animate-[marquee_18s_linear_infinite] hover:[animation-play-state:paused]">
+                        <!-- Set 1 -->
+                        <img src="{% static 'image/ujk-1.jpg' %}" alt="UJK 1" class="w-20 h-20 md:w-32 md:h-32 rounded-lg md:rounded-xl shadow-lg object-cover border-2 border-white/20 flex-shrink-0 hover:scale-110 transition-transform duration-300 cursor-pointer">
+                        <img src="{% static 'image/ujk-2.jpg' %}" alt="UJK 2" class="w-20 h-20 md:w-32 md:h-32 rounded-lg md:rounded-xl shadow-lg object-cover border-2 border-white/20 flex-shrink-0 hover:scale-110 transition-transform duration-300 cursor-pointer">
+                        <img src="{% static 'image/ujk-3.jpg' %}" alt="UJK 3" class="w-20 h-20 md:w-32 md:h-32 rounded-lg md:rounded-xl shadow-lg object-cover border-2 border-white/20 flex-shrink-0 hover:scale-110 transition-transform duration-300 cursor-pointer">
+                        <img src="{% static 'image/ujk-4.jpg' %}" alt="UJK 4" class="w-20 h-20 md:w-32 md:h-32 rounded-lg md:rounded-xl shadow-lg object-cover border-2 border-white/20 flex-shrink-0 hover:scale-110 transition-transform duration-300 cursor-pointer">
+                        <img src="{% static 'image/ujk-5.png' %}" alt="UJK 5" class="w-20 h-20 md:w-32 md:h-32 rounded-lg md:rounded-xl shadow-lg object-cover border-2 border-white/20 flex-shrink-0 hover:scale-110 transition-transform duration-300 cursor-pointer">
+                        <!-- Set 2 (duplication pour boucle infinie) -->
+                        <img src="{% static 'image/ujk-1.jpg' %}" alt="UJK 1" class="w-20 h-20 md:w-32 md:h-32 rounded-lg md:rounded-xl shadow-lg object-cover border-2 border-white/20 flex-shrink-0 hover:scale-110 transition-transform duration-300 cursor-pointer">
+                        <img src="{% static 'image/ujk-2.jpg' %}" alt="UJK 2" class="w-20 h-20 md:w-32 md:h-32 rounded-lg md:rounded-xl shadow-lg object-cover border-2 border-white/20 flex-shrink-0 hover:scale-110 transition-transform duration-300 cursor-pointer">
+                        <img src="{% static 'image/ujk-3.jpg' %}" alt="UJK 3" class="w-20 h-20 md:w-32 md:h-32 rounded-lg md:rounded-xl shadow-lg object-cover border-2 border-white/20 flex-shrink-0 hover:scale-110 transition-transform duration-300 cursor-pointer">
+                        <img src="{% static 'image/ujk-4.jpg' %}" alt="UJK 4" class="w-20 h-20 md:w-32 md:h-32 rounded-lg md:rounded-xl shadow-lg object-cover border-2 border-white/20 flex-shrink-0 hover:scale-110 transition-transform duration-300 cursor-pointer">
+                        <img src="{% static 'image/ujk-5.png' %}" alt="UJK 5" class="w-20 h-20 md:w-32 md:h-32 rounded-lg md:rounded-xl shadow-lg object-cover border-2 border-white/20 flex-shrink-0 hover:scale-110 transition-transform duration-300 cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <p class="text-sm md:text-lg lg:text-xl text-white/90 mb-6 md:mb-8 leading-relaxed max-w-2xl mx-auto">
                     Unis pour bâtir Kakony, inspirés pour faire rayonner l'avenir. L'association pour un avenir solidaire.
                 </p>
-                <a href="{% url 'about' %}" class="inline-flex items-center gap-2 px-8 py-4 bg-white text-purple-600 rounded-xl font-semibold hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg animate-float">
-                    <i class="fas fa-info-circle"></i>
+
+                <!-- CTA -->
+                <a href="{% url 'about' %}" class="inline-flex items-center gap-2 px-6 py-3 md:px-8 md:py-4 bg-white text-purple-700 rounded-xl font-semibold hover:bg-gray-50 transition-all hover:scale-105 shadow-xl text-sm md:text-base group">
+                    <svg class="w-4 h-4 md:w-5 md:h-5 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
                     Découvrir notre mission
-                    <i class="fas fa-arrow-right"></i>
+                    <svg class="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14"/>
+                        <path d="m12 5 7 7-7 7"/>
+                    </svg>
                 </a>
             </div>
         </div>
     </div>
-    
-    <!-- Vague décorative -->
-    <div class="hero-wave">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 120">
-            <path fill="#f9fafb" fill-opacity="1" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,120L1360,120C1280,120,1120,120,960,120C800,120,640,120,480,120C320,120,160,120,80,120L0,120Z"></path>
-        </svg>
-    </div>
 </section>
+
+
+
+
 
 
 <!-- ==================== SECTION 2: CARROUSEL IMAGES ==================== -->
@@ -126,14 +202,18 @@
                 <div x-data="{ active: 0 }" class="relative" x-init="setInterval(() => active = (active + 1) % 3, 5000)">
                     <div class="relative h-96 md:h-[500px]">
                         <div x-show="active === 0" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                            <img src="{% static 'image/image4.jpg' %}" class="w-full h-96 md:h-[500px] object-cover" alt="Activité UDJK">
+                            <img src="{% static 'image/ujk-4.jpg' %}" class="w-full h-96 md:h-[500px] object-cover" alt="Activité UDJK">
                         </div>
                         <div x-show="active === 1" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                            <img src="{% static 'image/image3.jpg' %}" class="w-full h-96 md:h-[500px] object-cover" alt="Activité UDJK">
+                            <img src="{% static 'image/ujk-3.jpg' %}" class="w-full h-96 md:h-[500px] object-cover" alt="Activité UDJK">
                         </div>
                         <div x-show="active === 2" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                            <img src="{% static 'image/image2.jpg' %}" class="w-full h-96 md:h-[500px] object-cover" alt="Activité UDJK">
+                            <img src="{% static 'image/ujk-2.jpg' %}" class="w-full h-96 md:h-[500px] object-cover" alt="Activité UDJK">
                         </div>
+                        <div x-show="active === 2" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                            <img src="{% static 'image/UJK-1.jpg' %}" class="w-full h-96 md:h-[500px] object-cover" alt="Activité UDJK">
+                        </div>
+                        
                     </div>
                     
                     <!-- Indicateurs -->
