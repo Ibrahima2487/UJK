@@ -1,86 +1,60 @@
+
 {% extends 'membre_base.html' %}
 
 {% block content %}
+<form method="post" action="{{ action|default:request.path }}" class="modal-form-style">
+    {% csrf_token %}
+    
+    {{ form.as_p }}
+    
+    {% if form.non_field_errors %}
+    <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+        <svg class="w-4 h-4 text-red-500 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p class="text-sm text-red-600">{{ form.non_field_errors }}</p>
+    </div>
+    {% endif %}
+    
+    <div class="mt-6 flex justify-end gap-2.5 pt-4 border-t border-slate-100">
+        <button type="button" onclick="closeModalForm()" class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-800 transition-all">
+            Annuler
+        </button>
+        <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow transition-all flex items-center gap-1.5">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Enregistrer
+        </button>
+    </div>
+</form>
 
 <style>
-    label{
-        color : black;
-        padding: 5px;
-        font-weight: bold;
+    .modal-form-style p { margin-bottom: 1rem; }
+    .modal-form-style p:last-child { margin-bottom: 0; }
+    .modal-form-style label { display: block; font-size: 0.875rem; font-weight: 500; color: #334155; margin-bottom: 0.25rem; }
+    .modal-form-style input[type="text"],
+    .modal-form-style input[type="email"],
+    .modal-form-style input[type="password"],
+    .modal-form-style input[type="number"],
+    .modal-form-style input[type="url"],
+    .modal-form-style input[type="date"],
+    .modal-form-style input[type="tel"],
+    .modal-form-style input[type="file"],
+    .modal-form-style textarea,
+    .modal-form-style select {
+        width: 100%; padding: 0.625rem 0.875rem; background: white; border: 1px solid #cbd5e1;
+        border-radius: 0.5rem; font-size: 0.875rem; color: #0f172a; outline: none; transition: all 0.2s;
     }
-    input{
-        border : 1px solid black;
-        padding: 5px;
+    .modal-form-style input::placeholder, .modal-form-style textarea::placeholder { color: #94a3b8; }
+    .modal-form-style input:focus, .modal-form-style textarea:focus, .modal-form-style select:focus {
+        border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     }
-    textarea{
-        border : 1px solid black;
-        padding: 5px;
+    .modal-form-style input[type="checkbox"], .modal-form-style input[type="radio"] {
+        height: 1rem; width: 1rem; accent-color: #4f46e5; margin-right: 0.5rem; vertical-align: middle;
     }
+    .modal-form-style .helptext { display: block; font-size: 0.75rem; color: #64748b; margin-top: 0.25rem; }
+    .modal-form-style ul.errorlist { list-style: none; padding: 0; margin: 0.25rem 0 0; font-size: 0.75rem; color: #dc2626; }
 </style>
-
-<div class="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-    <!-- Header -->
-    <div class="mb-8">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                    </svg>
-                    Completé votre profile de la communauté UJK
-                </h1>
-                <p class="text-white text-extrabold ">Remplissez les informations de votre profile</p>
-            </div>
-            <a href="{% url 'main' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 hover:shadow-md transition-all duration-300">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-                Publication
-            </a>
-        </div>
-    </div>
-
-    <!-- Form Container -->
-    <div class="bg-white rounded-2xl shadow-lg border border-blue-800 overflow-hidden">
-        <!-- Form Header -->
-        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-            <div class="flex items-center gap-3">
-                <div class="p-2 bg-blue-100 rounded-lg">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                </div>
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-800">Mise à jour du profile </h2>
-                    <p class="text-sm text-gray-600">Ajouté une image à votre profile pour que la communauté UJK vous reconnaissent </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Form -->
-        <form method="post" enctype="multipart/form-data" class="p-6 space-y-6 text-blue-800 border border-gray-400 ">
-            {% csrf_token %}
-            
-            {{ form.as_p }}
-
-            <!-- Form Actions -->
-            <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-                <button type="submit" class="inline-flex items-center justify-center gap-2 px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 flex-1">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    Énregistrer
-                </button>
-                <a href="{% url 'profile' %}" class="inline-flex items-center justify-center gap-2 px-8 py-3 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 hover:shadow-md transition-all duration-300 flex-1">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                    Annuler
-                </a>
-            </div>
-        </form>
-    </div>
-</div>
-
 
 {% endblock %}

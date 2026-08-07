@@ -76,6 +76,9 @@ urlpatterns = [
     # ======== COMPTABLE =================
     path('comptable/', views.comptable, name="comptable"),
     path('comptable_form/', views.comptable_form, name="comptable_form"),
+    path('comptable_portail/', views.comptable_portail, name="comptable_portail"),
+    path('depense_liste/', views.depense_liste, name="depense_liste"),
+    path('depense_ajouter/', views.depense_ajouter, name="depense_ajouter"),
 
     # ========= CONTACT =================
     path('contact/', views.contact, name="contact"),

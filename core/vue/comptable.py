@@ -16,6 +16,8 @@ from core.forms import PaymentForm, DepenseForm, FicheControleForm
 #  Permission comptabilité
 # ============================================================
 
+def comptable_portail(request):
+    return render(request, 'comptable_portail.html')
 
 
 COULEURS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']
@@ -340,20 +342,12 @@ def depense_ajouter(request):
     if request.method == 'POST':
         form = DepenseForm(request.POST, request.FILES)
         if form.is_valid():
-            depense = form.save(commit=False)
-            depense.caisse = _caisse_selectionnee(request)  # multi-caisses : celle choisie dans le formulaire
-            depense.autorise_par = request.user
-            try:
-                depense.save()  # déclenche caisse.retirer() dans Depense.save()
-            except Exception as exc:
-                form.add_error(None, str(exc))
-                return render(request, 'depense_ajouter.html', {'form': form, 'caisses': Caisse.objects.all()})
-            messages.success(request, f"Dépense « {depense.libelle} » enregistrée sur « {depense.caisse.nom} ».")
-            return redirect('depense_liste')
+            form.save()
+            return redirect("depense_liste")
     else:
         form = DepenseForm()
-
-    context = {'form': form, 'caisses': Caisse.objects.all()}
+        
+    context = {'form': form}
     return render(request, 'depense_ajouter.html', context)
 
 
@@ -426,80 +420,3 @@ def fiche_controle_details(request, pk):
     fiche = get_object_or_404(FicheControle.objects.select_related('caisse', 'controleur'), pk=pk)
     context = {'fiche': fiche}
     return render(request, 'fiche_controle_details.html', context)
-
-
-# ============================================================
-#  DONNÉES POUR LES GRAPHES (endpoint JSON consommé par Chart.js)
-#  Tableau de bord complet : évolution, comparatifs mensuels,
-#  taux de paiement, répartition multi-caisses — style Excel.
-# ============================================================
-@login_required
-def comptabilite_statistiques(request):
-    annee = int(request.GET.get('annee', timezone.now().year))
-    caisse = _caisse_selectionnee(request)
-    stats = Payment.statistiques_globales()
-
-    # --- Répartition des cotisations (camembert) ---
-    repartition_cotisations = {
-        'labels': ['Payé', 'En attente', 'En retard'],
-        'data': [
-            Payment.objects.filter(status='paye').count(),
-            stats['nombre_en_attente'],
-            stats['nombre_en_retard'],
-        ],
-    }
-
-    # --- Taux de paiement mois par mois (barres attendu/payé + courbe %) ---
-    mensuel = Payment.statistiques_mensuelles(annee)
-    taux_paiement_mensuel = {
-        'labels': [m['label'] for m in mensuel],
-        'total_attendu': [float(m['total_attendu']) for m in mensuel],
-        'total_paye': [float(m['total_paye']) for m in mensuel],
-        'taux_paiement': [m['taux_paiement'] for m in mensuel],
-        'nombre_en_retard': [m['nombre_en_retard'] for m in mensuel],
-    }
-
-    # --- Recettes vs dépenses par mois (comparatif type Excel) ---
-    mouvements_mensuels = _mouvements_mensuels(caisse=caisse)
-
-    # --- Dépenses par catégorie ---
-    depenses_categorie = (
-        Depense.objects.filter(caisse=caisse).values('categorie')
-        .annotate(total=Sum('montant'))
-        .order_by('-total')
-    )
-    labels_categories = dict(Depense.CATEGORIE_CHOICES)
-    depenses_par_categorie = {
-        'labels': [labels_categories.get(e['categorie'], e['categorie']) for e in depenses_categorie],
-        'data': [float(e['total']) for e in depenses_categorie],
-    }
-
-    # --- Évolution du solde (courbe cumulative, caisse sélectionnée) ---
-    mouvements = list(caisse.journal.order_by('date_operation'))
-    solde_courant = 0.0
-    labels_solde, data_solde = [], []
-    for mvt in mouvements:
-        solde_courant += float(mvt.montant) if mvt.type_operation == 'entree' else -float(mvt.montant)
-        labels_solde.append(mvt.date_operation.strftime('%d/%m/%Y'))
-        data_solde.append(round(solde_courant, 2))
-
-    # --- Répartition multi-caisses (camembert des soldes) ---
-    repartition_caisses = Caisse.repartition()
-
-    return JsonResponse({
-        'annee': annee,
-        'caisse_selectionnee': caisse.nom,
-        'solde_caisse': float(caisse.solde),
-        'solde_consolide': float(Caisse.solde_consolide()),
-        'total_attendu': float(stats['total_attendu']),
-        'total_paye': float(stats['total_paye']),
-        'repartition_cotisations': repartition_cotisations,
-        'taux_paiement_mensuel': taux_paiement_mensuel,
-        'mouvements_mensuels': mouvements_mensuels,
-        'depenses_par_categorie': depenses_par_categorie,
-        'evolution_solde': {'labels': labels_solde, 'data': data_solde},
-        'repartition_caisses': {
-            'labels': [c['nom'] for c in repartition_caisses],
-            'data': [float(c['solde']) for c in repartition_caisses],
-        },
-    })

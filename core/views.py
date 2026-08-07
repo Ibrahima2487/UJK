@@ -60,10 +60,11 @@ from .vue.pub_likes import pub_likes
 #================================== 
 
 
-
-
 from .vue.comptable import comptable
 from .vue.comptable_form import comptable_form
+from .vue.comptable import comptable_portail
+from .vue.comptable import depense_liste
+from .vue.comptable import depense_ajouter
 
 
 

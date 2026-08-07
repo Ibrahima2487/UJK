@@ -1,0 +1,84 @@
+{% extends 'membre_base.html' %}
+
+{% block content %}
+
+<header class="relative overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white w-full rounded-2xl shadow-xl mb-5 md:mb-6">
+    <!-- SVG décoratif header -->
+    <svg class="absolute top-0 right-0 w-48 h-full opacity-10 pointer-events-none hidden sm:block" viewBox="0 0 200 200" preserveAspectRatio="none">
+        <path d="M120,0 Q180,60 160,130 T200,200 L200,0 Z" fill="white"/>
+        <circle cx="150" cy="40" r="30" fill="white" opacity="0.3"/>
+        <circle cx="170" cy="90" r="18" fill="white" opacity="0.2"/>
+    </svg>
+    <svg class="absolute top-0 right-0 w-32 h-full opacity-10 pointer-events-none sm:hidden" viewBox="0 0 150 200" preserveAspectRatio="none">
+        <circle cx="120" cy="40" r="50" fill="white" opacity="0.15"/>
+    </svg>
+
+    <div class="relative z-10 container mx-auto px-4 py-5 md:py-6">
+        <div class="flex items-center justify-between gap-3">
+            <div>
+                <h1 class="text-xl md:text-3xl lg:text-4xl font-bold">Portail des DEPENSE UJK</h1>
+                <p class="text-sm md:text-base opacity-90 mt-1 hidden sm:flex items-center gap-2">
+                    Gérez les depenses, Ajouter, Modifier, Supprimer
+                    
+                </p>
+            </div>
+            <a href="{% url 'depense_ajouter' %}"
+         class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm bg-white font-medium text-blue-600 shadow-sm w-full sm:w-auto"
+         >
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        Nouveau Bureau
+      </a>
+        </div>
+    </div>
+</header>
+<div class="container mx-auto px-3 md:px-4 pb-8">
+
+    <div class="overflow-x-auto">
+        <table class="w-full bg-white shadow-2xl text-sm">
+          <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider font-semibold">
+            <tr>
+              <th class="px-6 py-3 text-left">N°</th>
+              <th class="px-6 py-3 text-left">Date</th>
+              <th class="px-6 py-3 text-left">Projet</th>
+              <th class="px-6 py-3 text-left">Autorisé par</th>
+              <th class="px-6 py-3 text-left hidden md:table-cell">Caisse</th>
+              <th class="px-6 py-3 text-right">Montant</th>
+              <th class="px-6 py-3 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {% for depense in depenses %}
+            <tr class="mvt-row hover:bg-slate-50 transition" data-type="{{ mvt.type_operation }}">
+              <td class="px-6 py-3.5 text-slate-700 font-extrabold max-w-[240px] truncate">{{ forloop.counter }}</td>
+              <td class="px-6 py-3.5 text-slate-500 whitespace-nowrap text-xs font-medium">{{ depense.date_creation|date:"d/m/Y H:i" }}</td>
+              <td class="px-6 py-3.5">
+                {{ depense.projet }}
+              </td>
+              <td class="px-6 py-3.5 text-slate-700 font-medium max-w-[240px] truncate">{{ depense.autorise_par }}</td>
+             
+              <td class="px-6 py-3.5 text-slate-500 hidden md:table-cell text-xs">{{ depense.caisse.nom }}</td>
+              <td class="px-6 py-3.5 text-right font-bold whitespace-nowrap text-sm
+                ">
+                {{ depense.montant|floatformat:0 }} GNF
+              </td>
+              <td class="px-6 py-3.5">
+                <a href="#">Voire</a>
+                <a href="#">Modifier</a>
+                <a href="#">Supprimer</a>
+            </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-10 text-slate-400 text-sm">
+                <svg class="w-10 h-10 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Aucun mouvement enregistré.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
