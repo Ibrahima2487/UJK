@@ -13,6 +13,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-z24ln_fne@z3faz%7r^hv
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = 'RENDER' not in os.environ
 
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 if 'RENDER' in os.environ:
     ALLOWED_HOSTS.append(os.environ.get('RENDER_EXTERNAL_HOSTNAME'))
@@ -148,3 +150,7 @@ PWA_APP_SPLASH_SCREEN = [
 SECURE_SSL_REDIRECT = 'RENDER' in os.environ
 SESSION_COOKIE_SECURE = 'RENDER' in os.environ
 CSRF_COOKIE_SECURE = 'RENDER' in os.environ
+
+CSRF_TRUSTED_ORIGINS = ['https://ujk-gv0h.onrender.com']
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
