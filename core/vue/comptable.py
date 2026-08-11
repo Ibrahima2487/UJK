@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 from core.models import Bureau, Caisse, Payment, Depense, JournalCaisse, FicheControle
-from core.forms import PaymentForm, DepenseForm, FicheControleForm
+from core.forms import PaymentForm, DepenseForm, FicheControleForm, CaisseForm
 
 
 # ============================================================
@@ -256,27 +256,38 @@ def comptable(request):
 
     return render(request, 'comptable.html', context)
 
+def caisse_list(request):
+    caisses = Caisse.objects.all()
+    context = {
+        'caisses' : caisses
+    }
+    return render(request, 'caisse_list.html', context)
 
-@login_required
-def cotisation_ajouter(request):
-    if not peut_gerer_comptabilite(request.user):
-        return HttpResponseForbidden("Action réservée à la gestion de la comptabilité.")
-
-    if request.method == 'POST':
-        form = PaymentForm(request.POST)
+def caisse_ajoute(request):
+    if request.method == "POST":
+        form = CaisseForm(request.POST, request.FILES)
         if form.is_valid():
-            cotisation = form.save()
-            messages.success(
-                request,
-                f"Cotisation de {cotisation.utilisateur} enregistrée pour {cotisation.mois:%B %Y}."
-            )
-            return redirect('cotisation_liste')
+            form.save()
+            return redirect("caisse_list")
     else:
-        form = PaymentForm()
+        form = CaisseForm()
+        return render(request, 'caisse_ajoute.html', {"form" : form})
 
-    context = {'form': form}
-    return render(request, 'cotisation_ajouter.html', context)
 
+def caisse_modifie(request, pk):
+    caisses = get_object_or_404(Caisse, pk=pk)
+    if request.method == "POST":
+        form = CaisseForm(request.POST, request.FILES, instance=caisses)
+        if form.is_valid():
+            form.save()
+            return redirect("caisse_list")
+    else:
+        form = CaisseForm(instance=caisses)
+    context = {
+        'caisses' : caisses,
+        'form' : form
+    }
+    return render(request, 'caisse_modifie.html', context)
 
 @login_required
 def cotisation_details(request, pk):

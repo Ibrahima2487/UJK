@@ -1,4 +1,8 @@
 from django.urls import path
+from django.views.generic import TemplateView
+from django.contrib.staticfiles.storage import staticfiles_storage
+from django.views.generic.base import RedirectView
+from core.views import offline_view  
 from . import views
 
 urlpatterns = [
@@ -79,6 +83,9 @@ urlpatterns = [
     path('comptable_portail/', views.comptable_portail, name="comptable_portail"),
     path('depense_liste/', views.depense_liste, name="depense_liste"),
     path('depense_ajouter/', views.depense_ajouter, name="depense_ajouter"),
+    path('caisse_ajoute/', views.caisse_ajoute, name="caisse_ajoute"),
+    path('caisse_list/', views.caisse_list, name="caisse_list"),
+    path('caisse_modifie/<int:pk>', views.caisse_modifie, name="caisse_modifie"),
 
     # ========= CONTACT =================
     path('contact/', views.contact, name="contact"),
@@ -90,5 +97,27 @@ urlpatterns = [
     # ========= CHAT =========================
     path('message/', views.message, name='message'),
     path('message_create/', views.message_create, name='message_create'),
+
+
+    # À ajouter dans ton urls.py principal (celui du projet, ex: ujk/urls.py)
+    path(
+        "sw.js",
+        TemplateView.as_view(
+            template_name="sw.js",
+            content_type="application/javascript",
+        ),
+        name="service-worker",
+    ),
+
+    # Page affichée hors ligne
+    path("offline/", offline_view, name="offline"),
+
+    # Raccourci pratique : /manifest.json redirige vers le fichier static
+    path(
+        "manifest.json",
+        RedirectView.as_view(url=staticfiles_storage.url("manifest.json")),
+        name="manifest",
+    ),
+
 
 ]

@@ -59,12 +59,15 @@ from .vue.comment_modifie import comment_modifie
 from .vue.pub_likes import pub_likes
 #================================== 
 
-
+# ================ COMPTABLITÉ ==========
 from .vue.comptable import comptable
 from .vue.comptable_form import comptable_form
 from .vue.comptable import comptable_portail
 from .vue.comptable import depense_liste
 from .vue.comptable import depense_ajouter
+from .vue.comptable import caisse_ajoute
+from .vue.comptable import caisse_list
+from .vue.comptable import caisse_modifie
 
 
 
@@ -79,3 +82,10 @@ from .vue.message_create import message_create
 from .vue.change_password import change_password
 from .vue.deconnexion import deconnexion
 from .vue.connexion import connexion
+
+
+
+# ======= APPLICATION WEB HORS LIGNE
+# views.py
+def offline_view(request):
+    return render(request, "offline.html")

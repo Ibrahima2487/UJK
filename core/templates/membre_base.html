@@ -16,7 +16,13 @@
     <link rel="icon" type="image/png" sizes="192x192" href="{% static 'image/logo.png' %}">
     <link rel="icon" type="image/png" sizes="512x512" href="{% static 'image/logo.png' %}">
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'image/logo.png' %}">
-
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#0d6efd">
+    <link rel="apple-touch-icon" href="{% static 'image/logo.png' %}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="#0d6efd">
     <style>
         * { font-family: 'Poppins', sans-serif; }
         body { margin: 0; padding: 0; background-color: #fff; }
@@ -133,6 +139,27 @@
 
     <div class="pt-20 md:pt-24"></div>
 
+
+    <!-- ============ APPLICATION WEN HORS LIGNE ==== -->
+
+
+
+
+
+<!-- ============================================ -->
+<!-- 2. JS pour hors connexion -->
+<!-- ============================================ -->
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((reg) => console.log("Service Worker enregistré :", reg.scope))
+        .catch((err) => console.error("Échec enregistrement Service Worker :", err));
+    });
+  }
+</script>
 
 <!-- MODAL FORMULAIRE -->
 <div id="mf" class="fixed inset-0 z-50 hidden">

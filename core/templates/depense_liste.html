@@ -22,14 +22,16 @@
                     
                 </p>
             </div>
-            <a href="{% url 'depense_ajouter' %}"
-         class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm bg-white font-medium text-blue-600 shadow-sm w-full sm:w-auto"
-         >
+          
+      <a href="{% url 'depense_ajouter' %}"   class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm bg-white font-medium text-blue-600 shadow-sm w-full sm:w-auto"
+        onclick="openModalForm(event, this.href)"
+        class="text-blue-600 hover:underline">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <path d="M12 5v14M5 12h14"/>
-        </svg>
-        Nouveau Bureau
+                <path d="M12 5v14M5 12h14"/>
+              </svg>
+        Nouvelle depense
       </a>
+
         </div>
     </div>
 </header>
