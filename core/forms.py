@@ -115,22 +115,8 @@ class likeForm(forms.ModelForm):
 class ImageForm(forms.ModelForm):
     class Meta:
         model = Utilisateur
-        fields = ['image', 'numero', 'adresse']
-        widgets = {
-            'image': forms.FileInput(attrs={
-                'class': 'form-control',
-                'accept': 'image/*'
-            })
-        }
-        labels = {
-            'image': 'Choisir une image de profil'
-        }
-        labeels = {
-            'numero' : 'Quel est votre numéro'
-        }
-        labeels = {
-            'adresse' : 'Quel est votre adresse'
-        }
+        fields = "__all__"
+        
 
 
 

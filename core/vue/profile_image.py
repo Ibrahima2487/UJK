@@ -21,10 +21,10 @@ def profile_image(request):
         form = ImageForm(request.POST, request.FILES, instance=utilisateur)
         if form.is_valid():
             form.save()
-            messages.success(request, '✅ Votre image de profil a été mise à jour avec succès !')
+            messages.success(request, ' Votre image de profil a été mise à jour avec succès !')
             return redirect('profile')
         else:
-            messages.error(request, '❌ Veuillez corriger les erreurs ci-dessous.')
+            messages.error(request, ' Veuillez corriger les erreurs ci-dessous.')
     else:
         form = ImageForm(instance=utilisateur)
     
