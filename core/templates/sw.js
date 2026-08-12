@@ -1,7 +1,7 @@
 // Service Worker - Application UJK (Union des Jeunes de Kakony)
 // Stratégie : network-first avec repli sur le cache (adapté aux données dynamiques)
 
-const CACHE_NAME = "ujk-cache-v1"; // incrémenter (v2, v3...) à chaque déploiement majeur
+const CACHE_NAME = "ujk-cache-v2"; // incrémenter (v2, v3...) à chaque déploiement majeur
 const OFFLINE_URL = "/offline/";
 
 const PRECACHE_URLS = [
