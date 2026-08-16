@@ -1,87 +1,150 @@
 {% extends 'membre_base.html' %}
 
-
 {% block content %}
 
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap');
 
+    .lotr-font { font-family: 'Cinzel', Georgia, serif; }
 
-<div class="grid  lg:grid-cols-3 gap-2 md:gap-3 mb-3 md:mb-3">
-<!-- ===== BARRE DE STATISTIQUES ===== -->
-    
-        
-        <!--Paiment -->
-         <a href="{% url 'comptable_form' %}"   class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm bg-white font-medium text-blue-600 shadow-sm w-full sm:w-auto"
-            onclick="openModalForm(event, this.href)"
-            class="text-blue-600 hover:underline">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-                    </svg>
-        <div class="relative overflow-hidden bg-white rounded-xl p-3 md:p-4 text-center shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100 group">
-            <svg class="absolute -top-4 -right-4 w-16 h-16 opacity-[0.07] group-hover:scale-110 transition-transform" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="50" fill="#2563eb"/>
-            </svg>
-            <div class="relative z-10 text-xl md:text-3xl font-bold text-blue-600">Paiment</div>
-            <div class="relative z-10 text-[10px] md:text-xs text-slate-400 uppercase tracking-wider font-medium mt-0.5">Effectuer un paiment d'un membre</div>
-           
-        </div>
-         </a>
-        
-        
-        <!-- Caisses -->
-         <a href="{% url 'caisse_list' %}">
-        <div class="relative overflow-hidden bg-white rounded-xl p-3 md:p-4 text-center shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100 group">
-            <svg class="absolute -top-4 -right-4 w-16 h-16 opacity-[0.07] group-hover:scale-110 transition-transform" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="50" fill="#16a34a"/>
-            </svg>
-            <div class="relative z-10 text-lg md:text-2xl font-bold text-green-600"><span class="text-xs md:text-sm">Caisses</span></div>
-            <div class="relative z-10 text-[10px] md:text-xs text-slate-400 uppercase tracking-wider font-medium mt-0.5">Gerer les caisses ' Modifiez, Supprimer, Ajouter '  </div>
-        </div>
-        </a>
-        
-        <!-- Journal Caisse -->
-    
-        <div class="relative overflow-hidden bg-white rounded-xl p-3 md:p-4 text-center shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100 group">
-            <svg class="absolute -top-4 -right-4 w-16 h-16 opacity-[0.07] group-hover:scale-110 transition-transform" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="50" fill="#d97706"/>
-            </svg>
-            <a href="#" class="relative z-10 block group-hover:scale-105 transition-transform">
-                <div class="text-lg md:text-2xl font-bold text-amber-500 flex items-center justify-center gap-1">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                    <span class="hidden sm:inline">Journal Caisses</span>
-                </div>
-                <div class="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider font-medium mt-0.5">Information</div>
-            </a>
-        </div>
-        
-        <!-- Depense -->
-        <div class="relative overflow-hidden bg-white rounded-xl p-3 md:p-4 text-center shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100 group">
-            <svg class="absolute -top-4 -right-4 w-16 h-16 opacity-[0.07] group-hover:scale-110 transition-transform" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="50" fill="#0891b2"/>
-            </svg>
-            <a href="{% url 'depense_liste' %}" class="relative z-10 block">
-                <div class="text-xl md:text-3xl font-bold text-cyan-600">Depenses</div>
-                <div class="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider font-medium mt-0.5">Gérer les Depenses</div>
-            </a>
-        </div>
+    .portal-card {
+        background: linear-gradient(145deg, #fabc03 0%, #055a7e 100%);
+        border: 1px solid rgba(201, 162, 39, 0.15);
+        transition: all 0.3s ease;
+    }
+    .portal-card:hover {
+        border-color: rgba(201, 162, 39, 0.5);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(201, 162, 39, 0.15);
+    }
 
-        <div class="relative overflow-hidden bg-white rounded-xl p-3 md:p-4 text-center shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100 group">
-            <svg class="absolute -top-4 -right-4 w-16 h-16 opacity-[0.07] group-hover:scale-110 transition-transform" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="50" fill="#0891b2"/>
-            </svg>
-            <a href="#" class="relative z-10 block">
-                <div class="text-xl md:text-3xl font-bold text-cyan-600">Historique des paiments</div>
-                <div class="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider font-medium mt-0.5">Gérer l'Historique</div>
-            </a>
+    .corner {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        border-color: rgba(201, 162, 39, 0.3);
+    }
+    .corner-tl { top: 8px; left: 8px; border-top: 2px solid; border-left: 2px solid; }
+    .corner-tr { top: 8px; right: 8px; border-top: 2px solid; border-right: 2px solid; }
+    .corner-bl { bottom: 8px; left: 8px; border-bottom: 2px solid; border-left: 2px solid; }
+    .corner-br { bottom: 8px; right: 8px; border-bottom: 2px solid; border-right: 2px solid; }
+</style>
+
+<!-- Header compact -->
+<div class="relative mb-6 rounded-xl bg-white border border-amber-900/20 p-6 text-center">
+    <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle at 2px 2px, #c9a227 1px, transparent 0); background-size: 20px 20px;"></div>
+    <h1 class="lotr-font text-2xl md:text-3xl font-bold text-amber-900 tracking-wide">Portail du Comptable</h1>
+    <p class="text-amber-200/40 text-xs mt-1 tracking-widest uppercase">UJK gestion de comptablité</p>
+</div>
+
+<!-- Grid responsive -->
+<div class="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-6">
+
+    <!-- Paiement -->
+    <a href="{% url 'comptable_form' %}" onclick="openModalForm(event, this.href)" 
+       class="portal-card relative rounded-lg p-4 md:p-5 group block">
+        <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+
+        <div class="flex flex-col items-center text-center">
+            <div class="w-10 h-10 md:w-12 md:h-12 mb-2 text-blue-400 group-hover:text-blue-300 transition-colors">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-full h-full">
+                    <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>
+                    <path d="M12 2v2m0 16v2M2 12h2m16 0h2"/>
+                </svg>
+            </div>
+            <h3 class="lotr-font text-sm md:text-base font-bold text-amber-100">Paiement</h3>
+            <p class="text-[10px] md:text-xs text-slate-400 mt-1 leading-tight">Payer un membre</p>
         </div>
-        <div class="relative overflow-hidden bg-white rounded-xl p-3 md:p-4 text-center shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100 group">
-            <svg class="absolute -top-4 -right-4 w-16 h-16 opacity-[0.07] group-hover:scale-110 transition-transform" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="50" fill="#0891b2"/>
-            </svg>
-            <a href="#" class="relative z-10 block">
-                <div class="text-xl md:text-3xl font-bold text-cyan-600">Fiche de controle</div>
-                <div class="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider font-medium mt-0.5">Gérer la Fiche de Controle</div>
-            </a>
+    </a>
+
+    <!-- Caisses -->
+    <a href="{% url 'caisse_list' %}" 
+       class="portal-card relative rounded-lg p-4 md:p-5 group block">
+        <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+
+        <div class="flex flex-col items-center text-center">
+            <div class="w-10 h-10 md:w-12 md:h-12 mb-2 text-emerald-400 group-hover:text-emerald-300 transition-colors">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-full h-full">
+                    <rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18"/>
+                    <circle cx="12" cy="13" r="2"/><path d="M7 13h.01M17 13h.01"/>
+                </svg>
+            </div>
+            <h3 class="lotr-font text-sm md:text-base font-bold text-amber-100">Caisses</h3>
+            <p class="text-[10px] md:text-xs text-slate-400 mt-1 leading-tight">Gérer les caisses</p>
         </div>
-    
+    </a>
+
+    <!-- Journal -->
+    <a href="{% url 'journal_liste' %}" 
+       class="portal-card relative rounded-lg p-4 md:p-5 group block">
+        <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+
+        <div class="flex flex-col items-center text-center">
+            <div class="w-10 h-10 md:w-12 md:h-12 mb-2 text-amber-400 group-hover:text-amber-300 transition-colors">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-full h-full">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                </svg>
+            </div>
+            <h3 class="lotr-font text-sm md:text-base font-bold text-amber-100">Journal</h3>
+            <p class="text-[10px] md:text-xs text-slate-400 mt-1 leading-tight">Entrées & sorties</p>
+        </div>
+    </a>
+
+    <!-- Dépenses -->
+    <a href="{% url 'depense_liste' %}" 
+       class="portal-card relative rounded-lg p-4 md:p-5 group block">
+        <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+
+        <div class="flex flex-col items-center text-center">
+            <div class="w-10 h-10 md:w-12 md:h-12 mb-2 text-rose-400 group-hover:text-rose-300 transition-colors">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-full h-full">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <h3 class="lotr-font text-sm md:text-base font-bold text-amber-100">Dépenses</h3>
+            <p class="text-[10px] md:text-xs text-slate-400 mt-1 leading-tight">Gérer les dépenses</p>
+        </div>
+    </a>
+
+    <!-- Historique -->
+    <a href="#" 
+       class="portal-card relative rounded-lg p-4 md:p-5 group block">
+        <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+
+        <div class="flex flex-col items-center text-center">
+            <div class="w-10 h-10 md:w-12 md:h-12 mb-2 text-purple-400 group-hover:text-purple-300 transition-colors">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-full h-full">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+            </div>
+            <h3 class="lotr-font text-sm md:text-base font-bold text-amber-100">Historique</h3>
+            <p class="text-[10px] md:text-xs text-slate-400 mt-1 leading-tight">Paiements passés</p>
+        </div>
+    </a>
+
+    <!-- Fiche -->
+    <a href="#" 
+       class="portal-card relative rounded-lg p-4 md:p-5 group block">
+        <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+        <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+
+        <div class="flex flex-col items-center text-center">
+            <div class="w-10 h-10 md:w-12 md:h-12 mb-2 text-cyan-400 group-hover:text-cyan-300 transition-colors">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-full h-full">
+                    <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                </svg>
+            </div>
+            <h3 class="lotr-font text-sm md:text-base font-bold text-amber-100">Contrôle</h3>
+            <p class="text-[10px] md:text-xs text-slate-400 mt-1 leading-tight">Fiche de contrôle</p>
+        </div>
+    </a>
+
 </div>
 {% endblock %}

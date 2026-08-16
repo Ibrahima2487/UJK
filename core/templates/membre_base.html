@@ -80,11 +80,7 @@
                         <i class="fas fa-briefcase "></i>Bureau
                     </a>
 
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'profile_image' %}" class="px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
-                        <i class="fas fa-image"></i>à jour
-                    </a>
-                    {% endif %}
+                   
 
                     <a href="/deconnexion/" class="ml-2 px-4 py-2 bg-red-500 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-red-600 hover:shadow-lg hover:-translate-y-0.5">
                         <i class="fas fa-sign-out-alt"></i>Déconnexion
@@ -121,11 +117,7 @@
                         <i class="fas fa-people-group text-2xl"></i>
                     </a>
 
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'profile_image' %}" class="w-12 h-12 flex items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Mon Profil">
-                        <i class="fas fa-image text-2xl"></i>
-                    </a>
-                    {% endif %}
+                    
 
                     <a href="/deconnexion/" class="w-12 h-12 flex items-center justify-center bg-red-500 text-white rounded-xl transition-all duration-300 hover:bg-red-600" title="Déconnexion">
                         <i class="fas fa-sign-out-alt text-2xl"></i>
@@ -193,29 +185,42 @@
 
 
 
-    <!-- ==================== ACCÈS RAPIDE — GAUCHE, ICÔNES AGRANDIES ==================== -->
-    <div class="fixed bottom-4 left-4 z-40 flex flex-col items-center gap-3">
-        <img src="{% static 'image/logo.png' %}" alt="logo"
-             class="w-16 h-16 rounded-full shadow-lg object-cover transition-transform duration-300 hover:scale-110">
+    <!-- ════════════════════════════════════════════════ -->
+<!-- BOUTONS FLOTTANTS — Version compacte responsive  -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="fixed bottom-4 left-3 z-40 flex flex-col items-center gap-2">
 
-        <a href="{% url 'message' %}" title="Messagerie"
-           class="w-16 h-16 bg-yellow-500 hover:bg-yellow-600 text-white rounded-full shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-110">
-            <i class="fas fa-comment-dots text-2xl"></i>
-            <span class="text-[10px] mt-0.5">Chat</span>
-        </a>
+    <!-- Logo -->
+    <a href="{% url 'main' %}" title="Accueil"
+       class="w-11 h-11 md:w-12 md:h-12 rounded-full shadow-lg overflow-hidden border-2 border-white/20 transition-all duration-300 hover:scale-110 hover:shadow-xl">
+        <img src="{% static 'image/logo.png' %}" alt="logo" class="w-full h-full object-cover">
+    </a>
 
-        <a href="{% url 'profile' %}" title="Mon profil"
-           class="w-16 h-16 bg-gray-600 hover:bg-gray-700 text-white rounded-full shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-110">
-            <i class="fas fa-user text-2xl"></i>
-            <span class="text-[10px] mt-0.5">Profil</span>
-        </a>
+    <!-- Messagerie -->
+    <a href="{% url 'message' %}" title="Messagerie"
+       class="w-11 h-11 md:w-12 md:h-12 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-xl">
+        <svg class="w-5 h-5 md:w-5.5 md:h-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+    </a>
 
-        <a href="#top" title="Retour en haut"
-           class="w-16 h-16 bg-sky-500 hover:bg-sky-600 text-white rounded-full shadow-lg flex flex-col items-center justify-center transition-all duration-300 hover:scale-110">
-            <i class="fas fa-arrow-up text-2xl"></i>
-            <span class="text-[10px] mt-0.5">Haut</span>
-        </a>
-    </div>
+    <!-- Profil -->
+    <a href="{% url 'profile' %}" title="Mon profil"
+       class="w-11 h-11 md:w-12 md:h-12 bg-slate-600 hover:bg-slate-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-xl">
+        <svg class="w-5 h-5 md:w-5.5 md:h-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+    </a>
+
+    <!-- Retour en haut -->
+    <a href="#top" title="Retour en haut"
+       class="w-11 h-11 md:w-12 md:h-12 bg-sky-500 hover:bg-sky-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-xl">
+        <svg class="w-5 h-5 md:w-5.5 md:h-5.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </a>
+
+</div>
 
     <!-- ====== POUR MOADL -->
 

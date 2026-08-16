@@ -1,283 +1,277 @@
 {% extends 'membre_base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} | UDJK Gallery</title>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Tailwind CSS (via django-tailwind) -->
-    {% load tailwind_tags %}
-    {% tailwind_css %}
-    
-    <style>
-        .transition-smooth {
-            transition: all 0.3s ease;
-        }
-        .hover-lift:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-        .object-fit-cover {
-            object-fit: cover;
-        }
-    </style>
-</head>
+{% block content %}
 
-<body class="bg-gray-100 font-sans">
-    {% block content %}
-    
-    <div class="container mx-auto px-4 py-6 max-w-7xl">
-        <!-- Titre principal -->
-        <h1 class="flex items-center gap-3 text-2xl md:text-3xl font-bold text-gray-800 mb-6 pb-3 border-b-4 border-blue-500">
-            <i class="fas fa-photo-video text-blue-500"></i>
-            {{ title }}
-        </h1>
-        
-        <!-- Messages Django -->
-        {% if messages %}
-            <div class="mb-6 space-y-2">
-                {% for message in messages %}
-                    <div class="flex items-center justify-between p-4 rounded-lg shadow-md 
-                        {% if message.tags == 'success' %}bg-green-100 text-green-800 border-l-4 border-green-500
-                        {% elif message.tags == 'error' %}bg-red-100 text-red-800 border-l-4 border-red-500
-                        {% elif message.tags == 'warning' %}bg-yellow-100 text-yellow-800 border-l-4 border-yellow-500
-                        {% else %}bg-blue-100 text-blue-800 border-l-4 border-blue-500{% endif %}">
-                        <span>{{ message }}</span>
-                        <button type="button" class="text-gray-500 hover:text-gray-700" onclick="this.parentElement.remove()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                {% endfor %}
+<!-- ════════════════════════════════════════════════ -->
+<!-- HEADER                                           -->
+<!-- ════════════════════════════════════════════════ -->
+<header class="relative overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white w-full rounded-2xl shadow-xl mb-5 md:mb-6">
+    <svg class="absolute top-0 right-0 w-48 h-full opacity-10 pointer-events-none hidden sm:block" viewBox="0 0 200 200" preserveAspectRatio="none">
+        <path d="M120,0 Q180,60 160,130 T200,200 L200,0 Z" fill="white"/>
+        <circle cx="150" cy="40" r="30" fill="white" opacity="0.3"/>
+        <circle cx="170" cy="90" r="18" fill="white" opacity="0.2"/>
+    </svg>
+    <div class="relative z-10 container mx-auto px-4 py-5 md:py-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <svg class="w-7 h-7 md:w-8 md:h-8 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+                </svg>
+                <div>
+                    <h1 class="text-xl md:text-3xl font-bold">{{ title }}</h1>
+                    <p class="text-sm opacity-90 mt-0.5 hidden sm:block">Gérez vos albums photos et vidéos</p>
+                </div>
             </div>
-        {% endif %}
-        
-        <!-- Contrôles supérieurs -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-            <!-- Badges stats -->
-            <div class="flex flex-wrap gap-2">
-                <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
-                    <i class="fas fa-photo-video"></i> Total: {{ total_albums }}
+            <a href="{% url 'gallery_ajouter' %}" onclick="openModalForm(event, this.href)"
+               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-sm bg-white font-medium text-blue-600 shadow-sm hover:bg-blue-50 transition w-full sm:w-auto shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Ajouter un album
+            </a>
+        </div>
+    </div>
+</header>
+
+<div class="container mx-auto px-3 md:px-4 pb-8">
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- MESSAGES DJANGO                                  -->
+    <!-- ════════════════════════════════════════════════ -->
+    {% if messages %}
+    <div class="mb-5 space-y-2">
+        {% for message in messages %}
+        <div class="flex items-start justify-between gap-3 px-4 py-3 rounded-xl text-sm
+            {% if message.tags == 'success' %}bg-emerald-50 text-emerald-800 border border-emerald-200
+            {% elif message.tags == 'error' %}bg-rose-50 text-rose-800 border border-rose-200
+            {% elif message.tags == 'warning' %}bg-amber-50 text-amber-800 border border-amber-200
+            {% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+            <span class="leading-relaxed">{{ message }}</span>
+            <button type="button" class="shrink-0 mt-0.5 opacity-60 hover:opacity-100 transition" onclick="this.parentElement.remove()">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- BARRE DE CONTRÔLE                                -->
+    <!-- ════════════════════════════════════════════════ -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5">
+        <!-- Stats -->
+        <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold border border-blue-100">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+                </svg>
+                {{ total_albums }} album{{ total_albums|pluralize:"s" }}
+            </span>
+            {% for category_key, category_data in categories_stats.items %}
+                {% if category_data.count > 0 %}
+                <span class="inline-flex items-center px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-medium">
+                    {{ category_data.label }}: {{ category_data.count }}
                 </span>
-                {% for category_key, category_data in categories_stats.items %}
-                    {% if category_data.count > 0 %}
-                        <span class="inline-flex items-center px-3 py-1.5 bg-gray-200 text-gray-700 rounded-full text-sm">
-                            {{ category_data.label }}: {{ category_data.count }}
-                        </span>
-                    {% endif %}
-                {% endfor %}
-            </div>
-            
-            <!-- Filtre et bouton ajout -->
-            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                <select id="categoryFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
-                    <option value="">Toutes les catégories</option>
-                    {% for category_key, category_label in categories %}
-                        <option value="{{ category_key }}" {% if current_category == category_key %}selected{% endif %}>
-                            {{ category_label }}
-                        </option>
-                    {% endfor %}
-                </select>
-
-                <a href="{% url 'gallery_ajouter' %}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors font-medium">
-                    <i class="fas fa-plus"></i> Ajouter la galerie
-                </a>
-            </div>
+                {% endif %}
+            {% endfor %}
         </div>
 
-        {% if albums %}
-            <!-- Grille des albums -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8" id="albumsGrid">
-                {% for album in albums %}
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden transition-smooth hover-lift">
-                        <!-- Zone image -->
-                        <div class="relative h-48 overflow-hidden bg-gray-200">
-                            {% if album.image %}
-                                <img src="{{ album.image.url }}" alt="{{ album.title }}" class="w-full h-full object-cover">
-                            {% else %}
-                                <div class="flex flex-col items-center justify-center h-full text-gray-400">
-                                    <i class="fas fa-image fa-3x mb-2"></i>
-                                    <span class="text-sm">Pas d'image</span>
-                                </div>
-                            {% endif %}
-                            
-                            <!-- Badge catégorie -->
-                            <span class="absolute top-2 left-2 px-2 py-1 rounded-md text-xs font-semibold
-                                {% if album.category == 'photo' %}bg-cyan-500 text-white
-                                {% elif album.category == 'video' %}bg-red-500 text-white
-                                {% elif album.category == 'autre' %}bg-amber-500 text-gray-900
-                                {% else %}bg-gray-600 text-white{% endif %}">
-                                {{ album.get_category_display }}
-                            </span>
-                            
-                            <!-- Badge type média -->
-                            <span class="absolute top-2 right-2 px-2 py-1 rounded-md text-xs font-semibold
-                                {% if album.image and album.video %}bg-blue-600 text-white
-                                {% elif album.image %}bg-green-600 text-white
-                                {% elif album.video %}bg-red-600 text-white
-                                {% else %}bg-gray-600 text-white{% endif %}">
-                                {% if album.image and album.video %}
-                                    <i class="fas fa-photo-video"></i> Mixte
-                                {% elif album.image %}
-                                    <i class="fas fa-image"></i> Image
-                                {% elif album.video %}
-                                    <i class="fas fa-video"></i> Vidéo
-                                {% endif %}
-                            </span>
-                        </div>
-                        
-                        <!-- Corps de la carte -->
-                        <div class="p-4 flex flex-col">
-                            <h5 class="text-lg font-bold text-gray-800 mb-2 line-clamp-1">{{ album.title }}</h5>
-                            
-                            {% if album.description %}
-                                <p class="text-gray-600 text-sm mb-3 line-clamp-2 flex-grow">
-                                    {% if album.description|length > 120 %}
-                                        {{ album.description|slice:":120" }}...
-                                    {% else %}
-                                        {{ album.description }}
-                                    {% endif %}
-                                </p>
-                            {% endif %}
-                            
-                            <!-- Métadonnées -->
-                            <div class="flex justify-between text-gray-400 text-xs mb-3">
-                                <span><i class="fas fa-calendar me-1"></i> {{ album.date_created|date:"d/m/Y H:i" }}</span>
-                                <span><i class="fas fa-hashtag me-1"></i> ID: {{ album.id }}</span>
-                            </div>
-                            
-                            <!-- Boutons d'action -->
-                            <div class="flex gap-2">
-                                <a href="{% url 'gallery' %}" class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors text-sm font-medium">
-                                    <i class="fas fa-eye"></i> Voir
-                                </a>
-
-                                <a href="{% url 'gallery_modifie' album.id %}" class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 border border-gray-400 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
-                                    <i class="fas fa-edit"></i> Modifier
-                                </a>
-
-                                <form method="post" action="{% url 'gallery_supprime' album.pk %}" class="flex-1">
-                                    {% csrf_token %}
-                                    <button type="submit" class="w-full inline-flex items-center justify-center gap-1 px-3 py-2 border border-red-500 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium" 
-                                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet album ? Cette action supprimera également tous les fichiers associés.')">
-                                        <i class="fas fa-trash"></i> Supprimer
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Filtre -->
+        <form method="get" class="w-full sm:w-auto">
+            <select name="category" onchange="this.form.submit()"
+                    class="w-full sm:w-48 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer">
+                <option value="">Toutes les catégories</option>
+                {% for category_key, category_label in categories %}
+                    <option value="{{ category_key }}" {% if current_category == category_key %}selected{% endif %}>
+                        {{ category_label }}
+                    </option>
                 {% endfor %}
-            </div>
-
-            <!-- Pagination -->
-            {% if albums.has_other_pages %}
-                <nav class="flex justify-center mt-8" aria-label="Page navigation">
-                    <ul class="flex flex-wrap gap-1">
-                        {% if albums.has_previous %}
-                            <li>
-                                <a class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors" href="?page=1{% if current_category %}&category={{ current_category }}{% endif %}">
-                                    &laquo; Premier
-                                </a>
-                            </li>
-                            <li>
-                                <a class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors" href="?page={{ albums.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}">
-                                    Précédent
-                                </a>
-                            </li>
-                        {% endif %}
-                        
-                        {% for i in albums.paginator.page_range %}
-                            {% if albums.number == i %}
-                                <li>
-                                    <span class="px-3 py-2 bg-blue-600 text-white rounded-lg">{{ i }}</span>
-                                </li>
-                            {% else %}
-                                <li>
-                                    <a class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors" href="?page={{ i }}{% if current_category %}&category={{ current_category }}{% endif %}">{{ i }}</a>
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                        
-                        {% if albums.has_next %}
-                            <li>
-                                <a class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors" href="?page={{ albums.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}">
-                                    Suivant
-                                </a>
-                            </li>
-                            <li>
-                                <a class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors" href="?page={{ albums.paginator.num_pages }}{% if current_category %}&category={{ current_category }}{% endif %}">
-                                    Dernier &raquo;
-                                </a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-            {% endif %}
-            
-        {% else %}
-            <!-- État vide -->
-            <div class="text-center py-16 my-8 bg-gray-50 rounded-xl border border-gray-200">
-                <i class="fas fa-photo-video fa-4x text-gray-300 mb-4"></i>
-                <h3 class="text-xl font-semibold text-gray-500 mb-2">Aucun album trouvé</h3>
-                <p class="text-gray-400 mb-4">
-                    {% if current_category %}
-                        Aucun album dans la catégorie "{{ current_category|title }}".
-                    {% else %}
-                        Commencez par créer votre premier album.
-                    {% endif %}
-                </p>
-                <a href="{% url 'gallery_ajouter' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium">
-                    <i class="fas fa-plus"></i> Ajouter
-                </a>
-            </div>
-        {% endif %}
+            </select>
+        </form>
     </div>
 
-    <script>
-        // Filtrage par catégorie
-        document.getElementById('categoryFilter').addEventListener('change', function() {
-            const category = this.value;
-            const url = new URL(window.location);
-            
-            if (category) {
-                url.searchParams.set('category', category);
-            } else {
-                url.searchParams.delete('category');
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- GRILLE DES ALBUMS                                -->
+    <!-- ════════════════════════════════════════════════ -->
+    {% if albums %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 mb-8" id="albumsGrid">
+        {% for album in albums %}
+        <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group">
+            <!-- Image -->
+            <div class="relative h-44 sm:h-48 overflow-hidden bg-slate-100">
+                {% if album.image %}
+                    <img src="{{ album.image.url }}" alt="{{ album.title }}" 
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                {% else %}
+                    <div class="flex flex-col items-center justify-center h-full text-slate-300">
+                        <svg class="w-12 h-12 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+                        </svg>
+                        <span class="text-xs">Pas d'image</span>
+                    </div>
+                {% endif %}
+
+                <!-- Badge catégorie -->
+                <span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider
+                    {% if album.category == 'photo' %}bg-cyan-500 text-white
+                    {% elif album.category == 'video' %}bg-rose-500 text-white
+                    {% elif album.category == 'autre' %}bg-amber-400 text-slate-900
+                    {% else %}bg-slate-600 text-white{% endif %}">
+                    {{ album.get_category_display }}
+                </span>
+
+                <!-- Badge type média -->
+                <span class="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md text-[10px] font-bold flex items-center gap-1
+                    {% if album.image and album.video %}bg-blue-600 text-white
+                    {% elif album.image %}bg-emerald-500 text-white
+                    {% elif album.video %}bg-rose-600 text-white
+                    {% else %}bg-slate-500 text-white{% endif %}">
+                    {% if album.image and album.video %}
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                        Mixte
+                    {% elif album.image %}
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                        Image
+                    {% elif album.video %}
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Vidéo
+                    {% endif %}
+                </span>
+            </div>
+
+            <!-- Corps -->
+            <div class="p-3.5 md:p-4">
+                <h3 class="text-base font-bold text-slate-800 mb-1 truncate" title="{{ album.title }}">{{ album.title }}</h3>
+
+                {% if album.description %}
+                <p class="text-slate-500 text-xs mb-3 line-clamp-2 leading-relaxed">
+                    {{ album.description|truncatechars:100 }}
+                </p>
+                {% endif %}
+
+                <!-- Métadonnées -->
+                <div class="flex items-center justify-between text-slate-400 text-[11px] mb-3">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        {{ album.date_created|date:"d/m/Y" }}
+                    </span>
+                    <span class="font-mono text-[10px]">#{{ album.id }}</span>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-2">
+                    <a href="{% url 'gallery' %}" class="flex-1 inline-flex items-center justify-center gap-1 px-2.5 py-2 rounded-lg bg-blue-50 text-blue-600 text-xs font-semibold hover:bg-blue-100 transition">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        <span class="hidden xs:inline">Voir</span>
+                    </a>
+                    <a href="{% url 'gallery_modifie' album.id %}" onclick="openModalForm(event, this.href)"
+                       class="flex-1 inline-flex items-center justify-center gap-1 px-2.5 py-2 rounded-lg bg-amber-50 text-amber-600 text-xs font-semibold hover:bg-amber-100 transition">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                        <span class="hidden xs:inline">Modifier</span>
+                    </a>
+                    <form method="post" action="{% url 'gallery_supprime' album.pk %}" class="flex-1" onsubmit="return confirm('Supprimer cet album ? Cette action est irréversible.')">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full inline-flex items-center justify-center gap-1 px-2.5 py-2 rounded-lg bg-rose-50 text-rose-600 text-xs font-semibold hover:bg-rose-100 transition">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                            </svg>
+                            <span class="hidden xs:inline">Suppr.</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- PAGINATION                                       -->
+    <!-- ════════════════════════════════════════════════ -->
+    {% if albums.has_other_pages %}
+    <nav class="flex justify-center" aria-label="Pagination">
+        <div class="inline-flex items-center gap-1 bg-white rounded-xl border border-slate-200 p-1 shadow-sm">
+            {% if albums.has_previous %}
+                <a href="?page={{ albums.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}"
+                   class="px-3 py-1.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </a>
+            {% else %}
+                <span class="px-3 py-1.5 rounded-lg text-sm text-slate-300 cursor-not-allowed">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </span>
+            {% endif %}
+
+            {% for i in albums.paginator.page_range %}
+                {% if albums.number == i %}
+                    <span class="px-3 py-1.5 rounded-lg text-sm font-bold bg-blue-600 text-white min-w-[36px] text-center">{{ i }}</span>
+                {% else %}
+                    <a href="?page={{ i }}{% if current_category %}&category={{ current_category }}{% endif %}"
+                       class="px-3 py-1.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 transition min-w-[36px] text-center">{{ i }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if albums.has_next %}
+                <a href="?page={{ albums.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}"
+                   class="px-3 py-1.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                </a>
+            {% else %}
+                <span class="px-3 py-1.5 rounded-lg text-sm text-slate-300 cursor-not-allowed">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                </span>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- ÉTAT VIDE                                        -->
+    <!-- ════════════════════════════════════════════════ -->
+    <div class="text-center py-16 bg-white rounded-xl border border-slate-100 shadow-sm">
+        <svg class="w-16 h-16 mx-auto mb-4 text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+        </svg>
+        <h3 class="text-lg font-semibold text-slate-500 mb-1">
+            {% if current_category %}
+                Aucun album dans cette catégorie
+            {% else %}
+                Aucun album pour le moment
+            {% endif %}
+        </h3>
+        <p class="text-slate-400 text-sm mb-5">Créez votre premier album pour commencer.</p>
+        <a href="{% url 'gallery_ajouter' %}" onclick="openModalForm(event, this.href)"
+           class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm bg-blue-600 font-medium text-white shadow-sm hover:bg-blue-700 transition">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14"/>
+            </svg>
+            Ajouter un album
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+    // Auto-hide messages après 5s
+    setTimeout(() => {
+        document.querySelectorAll('[class*="bg-emerald-50"], [class*="bg-rose-50"], [class*="bg-amber-50"], [class*="bg-blue-50"]').forEach(el => {
+            if (el.parentElement && el.parentElement.classList.contains('mb-5')) {
+                el.style.transition = 'opacity 0.4s ease';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 400);
             }
-            
-            url.searchParams.delete('page');
-            window.location.href = url.toString();
         });
+    }, 5000);
+</script>
 
-        // Auto-hide messages
-        setTimeout(function() {
-            const messages = document.querySelector('.messages');
-            if (messages && messages.children.length > 0) {
-                const msgDivs = document.querySelectorAll('.flex.items-center.justify-between');
-                msgDivs.forEach(msg => {
-                    msg.style.transition = 'opacity 0.5s ease';
-                    msg.style.opacity = '0';
-                    setTimeout(() => msg.remove(), 500);
-                });
-            }
-        }, 5000);
-        
-        // Support pour line-clamp sur les anciens navigateurs
-        if (!document.createElement('div').style.hasOwnProperty('webkitLineClamp')) {
-            const style = document.createElement('style');
-            style.textContent = `
-                .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-                .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-            `;
-            document.head.appendChild(style);
-        }
-    </script>
-
-    {% endblock %}
-</body>
-</html>
+{% endblock %}

@@ -23,16 +23,22 @@
             </h1>
             <p class="text-xs md:text-sm text-blue-100 mt-0.5 hidden sm:block">Gestion complète des profils utilisateurs</p>
         </div>
+        
         <div class="flex items-center gap-3">
             <div class="text-right hidden sm:block">
                 <p class="text-xl md:text-2xl font-bold">{{ utilisateurs|length }}</p>
                 <p class="text-[10px] md:text-xs text-blue-200">Total des comptes</p>
             </div>
+            <a href="{% url 'profile_image' %}" onclick="openModalForm(event, this.href)">
+            
+            <i class="fas fa-image"></i>
+        </a>
             <a href="{% url 'membre_create' %}" class="bg-white text-blue-800 px-3 py-2 md:px-4 md:py-2.5 rounded-lg text-xs md:text-sm font-semibold hover:bg-blue-50 transition-all shadow-sm inline-flex items-center gap-1.5">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 <span class="hidden sm:inline">Ajouter un membre</span>
                 <span class="sm:hidden">Ajouter</span>
             </a>
+            
         </div>
     </div>
 </div>

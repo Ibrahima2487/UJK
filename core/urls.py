@@ -86,6 +86,8 @@ urlpatterns = [
     path('caisse_ajoute/', views.caisse_ajoute, name="caisse_ajoute"),
     path('caisse_list/', views.caisse_list, name="caisse_list"),
     path('caisse_modifie/<int:pk>', views.caisse_modifie, name="caisse_modifie"),
+    path('journal_liste/', views.journal_liste, name="journal_liste"),
+    path('journal_ajoute/', views.journal_ajoute,name="journal_ajoute"),
 
     # ========= CONTACT =================
     path('contact/', views.contact, name="contact"),

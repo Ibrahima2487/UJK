@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 from core.models import Bureau, Caisse, Payment, Depense, JournalCaisse, FicheControle
-from core.forms import PaymentForm, DepenseForm, FicheControleForm, CaisseForm
+from core.forms import PaymentForm, DepenseForm, FicheControleForm, CaisseForm, JournalCaisseForm
 
 
 # ============================================================
@@ -388,6 +388,16 @@ def journal_liste(request):
         'type_filtre': type_operation or '',
     }
     return render(request, 'journal_liste.html', context)
+
+def journal_ajoute(request):
+    if request.method == "POST":
+        form = JournalCaisseForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect("journal_liste")
+    else:
+        form = JournalCaisseForm()
+    return render(request, 'journal_ajoute.html', {"form" : form})
 
 
 # ============================================================

@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from core.models import actualite, albums, Utilisateur, Bureau, Publication, Commentaire, like, Contact, Payment, Temoin
-from core.models import MessageBureau, Affectation, Caisse, Payment, Depense, JournalCaisse, FicheControle
+from core.models import MessageBureau, Affectation, Caisse, Payment, Depense, JournalCaisse, FicheControle, HistoriquePaiement
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 

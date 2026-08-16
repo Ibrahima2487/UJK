@@ -1,286 +1,277 @@
 {% extends 'membre_base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <style>
-        .read-more-content {
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .read-more-content.expanded {
-            display: block;
-            -webkit-line-clamp: unset;
-        }
-        
-        .card-hover {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .pagination .page-link {
-            color: #0d6efd;
-        }
-        
-        .pagination .page-item.active .page-link {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
-    </style>
-</head>
-<body class="bg-light">
+{% block content %}
 
-    {% block content %}
-    <div class="container py-4">
-        <!-- En-tête de page -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card bg-primary text-white">
-                    <div class="card-body">
-                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
-                            <div class="mb-3 mb-md-0">
-                                <h1 class="h2 mb-2">
-                                    <i class="bi bi-newspaper me-2"></i>
-                                    {{ title }}
-                                </h1>
-                                <p class="mb-0 opacity-75">Gestion des actualités de la plateforme</p>
-                            </div>
-                            <a href="{% url 'blog_create' %}" class="btn btn-light text-primary fw-semibold">
-                                <i class="bi bi-plus-circle me-2"></i>
-                                Ajouter une actualité
-                            </a>
-                        </div>
-                    </div>
+<!-- ════════════════════════════════════════════════ -->
+<!-- HEADER                                           -->
+<!-- ════════════════════════════════════════════════ -->
+<header class="relative overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white w-full rounded-2xl shadow-xl mb-5 md:mb-6">
+    <svg class="absolute top-0 right-0 w-48 h-full opacity-10 pointer-events-none hidden sm:block" viewBox="0 0 200 200" preserveAspectRatio="none">
+        <path d="M120,0 Q180,60 160,130 T200,200 L200,0 Z" fill="white"/>
+        <circle cx="150" cy="40" r="30" fill="white" opacity="0.3"/>
+        <circle cx="170" cy="90" r="18" fill="white" opacity="0.2"/>
+    </svg>
+    <div class="relative z-10 container mx-auto px-4 py-5 md:py-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <svg class="w-7 h-7 md:w-8 md:h-8 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+                </svg>
+                <div>
+                    <h1 class="text-xl md:text-3xl font-bold">{{ title }}</h1>
+                    <p class="text-sm opacity-90 mt-0.5 hidden sm:block">Gérez vos albums photos et vidéos</p>
                 </div>
             </div>
+            <a href="{% url 'gallery_ajouter' %}" onclick="openModalForm(event, this.href)"
+               class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-sm bg-white font-medium text-blue-600 shadow-sm hover:bg-blue-50 transition w-full sm:w-auto shrink-0">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Ajouter un album
+            </a>
         </div>
+    </div>
+</header>
 
-        <!-- Messages Django -->
-        {% if messages %}
-        <div class="row mb-4">
-            <div class="col-12">
-                {% for message in messages %}
-                <div class="alert alert-dismissible fade show 
-                    {% if message.tags == 'success' %}alert-success
-                    {% elif message.tags == 'error' %}alert-danger
-                    {% elif message.tags == 'warning' %}alert-warning
-                    {% else %}alert-info{% endif %}" role="alert">
-                    <div class="d-flex align-items-center">
-                        <i class="bi 
-                            {% if message.tags == 'success' %}bi-check-circle-fill
-                            {% elif message.tags == 'error' %}bi-exclamation-triangle-fill
-                            {% elif message.tags == 'warning' %}bi-exclamation-circle-fill
-                            {% else %}bi-info-circle-fill{% endif %} me-2"></i>
-                        <span>{{ message }}</span>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                {% endfor %}
-            </div>
+<div class="container mx-auto px-3 md:px-4 pb-8">
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- MESSAGES DJANGO                                  -->
+    <!-- ════════════════════════════════════════════════ -->
+    {% if messages %}
+    <div class="mb-5 space-y-2">
+        {% for message in messages %}
+        <div class="flex items-start justify-between gap-3 px-4 py-3 rounded-xl text-sm
+            {% if message.tags == 'success' %}bg-emerald-50 text-emerald-800 border border-emerald-200
+            {% elif message.tags == 'error' %}bg-rose-50 text-rose-800 border border-rose-200
+            {% elif message.tags == 'warning' %}bg-amber-50 text-amber-800 border border-amber-200
+            {% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+            <span class="leading-relaxed">{{ message }}</span>
+            <button type="button" class="shrink-0 mt-0.5 opacity-60 hover:opacity-100 transition" onclick="this.parentElement.remove()">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+            </button>
         </div>
-        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
 
-        {% if actualites %}
-        <!-- Liste des actualités en mode carte -->
-        <div class="row g-4 mb-5">
-            {% for actu in actualites %}
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="card h-100 card-hover border-0 shadow-sm">
-                    {% if actu.image %}
-                    <img src="{{ actu.image.url }}" class="card-img-top" alt="{{ actu.title }}" style="height: 200px; object-fit: cover;">
-                    {% else %}
-                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                        <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
-                    </div>
-                    {% endif %}
-                    
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title text-truncate" title="{{ actu.title }}">
-                            {{ actu.title }}
-                        </h5>
-                        
-                        <div class="card-text mb-3">
-                            <div class="read-more-content" id="content-{{ actu.id }}">
-                                {{ actu.contenu|truncatewords:30 }}
-                            </div>
-                            {% if actu.contenu|wordcount > 30 %}
-                            <button class="btn btn-link p-0 text-decoration-none read-more-btn" 
-                                    data-target="content-{{ actu.id }}">
-                                Lire la suite
-                            </button>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mt-auto">
-                            <div class="d-flex justify-content-between align-items-center text-muted small mb-3">
-                                <span>
-                                    <i class="bi bi-calendar3 me-1"></i>
-                                    {{ actu.date_created|date:"d/m/Y H:i" }}
-                                </span>
-                            </div>
-                            
-                            <div class="d-flex justify-content-between">
-                                <form method="post" action="{% url 'blog_create' %}" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-success" 
-                                            onclick="return confirm('Publier cette actualité ?')">
-                                        <i class="bi bi-send"></i>
-                                    </button>
-                                </form>
-
-                                <a href="{% url 'blog_modifie' actu.id %}" class="btn btn-sm btn-outline-warning">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-
-                                <form method="post" action="{% url 'blog_supprime' actu.id %}" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette actualité ? Cette action est irréversible.')">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- BARRE DE CONTRÔLE                                -->
+    <!-- ════════════════════════════════════════════════ -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5">
+        <!-- Stats -->
+        <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold border border-blue-100">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+                </svg>
+                {{ total_albums }} album{{ total_albums|pluralize:"s" }}
+            </span>
+            {% for category_key, category_data in categories_stats.items %}
+                {% if category_data.count > 0 %}
+                <span class="inline-flex items-center px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-medium">
+                    {{ category_data.label }}: {{ category_data.count }}
+                </span>
+                {% endif %}
             {% endfor %}
         </div>
 
-        <!-- Pagination Bootstrap -->
-        {% if actualites.has_other_pages %}
-        <div class="row">
-            <div class="col-12">
-                <nav aria-label="Pagination des actualités">
-                    <ul class="pagination justify-content-center">
-                        <!-- Première page -->
-                        {% if actualites.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1" aria-label="Première page">
-                                <i class="bi bi-chevron-double-left"></i>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ actualites.previous_page_number }}" aria-label="Précédent">
-                                <i class="bi bi-chevron-left"></i>
-                            </a>
-                        </li>
-                        {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="bi bi-chevron-double-left"></i></span>
-                        </li>
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="bi bi-chevron-left"></i></span>
-                        </li>
-                        {% endif %}
-
-                        <!-- Pages numérotées -->
-                        {% for num in actualites.paginator.page_range %}
-                            {% if actualites.number == num %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ num }}</span>
-                            </li>
-                            {% elif num > actualites.number|add:'-3' and num < actualites.number|add:'3' %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                            </li>
-                            {% endif %}
-                        {% endfor %}
-
-                        <!-- Dernière page -->
-                        {% if actualites.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ actualites.next_page_number }}" aria-label="Suivant">
-                                <i class="bi bi-chevron-right"></i>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ actualites.paginator.num_pages }}" aria-label="Dernière page">
-                                <i class="bi bi-chevron-double-right"></i>
-                            </a>
-                        </li>
-                        {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="bi bi-chevron-right"></i></span>
-                        </li>
-                        <li class="page-item disabled">
-                            <span class="page-link"><i class="bi bi-chevron-double-right"></i></span>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-                
-                <!-- Informations sur la pagination -->
-                <div class="text-center text-muted mt-2">
-                    <small>
-                        Page {{ actualites.number }} sur {{ actualites.paginator.num_pages }} 
-                        - {{ actualites.paginator.count }} actualité{{ actualites.paginator.count|pluralize:"s" }} au total
-                    </small>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        {% else %}
-        <!-- État vide -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body text-center py-5">
-                        <i class="bi bi-newspaper text-muted mb-3" style="font-size: 4rem;"></i>
-                        <h3 class="h4 text-muted mb-3">Aucune actualité trouvée</h3>
-                        <p class="text-muted mb-4">Commencez par ajouter votre première actualité</p>
-                        <a href="{% url 'blog_create' %}" class="btn btn-primary">
-                            <i class="bi bi-plus-circle me-2"></i>
-                            Ajouter une actualité
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
+        <!-- Filtre -->
+        <form method="get" class="w-full sm:w-auto">
+            <select name="category" onchange="this.form.submit()"
+                    class="w-full sm:w-48 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer">
+                <option value="">Toutes les catégories</option>
+                {% for category_key, category_label in categories %}
+                    <option value="{{ category_key }}" {% if current_category == category_key %}selected{% endif %}>
+                        {{ category_label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        // Fonctionnalité "Lire la suite"
-        document.addEventListener('DOMContentLoaded', function() {
-            const readMoreBtns = document.querySelectorAll('.read-more-btn');
-            
-            readMoreBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const targetId = this.getAttribute('data-target');
-                    const content = document.getElementById(targetId);
-                    
-                    if (content.classList.contains('expanded')) {
-                        content.classList.remove('expanded');
-                        this.textContent = 'Lire la suite';
-                    } else {
-                        content.classList.add('expanded');
-                        this.textContent = 'Voir moins';
-                    }
-                });
-            });
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- GRILLE DES ALBUMS                                -->
+    <!-- ════════════════════════════════════════════════ -->
+    {% if albums %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 mb-8" id="albumsGrid">
+        {% for album in albums %}
+        <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group">
+            <!-- Image -->
+            <div class="relative h-44 sm:h-48 overflow-hidden bg-slate-100">
+                {% if album.image %}
+                    <img src="{{ album.image.url }}" alt="{{ album.title }}" 
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                {% else %}
+                    <div class="flex flex-col items-center justify-center h-full text-slate-300">
+                        <svg class="w-12 h-12 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+                        </svg>
+                        <span class="text-xs">Pas d'image</span>
+                    </div>
+                {% endif %}
+
+                <!-- Badge catégorie -->
+                <span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider
+                    {% if album.category == 'photo' %}bg-cyan-500 text-white
+                    {% elif album.category == 'video' %}bg-rose-500 text-white
+                    {% elif album.category == 'autre' %}bg-amber-400 text-slate-900
+                    {% else %}bg-slate-600 text-white{% endif %}">
+                    {{ album.get_category_display }}
+                </span>
+
+                <!-- Badge type média -->
+                <span class="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md text-[10px] font-bold flex items-center gap-1
+                    {% if album.image and album.video %}bg-blue-600 text-white
+                    {% elif album.image %}bg-emerald-500 text-white
+                    {% elif album.video %}bg-rose-600 text-white
+                    {% else %}bg-slate-500 text-white{% endif %}">
+                    {% if album.image and album.video %}
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                        Mixte
+                    {% elif album.image %}
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                        Image
+                    {% elif album.video %}
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Vidéo
+                    {% endif %}
+                </span>
+            </div>
+
+            <!-- Corps -->
+            <div class="p-3.5 md:p-4">
+                <h3 class="text-base font-bold text-slate-800 mb-1 truncate" title="{{ album.title }}">{{ album.title }}</h3>
+
+                {% if album.description %}
+                <p class="text-slate-500 text-xs mb-3 line-clamp-2 leading-relaxed">
+                    {{ album.description|truncatechars:100 }}
+                </p>
+                {% endif %}
+
+                <!-- Métadonnées -->
+                <div class="flex items-center justify-between text-slate-400 text-[11px] mb-3">
+                    <span class="flex items-center gap-1">
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        {{ album.date_created|date:"d/m/Y" }}
+                    </span>
+                    <span class="font-mono text-[10px]">#{{ album.id }}</span>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-2">
+                    <a href="{% url 'gallery' %}" class="flex-1 inline-flex items-center justify-center gap-1 px-2.5 py-2 rounded-lg bg-blue-50 text-blue-600 text-xs font-semibold hover:bg-blue-100 transition">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        <span class="hidden xs:inline">Voir</span>
+                    </a>
+                    <a href="{% url 'gallery_modifie' album.id %}" onclick="openModalForm(event, this.href)"
+                       class="flex-1 inline-flex items-center justify-center gap-1 px-2.5 py-2 rounded-lg bg-amber-50 text-amber-600 text-xs font-semibold hover:bg-amber-100 transition">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                        <span class="hidden xs:inline">Modifier</span>
+                    </a>
+                    <form method="post" action="{% url 'gallery_supprime' album.pk %}" class="flex-1" onsubmit="return confirm('Supprimer cet album ? Cette action est irréversible.')">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full inline-flex items-center justify-center gap-1 px-2.5 py-2 rounded-lg bg-rose-50 text-rose-600 text-xs font-semibold hover:bg-rose-100 transition">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                            </svg>
+                            <span class="hidden xs:inline">Suppr.</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- PAGINATION                                       -->
+    <!-- ════════════════════════════════════════════════ -->
+    {% if albums.has_other_pages %}
+    <nav class="flex justify-center" aria-label="Pagination">
+        <div class="inline-flex items-center gap-1 bg-white rounded-xl border border-slate-200 p-1 shadow-sm">
+            {% if albums.has_previous %}
+                <a href="?page={{ albums.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}"
+                   class="px-3 py-1.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </a>
+            {% else %}
+                <span class="px-3 py-1.5 rounded-lg text-sm text-slate-300 cursor-not-allowed">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </span>
+            {% endif %}
+
+            {% for i in albums.paginator.page_range %}
+                {% if albums.number == i %}
+                    <span class="px-3 py-1.5 rounded-lg text-sm font-bold bg-blue-600 text-white min-w-[36px] text-center">{{ i }}</span>
+                {% else %}
+                    <a href="?page={{ i }}{% if current_category %}&category={{ current_category }}{% endif %}"
+                       class="px-3 py-1.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 transition min-w-[36px] text-center">{{ i }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if albums.has_next %}
+                <a href="?page={{ albums.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}"
+                   class="px-3 py-1.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                </a>
+            {% else %}
+                <span class="px-3 py-1.5 rounded-lg text-sm text-slate-300 cursor-not-allowed">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                </span>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- ÉTAT VIDE                                        -->
+    <!-- ════════════════════════════════════════════════ -->
+    <div class="text-center py-16 bg-white rounded-xl border border-slate-100 shadow-sm">
+        <svg class="w-16 h-16 mx-auto mb-4 text-slate-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+        </svg>
+        <h3 class="text-lg font-semibold text-slate-500 mb-1">
+            {% if current_category %}
+                Aucun album dans cette catégorie
+            {% else %}
+                Aucun album pour le moment
+            {% endif %}
+        </h3>
+        <p class="text-slate-400 text-sm mb-5">Créez votre premier album pour commencer.</p>
+        <a href="{% url 'gallery_ajouter' %}" onclick="openModalForm(event, this.href)"
+           class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm bg-blue-600 font-medium text-white shadow-sm hover:bg-blue-700 transition">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M12 5v14M5 12h14"/>
+            </svg>
+            Ajouter un album
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+    // Auto-hide messages après 5s
+    setTimeout(() => {
+        document.querySelectorAll('[class*="bg-emerald-50"], [class*="bg-rose-50"], [class*="bg-amber-50"], [class*="bg-blue-50"]').forEach(el => {
+            if (el.parentElement && el.parentElement.classList.contains('mb-5')) {
+                el.style.transition = 'opacity 0.4s ease';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 400);
+            }
         });
-    </script>
-    {% endblock %}
-</body>
-</html>
+    }, 5000);
+</script>
+
+{% endblock %}

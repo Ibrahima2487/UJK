@@ -68,6 +68,8 @@ from .vue.comptable import depense_ajouter
 from .vue.comptable import caisse_ajoute
 from .vue.comptable import caisse_list
 from .vue.comptable import caisse_modifie
+from .vue.comptable import journal_liste
+from .vue.comptable import journal_ajoute
 
 
 
