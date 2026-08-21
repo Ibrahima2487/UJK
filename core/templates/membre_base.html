@@ -26,7 +26,69 @@
     <style>
         * { font-family: 'Poppins', sans-serif; }
         body { margin: 0; padding: 0; background-color: #fff; }
+        .nav-ocean {
+    position: fixed;
+    }
+
+    .nav-ocean-bg {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to right, #3282ac 0%, #23a8b7 100%);
+        z-index: 1;
+    }
+
+    .wave-wrapper {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .wave {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 200%;
+        height: 100%;
+    }
+
+    .wave path {
+        fill: rgba(255, 255, 255, 0.15);
+    }
+
+    .wave1 {
+        animation: waveMove 12s linear infinite;
+        opacity: 0.6;
+    }
+
+    .wave2 {
+        animation: waveMove 8s linear infinite reverse;
+        opacity: 0.4;
+    }
+
+    .wave2 path {
+        fill: rgba(255, 255, 255, 0.1);
+    }
+
+    .wave3 {
+        animation: waveMove 16s linear infinite;
+        opacity: 0.3;
+    }
+
+    .wave3 path {
+        fill: rgba(255, 255, 255, 0.08);
+    }
+
+    @keyframes waveMove {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-50%);
+        }
+    }
     </style>
+    
 </head>
 <body class="min-h-screen">
 
@@ -38,9 +100,28 @@
     </div>
 
     <!-- ==================== NAVBAR ==================== -->
-    <nav class="fixed top-0 left-0 w-full shadow-xl z-50 py-2 transition-all duration-300"
-         style="background: linear-gradient(to right, #0d6efd 0%, #16213e 100%)">
-        <div class="container mx-auto px-3">
+    <!-- ==================== NAVBAR ==================== -->
+<nav class="fixed top-0 left-0 w-full shadow-xl z-50 py-2 transition-all duration-300 nav-ocean"
+     style="border-bottom: 5px solid #153865d3; overflow: hidden;">
+
+    <!-- Fond dégradé de base (garde tes couleurs) -->
+    <div class="nav-ocean-bg"></div>
+
+    <!-- Vagues animées -->
+    <div class="wave-wrapper">
+        <svg class="wave wave1" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,60 C150,100 350,0 600,50 C850,100 1050,20 1200,60 L1200,120 L0,120 Z"></path>
+        </svg>
+        <svg class="wave wave2" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,70 C200,20 400,110 600,60 C800,10 1000,90 1200,50 L1200,120 L0,120 Z"></path>
+        </svg>
+        <svg class="wave wave3" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,50 C250,110 450,10 700,60 C900,100 1100,30 1200,70 L1200,120 L0,120 Z"></path>
+        </svg>
+    </div>
+
+   
+        <div class="container mx-auto px-3"  style="position: relative; z-index: 10;">
             <div class="flex justify-between items-center">
 
                 <a href="#" class="flex items-center gap-2 transition-transform duration-300 hover:scale-105">
@@ -51,38 +132,38 @@
                 <!-- Menu desktop -->
                 <div class="hidden lg:flex items-center gap-1">
                     {% if user.is_superuser %}
-                    <a href="{% url 'trone' %}" class="px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
+                    <a href="{% url 'trone' %}" class="px-4 py-2 text-white border border-1  font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
                         <i class="fas fa-user-shield"></i>PRÉSIDENT
                     </a>
                     {% else %}
-                    <a href="#" class="px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
-                        <i class="fas fa-user"></i>Royal
+                    <a href="#" class="px-4 py-2 text-white font-medium border border-1  rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
+                        <i class="fas fa-user"></i>Membre
                     </a>
                     {% endif %}
 
-                    <a href="{% url 'comptable' %}" class="relative px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
+                    <a href="{% url 'comptable' %}" class="relative border border-1  px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
                         <i class="fas fa-coins"></i>Comptabilité
                         <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-pulse">!</span>
                     </a>
 
-                    <a href="{% url 'main' %}" class="px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
+                    <a href="{% url 'main' %}" class="px-4 py-2 text-white border border-1   font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
                         <i class="fas fa-newspaper"></i>Publications
                     </a>
 
-                    <a href="#" class="px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
+                    <a href="#" class="px-4 py-2 text-white border border-1 font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
                         <i class="fas fa-diagram-project "></i>Projet
                     </a>
-                    <a href="#" class="px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
+                    <a href="#" class="px-4 py-2 text-white font-medium  border border-1  rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
                         <i class="fas fa-people-group "></i>Reunion
                     </a>
 
-                    <a href="{% url 'bureau' %}" class="px-4 py-2 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
+                    <a href="{% url 'bureau' %}" class="px-4 py-2 border border-1 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-white/20 hover:-translate-y-0.5">
                         <i class="fas fa-briefcase "></i>Bureau
                     </a>
 
                    
 
-                    <a href="/deconnexion/" class="ml-2 px-4 py-2 bg-red-500 text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-red-600 hover:shadow-lg hover:-translate-y-0.5">
+                    <a href="/deconnexion/" class="ml-2 px-4 py-2 bg-red-500   text-white font-medium rounded-lg flex items-center gap-2 transition-all duration-300 hover:bg-red-600 hover:shadow-lg hover:-translate-y-0.5">
                         <i class="fas fa-sign-out-alt"></i>Déconnexion
                     </a>
                 </div>
@@ -90,30 +171,30 @@
                 <!-- Menu mobile : icônes agrandies -->
                 <div class="flex lg:hidden items-center gap-2">
                     {% if user.is_superuser %}
-                    <a href="{% url 'trone' %}" class="w-12 h-12 flex items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Président">
+                    <a href="{% url 'trone' %}" class="w-12 h-12 flex border border-1  bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 items-center justify-center text-white  rounded-xl transition-all duration-300 hover:bg-white/20" title="Président">
                         <i class="fas fa-user-shield text-2xl"></i>
                     </a>
                     {% else %}
-                    <a href="#" class="w-12 h-12 flex items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Royal">
+                    <a href="#" class="w-12 h-12 flex border border-1 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Royal">
                         <i class="fas fa-user text-2xl"></i>
                     </a>
                     {% endif %}
 
-                    <a href="{% url 'comptable' %}" class="relative w-12 h-12 flex items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Paiements">
+                    <a href="{% url 'comptable' %}" class="relative w-12 h-12 flex bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 border border-1 items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Paiements">
                         <i class="fas fa-coins text-2xl"></i>
                         <span class="absolute top-1 right-1 bg-red-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center animate-pulse">!</span>
                     </a>
 
-                    <a href="{% url 'main' %}" class="w-12 h-12 flex items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Publications">
+                    <a href="{% url 'main' %}" class="w-12 h-12 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 flex border border-1 items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Publications">
                         <i class="fas fa-newspaper text-2xl"></i>
                     </a>
-                    <a href="{% url 'bureau' %}" class="w-12 h-12 flex items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Publications">
+                    <a href="{% url 'bureau' %}" class="w-12 h-12  bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 flex border border-1 items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Bureau">
                         <i class="fas fa-briefcase text-2xl"></i>
                     </a>
-                    <a href="#" class="w-12 h-12 flex items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Publications">
+                    <a href="#" class="w-12 h-12 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 flex border border-1 items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Projet">
                         <i class="fas fa-diagram-project text-2xl"></i>
                     </a>
-                    <a href="#" class="w-12 h-12 flex items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Publications">
+                    <a href="#" class="w-12 h-12 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 flex border border-1 items-center justify-center text-white rounded-xl transition-all duration-300 hover:bg-white/20" title="Réunion">
                         <i class="fas fa-people-group text-2xl"></i>
                     </a>
 
@@ -130,10 +211,6 @@
     </nav>
 
     <div class="pt-20 md:pt-24"></div>
-
-
-    <!-- ============ APPLICATION WEN HORS LIGNE ==== -->
-
 
 
 
@@ -158,8 +235,8 @@
     <div onclick="closeModalForm()" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
     <div class="absolute inset-0 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-hidden flex flex-col animate-[mi_0.2s_ease-out]">
-            <div class="flex justify-between items-center px-5 py-3 bg-indigo-600">
-                <span class="text-white font-bold text-sm">Formulaire</span>
+            <div class="flex justify-between items-center texte-center px-5 py-3 bg-amber-500 ">
+                <span class="text-white texte-center font-extrabold text-sm">Formulaire UJK</span>
                 <button onclick="closeModalForm()" class="text-white/70 hover:text-white">✕</button>
             </div>
             <div id="mfc" class="overflow-y-auto p-5"></div>
@@ -178,10 +255,6 @@
 
         {% endblock %}
     </main>
-
-
-
-
 
 
 

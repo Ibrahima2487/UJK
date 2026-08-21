@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
-from core.models import actualite, albums, Utilisateur, Bureau, Publication, Commentaire, like, Contact, Payment, Temoin
+from core.models import actualite, albums, Utilisateur, Bureau, Publication, Commentaire, like, Contact, Payment, Temoin, Projet, Reunion
 from core.models import MessageBureau, Affectation, Caisse, Payment, Depense, JournalCaisse, FicheControle, HistoriquePaiement
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
@@ -262,4 +262,16 @@ class JournalCaisseForm(forms.ModelForm):
 class FicheControleForm(forms.ModelForm):
     class Meta:
         model = FicheControle
+        fields = "__all__"
+
+# =========== PROJET ======
+class ProjetForm(forms.ModelForm):
+    class Meta:
+        model = Projet
+        fields = "__all__"
+
+# =========== REUNION ==========
+class ReunionForm(forms.ModelForm):
+    class Meta:
+        model = Reunion
         fields = "__all__"

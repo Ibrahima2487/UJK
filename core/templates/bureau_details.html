@@ -1,3 +1,4 @@
+<!-- templates/bureau/bureau_detail.html -->
 {% extends 'membre_base.html' %}
 {% load static %}
 
@@ -9,18 +10,40 @@
 
   .ujk-bureau {
     --cream: #FAF7F0; --ink: #24211D; --mist: #E5DFD0; --mist-line: #D8D0BC;
-    /* Couleur de domaine par défaut, écrasée plus bas selon bureau.type_bureau */
     --domain: #1F4D3A; --domain-soft: #1F4D3A1A;
     background: var(--cream); color: var(--ink);
     font-family: 'Work Sans', system-ui, sans-serif;
   }
   .ujk-bureau .display { font-family: 'Fraunces', Georgia, serif; }
   .ujk-bureau :focus-visible { outline: 2px solid var(--domain); outline-offset: 2px; }
+  
+  /* Scrollbar personnalisée */
+  .ujk-bureau ::-webkit-scrollbar { width: 4px; height: 4px; }
+  .ujk-bureau ::-webkit-scrollbar-track { background: transparent; }
+  .ujk-bureau ::-webkit-scrollbar-thumb { background: var(--mist-line); border-radius: 9999px; }
+  .ujk-bureau ::-webkit-scrollbar-thumb:hover { background: var(--domain); }
+
   .card { background: #fff; border: 1px solid var(--mist-line); border-radius: 1rem; }
   .dot { width: .5rem; height: .5rem; border-radius: 9999px; }
+  
+  /* Animation de frappe */
+  @keyframes typing-dot {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-4px); }
+  }
+  .typing-dot { animation: typing-dot 1.4s infinite both; }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  /* Message entrant avec animation */
+  @keyframes message-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .message-anim { animation: message-in 0.3s ease-out; }
 </style>
 
-<div class="ujk-bureau min-h-screen"
+<div class="ujk-bureau h-screen overflow-hidden"
      style="
       {% if bureau.type_bureau == 'EXECUTIF' %} --domain:#1F4D3A; --domain-soft:#1F4D3A17;
       {% elif bureau.type_bureau == 'LOGISTIQUE' %} --domain:#8A5A2B; --domain-soft:#8A5A2B17;
@@ -30,253 +53,377 @@
       {% elif bureau.type_bureau == 'CULTUREL' %} --domain:#C1852D; --domain-soft:#C1852D17;
       {% elif bureau.type_bureau == 'ENVIRONNEMENT' %} --domain:#3C8F5C; --domain-soft:#3C8F5C17;
       {% endif %}">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 
-    {% if lecture_seule %}
-    <div class="mb-6 rounded-xl px-4 py-3 text-sm flex items-center gap-2"
-         style="background: var(--domain-soft); color: var(--domain);">
-      <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 118 0v3"/>
-      </svg>
-      Vous consultez ce Bureau en lecture seule (accès de visite via un Bureau central).
-    </div>
-    {% endif %}
-
-    <!-- En-tête -->
-    <div class="card p-5 sm:p-7 mb-6 sm:mb-8">
-      <div class="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
-        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center flex-shrink-0"
-             style="background: var(--domain-soft); color: var(--domain);">
-          {% if bureau.type_bureau == 'EXECUTIF' %}
-            <svg class="w-8 h-8 sm:w-9 sm:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/></svg>
-          {% elif bureau.type_bureau == 'LOGISTIQUE' %}
-            <svg class="w-8 h-8 sm:w-9 sm:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M21 12h-3M6 12H3M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1M18.4 18.4l-2.1-2.1M7.7 7.7L5.6 5.6"/></svg>
-          {% elif bureau.type_bureau == 'SUIVI_EVALUATION' %}
-            <svg class="w-8 h-8 sm:w-9 sm:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3"/></svg>
-          {% elif bureau.type_bureau == 'EDUCATIF' %}
-            <svg class="w-8 h-8 sm:w-9 sm:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 5.5C3 5.5 6 4 12 6c6-2 9-.5 9-.5v13S18 17 12 19c-6-2-9-.5-9-.5v-13z"/><path d="M12 6v13"/></svg>
-          {% elif bureau.type_bureau == 'SANTE' %}
-            <svg class="w-8 h-8 sm:w-9 sm:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>
-          {% elif bureau.type_bureau == 'CULTUREL' %}
-            <svg class="w-8 h-8 sm:w-9 sm:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.2M12 19.8V22M22 12h-2.2M4.2 12H2M19 5l-1.5 1.5M6.5 17.5L5 19M19 19l-1.5-1.5M6.5 6.5L5 5"/></svg>
-          {% elif bureau.type_bureau == 'ENVIRONNEMENT' %}
-            <svg class="w-8 h-8 sm:w-9 sm:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 4C10 4 4 10 4 18v2h2c8 0 14-6 14-16z"/><path d="M6 20C10 14 14 10 20 4"/></svg>
+  <!-- ===== EN-TÊTE FIXE ===== -->
+  <header class="flex-shrink-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-3 flex items-center justify-between shadow-sm z-10"
+          style="border-color: var(--mist-line);">
+    <div class="flex items-center gap-3 min-w-0">
+      <a href="{% url 'bureau' %}" class="p-2 -ml-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+      </a>
+      
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-sm flex-shrink-0"
+           style="background: var(--domain);">
+        {{ bureau.nom|slice:":2"|upper }}
+      </div>
+      
+      <div class="min-w-0">
+        <div class="flex items-center gap-2">
+          <h1 class="text-lg font-semibold text-gray-800 truncate display">{{ bureau.nom }}</h1>
+          {% if bureau.est_central %}
+            <span class="text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0" style="background: var(--domain-soft); color: var(--domain);">
+              Central
+            </span>
+          {% else %}
+            <span class="text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0" style="background: var(--domain-soft); color: var(--domain);">
+              Opérationnel
+            </span>
           {% endif %}
         </div>
+        <div class="flex items-center gap-2 text-xs text-gray-400">
+          <span>{{ bureau.get_type_bureau_display }}</span>
+          <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+          <span class="flex items-center gap-1">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            {{ effectif_total }} membres
+          </span>
+        </div>
+      </div>
+    </div>
 
-        <div class="min-w-0 flex-1">
-          <div class="flex flex-wrap items-center gap-2 mb-1">
-            <h1 class="display text-xl sm:text-2xl font-semibold truncate" style="color: var(--domain);">{{ bureau.nom }}</h1>
-            {% if bureau.est_central %}
-              <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background: var(--domain-soft); color: var(--domain);">Central</span>
-            {% else %}
-              <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background: var(--domain-soft); color: var(--domain);">Opérationnel</span>
-            {% endif %}
+    <div class="flex items-center gap-2">
+      <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-full border border-emerald-200/50">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        {{ membres_en_ligne|default:0 }} en ligne
+      </span>
+      {% if peut_modifier %}
+        <a href="{% url 'bureau_modifie' bureau.pk %}"
+           class="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition"
+           title="Modifier le bureau">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.4-9.4a2 2 0 112.8 2.8L11.8 15H9v-2.8l8.6-8.6z"/>
+          </svg>
+        </a>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- ===== CORPS PRINCIPAL (2 COLONNES FIXES) ===== -->
+  <div class="flex-1 flex overflow-hidden">
+
+    <!-- ===== COLONNE GAUCHE : CHAT ===== -->
+    <div class="flex-1 flex flex-col min-w-0 bg-white">
+
+      <!-- Bandeau lecture seule -->
+      {% if lecture_seule %}
+      <div class="flex-shrink-0 px-4 py-2 text-xs flex items-center gap-2 border-b"
+           style="background: var(--domain-soft); color: var(--domain); border-color: var(--mist-line);">
+        <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 118 0v3"/>
+        </svg>
+        Consultation en lecture seule (accès via un Bureau central)
+      </div>
+      {% endif %}
+
+      <!-- Zone des messages (scrollable) -->
+      <div id="chat-messages" class="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3"
+           style="background: var(--cream);">
+
+        {% for message in messages_bureau %}
+          <!-- Message envoyé (à droite) -->
+          {% if message.auteur == request.user %}
+          <div class="flex justify-end message-anim">
+            <div class="max-w-[85%] sm:max-w-[70%] text-white rounded-2xl rounded-tr-sm px-4 py-2.5 shadow-sm"
+                 style="background: var(--domain);">
+              <p class="text-sm leading-relaxed">{{ message.contenu }}</p>
+              <div class="flex items-center justify-end gap-1.5 mt-1">
+                {% if message.est_lu %}
+                  <svg class="w-3 h-3 text-white/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 13l4 4L19 7"/>
+                  </svg>
+                {% endif %}
+                <span class="text-[10px] text-white/60">{{ message.date_envoi|date:"H:i" }}</span>
+              </div>
+            </div>
           </div>
-          <p class="text-sm" style="color: color-mix(in srgb, var(--ink) 55%, transparent);">{{ bureau.get_type_bureau_display }} · {{ effectif_total }} membre{{ effectif_total|pluralize }}</p>
+          <!-- Message reçu (à gauche) -->
+          {% else %}
+          <div class="flex justify-start message-anim">
+            <div class="flex items-start gap-2.5 max-w-[85%] sm:max-w-[70%]">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
+                   style="background: var(--domain);">
+                {{ message.auteur.first_name|slice:":1"|upper }}{{ message.auteur.last_name|slice:":1"|upper }}
+              </div>
+              <div>
+                <div class="bg-white rounded-2xl rounded-tl-sm px-4 py-2.5 shadow-sm border"
+                     style="border-color: var(--mist-line);">
+                  <p class="text-sm leading-relaxed text-gray-800">{{ message.contenu }}</p>
+                </div>
+                <span class="text-[10px] text-gray-400 mt-1 block ml-1">{{ message.date_envoi|date:"H:i" }}</span>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        {% empty %}
+          <!-- Aucun message -->
+          <div class="flex flex-col items-center justify-center h-full text-center py-10">
+            <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4"
+                 style="background: var(--domain-soft);">
+              <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                   style="color: var(--domain);">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor"/>
+              </svg>
+            </div>
+            <h3 class="text-sm font-medium text-gray-500 display">Aucun message</h3>
+            <p class="text-xs text-gray-400 mt-1 max-w-xs">Commencez la discussion avec les membres du bureau.</p>
+          </div>
+        {% endfor %}
+
+        <!-- Indicateur de frappe (si activé) -->
+        <div id="typing-indicator" class="flex items-center gap-2 px-1 py-1 hidden">
+          <div class="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">
+            ...
+          </div>
+          <div class="flex gap-1 bg-gray-100 rounded-full px-3 py-2">
+            <span class="typing-dot w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+            <span class="typing-dot w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+            <span class="typing-dot w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+          </div>
         </div>
 
-        {% if peut_modifier %}
-        <a href="{% url 'bureau_modifie' bureau.pk %}"
-           class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium text-white flex-shrink-0"
-           style="background: var(--domain);">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.4-9.4a2 2 0 112.8 2.8L11.8 15H9v-2.8l8.6-8.6z"/></svg>
-          Modifier
-        </a>
+        <div id="chat-bottom"></div>
+      </div>
+
+      <!-- Zone de saisie (fixe) -->
+      <div class="flex-shrink-0 border-t px-4 sm:px-6 py-3 bg-white" style="border-color: var(--mist-line);">
+        {% if peut_publier %}
+        <form method="post" action="{% url 'bureau_details' bureau.pk %}" enctype="multipart/form-data"
+              class="flex items-end gap-2" id="message-form">
+          {% csrf_token %}
+          <div class="flex-1 relative">
+            <textarea id="id_contenu" name="contenu" rows="1" required
+                      placeholder="Écrire un message…"
+                      class="w-full rounded-2xl border px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 transition bg-gray-50"
+                      style="border-color: var(--mist-line); min-height: 44px; max-height: 120px;"
+                      oninput="autoResize(this)"></textarea>
+            <button type="button"
+                    class="absolute right-2 bottom-2 p-1.5 rounded-full hover:bg-gray-200 text-gray-400 transition"
+                    title="Pièce jointe">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
+              </svg>
+            </button>
+          </div>
+          <button type="submit"
+                  class="p-2.5 rounded-2xl text-white shadow-md hover:shadow-lg transition-all duration-200 flex-shrink-0"
+                  style="background: var(--domain);"
+                  aria-label="Envoyer">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </form>
+        {% else %}
+        <p class="text-sm text-center py-1" style="color: color-mix(in srgb, var(--ink) 55%, transparent);">
+          🔒 Seuls les membres affectés peuvent écrire dans ce bureau.
+        </p>
         {% endif %}
       </div>
     </div>
 
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
-      <!-- Colonne principale -->
-      <div class="xl:col-span-2 space-y-6">
+    <!-- ===== COLONNE DROITE : INFOS BUREAU (FIXE) ===== -->
+    <div class="hidden lg:block w-80 xl:w-96 bg-gray-50/80 border-l flex-shrink-0 overflow-y-auto"
+         style="border-color: var(--mist-line);">
+      <div class="p-5 space-y-5">
 
         <!-- Description -->
         {% if bureau.description %}
-        <div class="card p-5 sm:p-6">
-          <h2 class="display text-base font-medium mb-2" style="color: var(--domain);">Mission</h2>
-          <p class="text-sm leading-relaxed" style="color: color-mix(in srgb, var(--ink) 80%, transparent);">{{ bureau.description }}</p>
+        <div class="bg-white rounded-2xl border p-5 shadow-sm" style="border-color: var(--mist-line);">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            Mission
+          </h3>
+          <p class="text-sm text-gray-600 mt-2 leading-relaxed">{{ bureau.description }}</p>
         </div>
         {% endif %}
 
-        <!-- Profils des membres -->
-        <div class="card overflow-hidden">
-          <div class="px-5 sm:px-6 py-4 border-b" style="border-color: var(--mist-line);">
-            <h2 class="display text-base font-medium" style="color: var(--domain);">Membres du Bureau</h2>
+        <!-- Carte d'identité -->
+        <div class="bg-white rounded-2xl border p-5 shadow-sm" style="border-color: var(--mist-line);">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Identité
+          </h3>
+          <div class="space-y-2.5 mt-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-400">Type</span>
+              <span class="font-medium text-gray-700">{{ bureau.get_type_bureau_display }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-400">Catégorie</span>
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-medium rounded-full"
+                    style="background: var(--domain-soft); color: var(--domain);">
+                {% if bureau.est_central %}🏛️ Central{% else %}⚡ Opérationnel{% endif %}
+              </span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-400">Effectif</span>
+              <span class="font-medium text-gray-700">{{ effectif_total }} membre{{ effectif_total|pluralize }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-400">Créé le</span>
+              <span class="font-medium text-gray-700">{{ bureau.date_creation|date:"d/m/Y" }}</span>
+            </div>
           </div>
-          {% if membres %}
-          <div class="divide-y" style="border-color: var(--mist-line);">
-            {% for affectation in membres %}
-            <a href="#"
-               class="flex items-center gap-3 sm:gap-4 px-5 sm:px-6 py-3.5 hover:bg-[--mist]/40">
-              <div class="relative flex-shrink-0">
-                {% if affectation.membre.image %}
-                  <img src="{{ affectation.membre.image.url }}" alt=""
-                       class="w-11 h-11 rounded-full object-cover">
-                {% else %}
-                  <div class="w-11 h-11 rounded-full flex items-center justify-center text-sm font-medium"
-                       style="background: var(--domain-soft); color: var(--domain);">
-                    {{ affectation.membre.user.first_name|first|default:affectation.membre.user.username|first|upper }}
-                  </div>
-                {% endif %}
-                <span class="dot absolute bottom-0 right-0 border-2 border-white"
-                      style="background: {% if affectation.membre.en_ligne %}#3C8F5C{% else %}#C9C2AE{% endif %};"
-                      title="{% if affectation.membre.en_ligne %}En ligne{% else %}Hors ligne{% endif %}"></span>
+        </div>
+
+        <!-- Responsables -->
+        {% if responsables %}
+        <div class="bg-white rounded-2xl border p-5 shadow-sm" style="border-color: var(--mist-line);">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            Responsables
+          </h3>
+          <div class="space-y-2.5 mt-2">
+            {% for affectation in responsables %}
+            <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                   style="background: var(--domain);">
+                {{ affectation.membre.user.first_name|slice:":1"|upper }}{{ affectation.membre.user.last_name|slice:":1"|upper }}
               </div>
-              <div class="min-w-0 flex-1">
-                <p class="text-sm font-medium truncate" style="color: var(--ink);">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-700 truncate">
                   {{ affectation.membre.user.get_full_name|default:affectation.membre.user.username }}
                 </p>
-                <p class="text-xs truncate" style="color: color-mix(in srgb, var(--ink) 55%, transparent);">
-                  {{ affectation.poste }}
+                <p class="text-xs text-gray-400 truncate">{{ affectation.poste }}</p>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Membres -->
+        <div class="bg-white rounded-2xl border p-5 shadow-sm" style="border-color: var(--mist-line);">
+          <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            Membres
+          </h3>
+          <div class="space-y-1.5 mt-2 max-h-48 overflow-y-auto">
+            {% for affectation in membres %}
+            <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 transition">
+              <div class="relative flex-shrink-0">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                     style="background: var(--domain);">
+                  {{ affectation.membre.user.first_name|slice:":1"|upper }}{{ affectation.membre.user.last_name|slice:":1"|upper }}
+                </div>
+                <span class="dot absolute bottom-0 right-0 border-2 border-white"
+                      style="background: {% if affectation.membre.en_ligne %}#3C8F5C{% else %}#C9C2AE{% endif %};"></span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-700 truncate">
+                  {{ affectation.membre.user.get_full_name|default:affectation.membre.user.username }}
                 </p>
+                <p class="text-xs text-gray-400 truncate">{{ affectation.poste }}</p>
               </div>
               {% if affectation.est_responsable %}
-                <span class="text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0" style="background: var(--domain-soft); color: var(--domain);">
-                  Responsable
+                <span class="text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0"
+                      style="background: var(--domain-soft); color: var(--domain);">
+                  Lead
                 </span>
               {% endif %}
-            </a>
+            </div>
             {% endfor %}
           </div>
-          {% else %}
-          <p class="px-5 sm:px-6 py-6 text-sm" style="color: color-mix(in srgb, var(--ink) 55%, transparent);">Aucun membre affecté pour le moment.</p>
-          {% endif %}
           {% if peut_affecter %}
-          <div class="px-5 sm:px-6 py-3 border-t" style="border-color: var(--mist-line);">
-            <a href="{% url 'bureau_affecter' bureau.pk %}" class="text-sm font-medium" style="color: var(--domain);">+ Affecter un membre</a>
+          <div class="mt-3 pt-3 border-t" style="border-color: var(--mist-line);">
+            <a href="{% url 'bureau_affecter' bureau.pk %}"
+               class="text-sm font-medium flex items-center gap-1.5"
+               style="color: var(--domain);">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="8.5" cy="7" r="4"/>
+                <path d="M20 8v6M23 11h-6"/>
+              </svg>
+              Affecter un membre
+            </a>
           </div>
           {% endif %}
         </div>
 
-        <!-- Chat interne -->
-        <div class="card overflow-hidden">
-          <div class="px-5 sm:px-6 py-4 border-b flex items-center justify-between" style="border-color: var(--mist-line);">
-            <h2 class="display text-base font-medium" style="color: var(--domain);">Espace de discussion</h2>
-            {% if lecture_seule %}
-              <span class="text-xs" style="color: color-mix(in srgb, var(--ink) 50%, transparent);">Lecture seule</span>
-            {% endif %}
-          </div>
-
-          <div class="max-h-96 overflow-y-auto px-5 sm:px-6 py-4 space-y-4">
-            {% for message in messages_bureau %}
-            <div class="flex gap-3">
-              <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0"
-                   style="background: var(--domain-soft); color: var(--domain);">
-                {{ message.auteur.first_name|first|default:message.auteur.username|first|upper }}
-              </div>
-              <div class="min-w-0">
-                <div class="flex items-baseline gap-2">
-                  <span class="text-sm font-medium">{{ message.auteur.get_full_name|default:message.auteur.username }}</span>
-                  <span class="text-xs" style="color: color-mix(in srgb, var(--ink) 45%, transparent);">{{ message.date_envoi|date:"d/m H:i" }}</span>
-                </div>
-                <p class="text-sm mt-0.5 break-words" style="color: color-mix(in srgb, var(--ink) 85%, transparent);">{{ message.contenu }}</p>
-                {% if message.fichier %}
-                  <a href="{{ message.fichier.url }}" class="text-xs font-medium mt-1 inline-block" style="color: var(--domain);">Pièce jointe</a>
-                {% endif %}
-              </div>
-            </div>
-            {% empty %}
-            <p class="text-sm text-center py-4" style="color: color-mix(in srgb, var(--ink) 50%, transparent);">Aucun message pour l'instant.</p>
-            {% endfor %}
-          </div>
-
-          {% if peut_publier %}
-          <form method="post" action="{% url 'bureau_details' bureau.pk %}" enctype="multipart/form-data"
-                class="px-5 sm:px-6 py-4 border-t flex items-end gap-2" style="border-color: var(--mist-line);">
-            {% csrf_token %}
-            <label for="id_contenu" class="sr-only">Message</label>
-            <textarea id="id_contenu" name="contenu" rows="1" required
-                      placeholder="Écrire un message au Bureau…"
-                      class="flex-1 rounded-xl border px-4 py-2.5 text-sm resize-none"
-                      style="border-color: var(--mist-line);"></textarea>
-            <button type="submit"
-                    class="flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center text-white"
-                    style="background: var(--domain);" aria-label="Envoyer">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-            </button>
-          </form>
-          {% else %}
-          <div class="px-5 sm:px-6 py-4 border-t text-sm" style="border-color: var(--mist-line); color: color-mix(in srgb, var(--ink) 55%, transparent);">
-            Seuls les membres affectés à ce Bureau peuvent écrire ici.
-          </div>
-          {% endif %}
-        </div>
-      </div>
-
-      <!-- Colonne latérale -->
-      <div class="space-y-6">
-
-        <div class="card p-5 sm:p-6">
-          <h2 class="display text-base font-medium mb-3" style="color: var(--domain);">En bref</h2>
-          <dl class="space-y-2.5 text-sm">
-            <div class="flex justify-between">
-              <dt style="color: color-mix(in srgb, var(--ink) 55%, transparent);">Type</dt>
-              <dd class="font-medium text-right">{{ bureau.get_type_bureau_display }}</dd>
-            </div>
-            <div class="flex justify-between">
-              <dt style="color: color-mix(in srgb, var(--ink) 55%, transparent);">Catégorie</dt>
-              <dd class="font-medium">{% if bureau.est_central %}Central{% else %}Opérationnel{% endif %}</dd>
-            </div>
-            <div class="flex justify-between">
-              <dt style="color: color-mix(in srgb, var(--ink) 55%, transparent);">Effectif</dt>
-              <dd class="font-medium">{{ effectif_total }}</dd>
-            </div>
-            <div class="flex justify-between">
-              <dt style="color: color-mix(in srgb, var(--ink) 55%, transparent);">Créé le</dt>
-              <dd class="font-medium">{{ bureau.date_creation }}</dd>
-            </div>
-          </dl>
-        </div>
-
-        {% if responsables %}
-        <div class="card p-5 sm:p-6">
-          <h2 class="display text-base font-medium mb-3" style="color: var(--domain);">Responsables</h2>
-          <ul class="space-y-3">
-            {% for affectation in responsables %}
-            <li class="flex items-center gap-3">
-              {% if affectation.membre.image %}
-                <img src="{{ affectation.membre.image.url }}" alt="" class="w-9 h-9 rounded-full object-cover">
-              {% else %}
-                <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-medium" style="background: var(--domain-soft); color: var(--domain);">
-                  {{ affectation.membre.user.first_name|first|default:affectation.membre.user.username|first|upper }}
-                </div>
-              {% endif %}
-              <div class="min-w-0">
-                <p class="text-sm font-medium truncate">{{ affectation.membre.user.get_full_name|default:affectation.membre.user.username }}</p>
-                <p class="text-xs truncate" style="color: color-mix(in srgb, var(--ink) 55%, transparent);">
-                  {{ affectation.poste }}{% if affectation.membre.numero %} · {{ affectation.membre.numero }}{% endif %}
-                </p>
-              </div>
-            </li>
-            {% endfor %}
-          </ul>
-        </div>
-        {% endif %}
-
+        <!-- Accès central -->
         {% if bureau.est_central %}
-        <div class="card p-5 sm:p-6" style="background: var(--domain-soft);">
-          <p class="text-xs leading-relaxed" style="color: var(--domain);">
-            En tant que Bureau central, ses membres peuvent aussi consulter (lecture seule)
-            les Bureaux Santé, Environnement, Educatif et Culturel, ainsi que les deux
-            autres Bureaux centraux.
-          </p>
+        <div class="bg-white rounded-2xl border p-5 shadow-sm" style="background: var(--domain-soft); border-color: var(--domain);">
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 style="color: var(--domain);">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            <p class="text-xs leading-relaxed" style="color: var(--domain);">
+              <strong>Bureau Central</strong> — les membres de ce bureau ont un accès en lecture seule aux bureaux opérationnels.
+            </p>
+          </div>
         </div>
         {% endif %}
+
       </div>
     </div>
+
   </div>
 </div>
 
-<!-- Bouton flottant mobile -->
-{% if peut_modifier %}
-<div class="fixed bottom-5 right-5 sm:hidden">
-  <a href="{% url 'bureau_modifie' bureau.pk %}"
-     class="w-13 h-13 flex items-center justify-center rounded-full text-white shadow-lg"
-     style="width:3.25rem;height:3.25rem;background: var(--domain, #1F4D3A);" aria-label="Modifier le Bureau">
-    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.4-9.4a2 2 0 112.8 2.8L11.8 15H9v-2.8l8.6-8.6z"/></svg>
-  </a>
-</div>
-{% endif %}
+<!-- ===== SCRIPT ===== -->
+<script>
+  // Auto-resize du textarea
+  function autoResize(el) {
+    el.style.height = '44px';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  // Scroll automatique vers le bas
+  document.addEventListener('DOMContentLoaded', function() {
+    const chatContainer = document.getElementById('chat-messages');
+    const bottom = document.getElementById('chat-bottom');
+    if (chatContainer && bottom) {
+      bottom.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
+    // Re-scroll après envoi
+    const form = document.getElementById('message-form');
+    if (form) {
+      form.addEventListener('submit', function() {
+        setTimeout(() => {
+          const bottom = document.getElementById('chat-bottom');
+          if (bottom) bottom.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 150);
+      });
+    }
+
+    // Focus sur le champ de message (raccourci clavier)
+    const input = document.getElementById('id_contenu');
+    if (input) {
+      document.addEventListener('keydown', function(e) {
+        if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          const tag = document.activeElement.tagName;
+          if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
+            e.preventDefault();
+            input.focus();
+          }
+        }
+      });
+    }
+  });
+</script>
 {% endblock %}

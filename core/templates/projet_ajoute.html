@@ -1,0 +1,55 @@
+<form method="post" action="{{ action|default:request.path }}" class="modal-form-style">
+    {% csrf_token %}
+    
+    {{ form.as_p }}
+    
+    {% if form.non_field_errors %}
+    <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+        <svg class="w-4 h-4 text-red-500 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p class="text-sm text-red-600">{{ form.non_field_errors }}</p>
+    </div>
+    {% endif %}
+    
+    <div class="mt-6 flex justify-end gap-2.5 pt-4 border-t border-slate-100">
+        <button type="button" onclick="closeModalForm()" class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-800 transition-all">
+            Annuler
+        </button>
+        <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow transition-all flex items-center gap-1.5">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Enregistrer
+        </button>
+    </div>
+</form>
+
+<style>
+    .modal-form-style p { margin-bottom: 1rem; }
+    .modal-form-style p:last-child { margin-bottom: 0; }
+    .modal-form-style label { display: block; font-size: 0.875rem; font-weight: 500; color: #334155; margin-bottom: 0.25rem; }
+    .modal-form-style input[type="text"],
+    .modal-form-style input[type="email"],
+    .modal-form-style input[type="password"],
+    .modal-form-style input[type="number"],
+    .modal-form-style input[type="url"],
+    .modal-form-style input[type="date"],
+    .modal-form-style input[type="tel"],
+    .modal-form-style input[type="file"],
+    .modal-form-style textarea,
+    .modal-form-style select {
+        width: 100%; padding: 0.625rem 0.875rem; background: white; border: 1px solid #cbd5e1;
+        border-radius: 0.5rem; font-size: 0.875rem; color: #0f172a; outline: none; transition: all 0.2s;
+    }
+    .modal-form-style input::placeholder, .modal-form-style textarea::placeholder { color: #94a3b8; }
+    .modal-form-style input:focus, .modal-form-style textarea:focus, .modal-form-style select:focus {
+        border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    .modal-form-style input[type="checkbox"], .modal-form-style input[type="radio"] {
+        height: 1rem; width: 1rem; accent-color: #4f46e5; margin-right: 0.5rem; vertical-align: middle;
+    }
+    .modal-form-style .helptext { display: block; font-size: 0.75rem; color: #64748b; margin-top: 0.25rem; }
+    .modal-form-style ul.errorlist { list-style: none; padding: 0; margin: 0.25rem 0 0; font-size: 0.75rem; color: #dc2626; }
+</style>
+

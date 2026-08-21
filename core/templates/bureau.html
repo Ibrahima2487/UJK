@@ -2,261 +2,370 @@
 {% extends 'membre_base.html' %}
 {% load static %}
 
-{% block title %}Registre des Bureaux — UJK Kakony{% endblock %}
+{% block title %}Bureaux — UJK Kakony{% endblock %}
 
 {% block content %}
-<style>
-  /* Idéalement à déplacer dans le <head> de membre_base.html une fois validé */
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&display=swap');
+<div class="bg-gradient-to-br from-[#FAF7F0] to-[#F5F0E5] min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
 
-  .ujk-registre {
-    --forest: #1F4D3A;
-    --forest-deep: #163A2B;
-    --clay: #C1622D;
-    --gold: #D9A441;
-    --cream: #FAF7F0;
-    --ink: #24211D;
-    --mist: #E5DFD0;
-    --mist-line: #D8D0BC;
-    background: var(--cream);
-    color: var(--ink);
-    font-family: 'Work Sans', system-ui, sans-serif;
-  }
-  .ujk-registre .display { font-family: 'Fraunces', Georgia, serif; }
-  .ujk-registre a, .ujk-registre button { transition: color .15s ease, background-color .15s ease, border-color .15s ease, transform .15s ease; }
-  .ujk-registre :focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
-
-  .seal {
-    width: 46px; height: 46px; border-radius: 9999px;
-    border: 1.5px solid currentColor;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Fraunces', serif; font-weight: 600; letter-spacing: .02em;
-    flex-shrink: 0;
-  }
-  .row-line { border-bottom: 1px solid var(--mist-line); }
-  .row-line:last-child { border-bottom: none; }
-
-  .tag-central {
-    background: color-mix(in srgb, var(--forest) 10%, transparent);
-    color: var(--forest-deep);
-    border: 1px solid color-mix(in srgb, var(--forest) 30%, transparent);
-  }
-  .tag-operationnel {
-    background: color-mix(in srgb, var(--clay) 10%, transparent);
-    color: var(--clay);
-    border: 1px solid color-mix(in srgb, var(--clay) 30%, transparent);
-  }
-</style>
-
-<div class="ujk-registre min-h-screen">
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-
-    <!-- En-tête -->
-    <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between mb-10 sm:mb-12">
-      <div>
-        <p class="uppercase tracking-[0.2em] text-xs font-medium mb-2" style="color: var(--clay);">
-          Association Communautaire de Kakony
-        </p>
-        <h1 class="display text-3xl sm:text-4xl font-semibold" style="color: var(--forest-deep);">
-          Registre des Bureaux
-        </h1>
-        <p class="mt-2 text-sm sm:text-base" style="color: color-mix(in srgb, var(--ink) 65%, transparent);">
-          {{ total_bureaux }} bureau{{ total_bureaux|pluralize }} — Exécutif, Logistique et Suivi-évaluation
-          coordonnent l'ensemble ; Educatif, Santé, Culturel et Environnement portent les actions de terrain.
-        </p>
+    <!-- ===== EN-TÊTE AVEC ORNEMENT ===== -->
+    <div class="relative mb-10">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 text-xs font-medium text-emerald-700/70 uppercase tracking-[0.2em] mb-2">
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+              UJK Kakony
+            </span>
+            <span class="w-px h-4 bg-gray-300"></span>
+            <span class="text-amber-600">{{ total_bureaux }} bureau{{ total_bureaux|pluralize }}</span>
+          </div>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-emerald-900 font-serif leading-tight">
+            Registre des Bureaux
+          </h1>
+          <p class="mt-2 text-sm text-gray-500 max-w-2xl leading-relaxed">
+            <span class="text-gray-700 font-medium">Coordination</span> · Exécutif, Logistique, Suivi-évaluation
+            <span class="hidden sm:inline mx-2 text-gray-300">|</span>
+            <span class="text-gray-700 font-medium">Actions terrain</span> · Éducatif, Santé, Culturel, Environnement
+          </p>
+        </div>
+        <a href="{% url 'bureau_ajouter' %}"
+           class="inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-700 hover:to-emerald-600 text-white text-sm font-medium rounded-2xl shadow-lg shadow-emerald-900/20 hover:shadow-xl hover:shadow-emerald-900/30 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shrink-0">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          Nouveau Bureau
+        </a>
       </div>
-
       
-      <a href="{% url 'bureau_ajouter' %}"
-         class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-medium text-white shadow-sm w-full sm:w-auto"
-         style="background: var(--forest);">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <path d="M12 5v14M5 12h14"/>
+      <!-- Ornement décoratif -->
+      <div class="absolute -top-6 -right-6 w-24 h-24 opacity-5 pointer-events-none">
+        <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1">
+          <circle cx="50" cy="50" r="40"/>
+          <circle cx="50" cy="50" r="28"/>
+          <circle cx="50" cy="50" r="16"/>
+          <path d="M50 10v80M10 50h80"/>
         </svg>
-        Nouveau Bureau
-      </a>
-     
+      </div>
     </div>
 
-    <!-- Recherche -->
-    <form method="get" class="mb-8 sm:mb-10">
-      <label for="search" class="sr-only">Rechercher un bureau</label>
-      <div class="relative">
-        <svg class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2" style="color: color-mix(in srgb, var(--ink) 45%, transparent);"
-             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
-        </svg>
-        <input
-          type="text" id="search" name="search" value="{{ request.GET.search }}"
-          placeholder="Rechercher par nom de bureau…"
-          class="w-full pl-11 pr-4 py-3 rounded-full border bg-white text-sm"
-          style="border-color: var(--mist-line);"
-        >
-      </div>
-    </form>
-
-    <!-- Registre -->
-    <div class="rounded-2xl border bg-white overflow-hidden" style="border-color: var(--mist-line);">
-      {% if bureaux %}
-
-        <!-- En-tête colonnes (desktop uniquement) -->
-        <div class="hidden md:grid grid-cols-12 gap-4 px-6 py-3 text-xs font-medium uppercase tracking-wider"
-             style="background: var(--mist); color: color-mix(in srgb, var(--ink) 60%, transparent);">
-          <div class="col-span-5">Bureau</div>
-          <div class="col-span-2">Catégorie</div>
-          <div class="col-span-2">Effectif</div>
-          <div class="col-span-2">Accès</div>
-          <div class="col-span-1 text-right">Actions</div>
+    <!-- ===== BARRE DE RECHERCHE AVEC ICÔNE ===== -->
+    <div class="mb-7">
+      <form method="get" class="flex flex-col sm:flex-row gap-3">
+        <div class="relative flex-1 group">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <svg class="w-5 h-5 text-gray-400 group-focus-within:text-emerald-600 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+            </svg>
+          </div>
+          <input type="text" name="search" value="{{ request.GET.search }}"
+                 placeholder="Rechercher un bureau par nom…"
+                 class="w-full pl-12 pr-4 py-3.5 bg-white border-2 border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200 placeholder:text-gray-400">
         </div>
+        <div class="flex gap-2 flex-wrap">
+          <button type="submit" class="px-6 py-3.5 bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-700 hover:to-emerald-600 text-white text-sm font-medium rounded-2xl transition-all duration-200 shadow-md shadow-emerald-900/20 hover:shadow-lg flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+            </svg>
+            Rechercher
+          </button>
+          {% if request.GET.search %}
+            <a href="{% url 'bureau' %}" class="px-6 py-3.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-2xl transition-all duration-200 flex items-center gap-2">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+              Effacer
+            </a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+
+    <!-- ===== FILTRES RAPIDES AVEC BADGES ===== -->
+    <div class="flex flex-wrap items-center gap-2 mb-8">
+      <span class="text-xs font-medium text-gray-400 uppercase tracking-wider mr-1">Filtrer :</span>
+      <a href="{% url 'bureau' %}" 
+         class="px-4 py-2 text-xs font-medium rounded-full border-2 transition-all duration-200 
+                {% if not request.GET.type %}bg-emerald-100 border-emerald-400 text-emerald-800 shadow-sm{% else %}border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-300{% endif %}">
+        Tous
+      </a>
+      <a href="?type=central" 
+         class="px-4 py-2 text-xs font-medium rounded-full border-2 transition-all duration-200 flex items-center gap-1.5
+                {% if request.GET.type == 'central' %}bg-emerald-100 border-emerald-400 text-emerald-800 shadow-sm{% else %}border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-300{% endif %}">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        Centraux
+      </a>
+      <a href="?type=operationnel" 
+         class="px-4 py-2 text-xs font-medium rounded-full border-2 transition-all duration-200 flex items-center gap-1.5
+                {% if request.GET.type == 'operationnel' %}bg-amber-100 border-amber-400 text-amber-800 shadow-sm{% else %}border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-300{% endif %}">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Opérationnels
+      </a>
+      <span class="text-xs text-gray-400 ml-auto hidden sm:inline">
+        <span class="font-medium text-gray-600">{{ bureaux|length }}</span> bureau{{ bureaux|length|pluralize }} affiché{{ bureaux|length|pluralize }}
+      </span>
+    </div>
+
+    <!-- ===== GRILLE DE CARTES ===== -->
+    {% if bureaux %}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-5">
 
         {% for bureau in bureaux %}
-          <div class="row-line">
+        <!-- CARTE INDIVIDUELLE -->
+        <div class="group bg-white rounded-2xl border border-gray-200 hover:border-emerald-300 shadow-sm hover:shadow-xl hover:shadow-emerald-900/10 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden">
+          
+          <!-- Bande décorative supérieure -->
+          <div class="h-1.5 w-full {% if bureau.est_central %}bg-gradient-to-r from-emerald-600 to-emerald-400{% else %}bg-gradient-to-r from-amber-500 to-amber-300{% endif %}"></div>
+          
+          <div class="p-5 sm:p-6">
 
-            <!-- ===== Ligne desktop ===== -->
-            <div class="hidden md:grid grid-cols-12 gap-4 items-center px-6 py-4 hover:bg-[--mist]/40">
-              <div class="col-span-5 flex items-center gap-4 min-w-0">
-                <div class="seal" style="color: {% if bureau.est_central %}var(--forest){% else %}var(--clay){% endif %};">
+            <!-- En-tête de carte : Avatar + Nom + Badge -->
+            <div class="flex items-start gap-4">
+              <!-- Avatar avec initials -->
+              <div class="relative">
+                <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-lg font-bold shadow-lg
+                            {% if bureau.est_central %}bg-gradient-to-br from-emerald-700 to-emerald-500 shadow-emerald-900/30{% else %}bg-gradient-to-br from-amber-600 to-amber-400 shadow-amber-900/30{% endif %}">
                   {{ bureau.nom|slice:":2"|upper }}
                 </div>
-                <div class="min-w-0">
-                  <a href="{% url 'bureau_details' bureau.pk %}"
-                     class="display text-base font-medium block truncate"
-                     style="color: var(--forest-deep);">
-                    {{ bureau.nom }}
-                  </a>
-                  <p class="text-xs mt-0.5 truncate" style="color: color-mix(in srgb, var(--ink) 55%, transparent);">
-                    {{ bureau.get_type_bureau_display }}
-                  </p>
+                <!-- Petit indicateur d'accès sur l'avatar -->
+                <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white shadow-md flex items-center justify-center border border-gray-100">
+                  {% if bureau.pk in bureaux_accessibles %}
+                    <svg class="w-3 h-3 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M5 13l4 4L19 7"/>
+                    </svg>
+                  {% else %}
+                    <svg class="w-3 h-3 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="5" y="11" width="14" height="9" rx="2"/>
+                      <path d="M8 11V8a4 4 0 118 0v3"/>
+                    </svg>
+                  {% endif %}
                 </div>
               </div>
 
-              <div class="col-span-2">
+              <!-- Nom et type -->
+              <div class="flex-1 min-w-0 pt-0.5">
+                <a href="{% url 'bureau_details' bureau.pk %}"
+                   class="text-lg font-semibold text-gray-800 hover:text-emerald-700 transition-colors block truncate group-hover:underline underline-offset-2">
+                  {{ bureau.nom }}
+                </a>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="text-xs text-gray-400">{{ bureau.get_type_bureau_display }}</span>
+                  <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                  <span class="text-xs text-gray-400 flex items-center gap-1">
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    {{ bureau.effectif }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Badge catégorie -->
+              <div class="shrink-0">
                 {% if bureau.est_central %}
-                  <span class="tag-central inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium">Central</span>
-                {% else %}
-                  <span class="tag-operationnel inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium">Opérationnel</span>
-                {% endif %}
-              </div>
-
-              <div class="col-span-2 text-sm">
-                {{ bureau.effectif }} membre{{ bureau.effectif|pluralize }}
-              </div>
-
-              <div class="col-span-2">
-                {% if bureau.pk in bureaux_accessibles %}
-                  <span class="inline-flex items-center gap-1 text-xs font-medium" style="color: var(--forest);">
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                    Accessible
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-xl border border-emerald-200/50 shadow-sm">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                    Central
                   </span>
                 {% else %}
-                  <span class="inline-flex items-center gap-1 text-xs" style="color: color-mix(in srgb, var(--ink) 45%, transparent);">
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 118 0v3"/></svg>
-                    Restreint
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-700 text-xs font-semibold rounded-xl border border-amber-200/50 shadow-sm">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    Opérationnel
                   </span>
                 {% endif %}
               </div>
+            </div>
 
-              <div class="col-span-1 flex justify-end gap-1">
-                <a href="{% url 'bureau_details' bureau.pk %}" title="Voir le détail"
-                   class="p-2 rounded-full hover:bg-[--mist]" style="color: var(--forest);">
-                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z"/>
+            <!-- Séparateur -->
+            <div class="my-4 border-t border-gray-100"></div>
+
+            <!-- Pied de carte : Métriques + Actions -->
+            <div class="flex items-center justify-between">
+              <!-- Métriques détaillées -->
+              <div class="flex items-center gap-4">
+                <div class="flex items-center gap-1.5 text-sm text-gray-500">
+                  <svg class="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                  </svg>
+                  <span><strong class="text-gray-700">{{ bureau.effectif }}</strong> membre{{ bureau.effectif|pluralize }}</span>
+                </div>
+
+                {% if bureau.est_central %}
+                  <span class="text-xs text-emerald-600/70 flex items-center gap-1">
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                      <circle cx="12" cy="12" r="10"/>
+                    </svg>
+                    Stratégique
+                  </span>
+                {% else %}
+                  <span class="text-xs text-amber-600/70 flex items-center gap-1">
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                      <circle cx="12" cy="12" r="10"/>
+                    </svg>
+                    Terrain
+                  </span>
+                {% endif %}
+              </div>
+
+              <!-- Actions -->
+              <div class="flex items-center gap-0.5">
+                <a href="{% url 'bureau_details' bureau.pk %}"
+                   class="p-2.5 rounded-xl hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 transition-all duration-200 group/btn"
+                   title="Voir les détails">
+                  <svg class="w-5 h-5 group-hover/btn:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                     <circle cx="12" cy="12" r="3"/>
                   </svg>
                 </a>
                 {% if peut_affecter %}
-                <a href="{% url 'bureau_modifie' bureau.pk %}" title="Modifier"
-                   class="p-2 rounded-full hover:bg-[--mist]" style="color: var(--gold);">
-                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.4-9.4a2 2 0 112.8 2.8L11.8 15H9v-2.8l8.6-8.6z"/>
-                  </svg>
-                </a>
-                <a href="{% url 'bureau_supprime' bureau.pk %}" title="Supprimer"
-                   class="p-2 rounded-full hover:bg-[--mist]" style="color: #B4483A;">
-                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.9 12.1a2 2 0 01-2 1.9H7.9a2 2 0 01-2-1.9L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
-                </a>
+                  <a href="{% url 'bureau_modifie' bureau.pk %}"
+                     class="p-2.5 rounded-xl hover:bg-amber-50 text-gray-400 hover:text-amber-600 transition-all duration-200 group/btn"
+                     title="Modifier">
+                    <svg class="w-5 h-5 group-hover/btn:rotate-12 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.4-9.4a2 2 0 112.8 2.8L11.8 15H9v-2.8l8.6-8.6z"/>
+                    </svg>
+                  </a>
+                  <a href="{% url 'bureau_supprime' bureau.pk %}"
+                     class="p-2.5 rounded-xl hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all duration-200 group/btn"
+                     title="Supprimer">
+                    <svg class="w-5 h-5 group-hover/btn:scale-90 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M19 7l-.9 12.1a2 2 0 01-2 1.9H7.9a2 2 0 01-2-1.9L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </a>
                 {% endif %}
               </div>
             </div>
 
-            <!-- ===== Carte mobile ===== -->
-            <div class="md:hidden px-4 py-4">
-              <div class="flex items-start gap-3">
-                <div class="seal" style="color: {% if bureau.est_central %}var(--forest){% else %}var(--clay){% endif %};">
-                  {{ bureau.nom|slice:":2"|upper }}
-                </div>
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-start justify-between gap-2">
-                    <a href="{% url 'bureau_details' bureau.pk %}" class="display text-base font-medium" style="color: var(--forest-deep);">
-                      {{ bureau.nom }}
-                    </a>
-                    {% if bureau.pk in bureaux_accessibles %}
-                      <svg class="w-4 h-4 mt-1 flex-shrink-0" style="color: var(--forest);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                    {% else %}
-                      <svg class="w-4 h-4 mt-1 flex-shrink-0" style="color: color-mix(in srgb, var(--ink) 40%, transparent);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 118 0v3"/></svg>
-                    {% endif %}
-                  </div>
-                  <p class="text-xs mt-0.5" style="color: color-mix(in srgb, var(--ink) 55%, transparent);">
-                    {{ bureau.get_type_bureau_display }} · {{ bureau.effectif }} membre{{ bureau.effectif|pluralize }}
-                  </p>
-                  <div class="mt-2 flex items-center justify-between">
-                    
-                      <span class="tag-central inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium">Central</span>
-                    
-                      <span class="tag-operationnel inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium">Opérationnel</span>
-                   
-                    <div class="flex items-center gap-3">
-                      
-                      <a href="{% url 'bureau_modifie' bureau.pk %}" class="text-xs font-medium" style="color: var(--gold);">Modifier</a>
-                      <a href="{% url 'bureau_affecter' bureau.pk %}" class="text-xs font-medium" style="color: #B4483A;">Supprimer</a>
-                      
-                      <a href="{% url 'bureau_details' bureau.pk %}" class="text-xs font-medium" style="color: var(--forest);">Ouvrir →</a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
           </div>
+
+          <!-- Effet de survol subtil -->
+          <div class="absolute inset-0 pointer-events-none rounded-2xl ring-1 ring-inset ring-transparent group-hover:ring-emerald-500/20 transition-all duration-300"></div>
+        </div>
         {% endfor %}
 
-      {% else %}
-        <!-- État vide -->
-        <div class="text-center py-16 px-6">
-          <svg class="mx-auto w-10 h-10 mb-4" style="color: color-mix(in srgb, var(--ink) 35%, transparent);"
-               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5V6a2 2 0 012-2h12a2 2 0 012 2v14M4 19.5V17"/>
-          </svg>
-          <h3 class="display text-lg font-medium" style="color: var(--forest-deep);">Aucun bureau trouvé</h3>
-          <p class="mt-1 text-sm" style="color: color-mix(in srgb, var(--ink) 55%, transparent);">
-            {% if request.GET.search %}
-              Aucun résultat pour « {{ request.GET.search }} ».
-            {% else %}
-              Le registre est vide pour le moment.
-            {% endif %}
-          </p>
-          <div class="mt-6">
-            {% if request.GET.search %}
-              <a href="{% url 'bureau' %}"
-                 class="inline-flex items-center px-4 py-2.5 rounded-full text-sm font-medium text-white" style="background: var(--forest);">
-                Réinitialiser la recherche
-              </a>
-            {% elif peut_affecter %}
-              <a href="{% url 'bureau_ajouter' %}"
-                 class="inline-flex items-center px-4 py-2.5 rounded-full text-sm font-medium text-white" style="background: var(--forest);">
-                Créer un bureau
-              </a>
-            {% endif %}
+      </div>
+
+      <!-- ===== PAGINATION ===== -->
+      {% if is_paginated %}
+      <div class="mt-8 flex justify-center">
+        <nav class="flex items-center gap-1.5 bg-white p-1.5 rounded-2xl shadow-sm border border-gray-200">
+          {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" 
+               class="px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 transition-all duration-200 flex items-center gap-1.5 text-sm font-medium">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+              Précédent
+            </a>
+          {% endif %}
+          
+          <span class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-800 to-emerald-700 text-white text-sm font-medium shadow-md shadow-emerald-900/20">
+            {{ page_obj.number }}
+          </span>
+          
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" 
+               class="px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 transition-all duration-200 flex items-center gap-1.5 text-sm font-medium">
+              Suivant
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18l6-6-6-6"/>
+              </svg>
+            </a>
+          {% endif %}
+        </nav>
+      </div>
+      {% endif %}
+
+    {% else %}
+      <!-- ===== ÉTAT VIDE AVEC ILLUSTRATION ===== -->
+      <div class="bg-white rounded-3xl border-2 border-dashed border-gray-200 text-center py-20 px-6 transition-all duration-300 hover:border-emerald-300">
+        <div class="relative inline-block">
+          <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+            <svg class="w-12 h-12 text-gray-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+          </div>
+          <div class="absolute -top-1 -right-1 w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+            <svg class="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
           </div>
         </div>
-      {% endif %}
-    </div>
+        
+        <h3 class="text-2xl font-semibold text-gray-700 font-serif">
+          {% if request.GET.search %}
+            Aucun résultat
+          {% else %}
+            Aucun bureau enregistré
+          {% endif %}
+        </h3>
+        
+        <p class="mt-2 text-sm text-gray-400 max-w-sm mx-auto leading-relaxed">
+          {% if request.GET.search %}
+            La recherche « <span class="text-gray-600 font-medium">{{ request.GET.search }}</span> » n'a donné aucun résultat.
+          {% else %}
+            Commencez par créer un bureau pour structurer votre organisation.
+          {% endif %}
+        </p>
+        
+        <div class="mt-8 flex flex-wrap justify-center gap-3">
+          {% if request.GET.search %}
+            <a href="{% url 'bureau' %}" 
+               class="inline-flex items-center gap-2.5 px-6 py-3 bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-700 hover:to-emerald-600 text-white text-sm font-medium rounded-2xl shadow-lg shadow-emerald-900/20 transition-all duration-200">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+              Réinitialiser la recherche
+            </a>
+          {% elif peut_affecter %}
+            <a href="{% url 'bureau_ajouter' %}" 
+               class="inline-flex items-center gap-2.5 px-6 py-3 bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-700 hover:to-emerald-600 text-white text-sm font-medium rounded-2xl shadow-lg shadow-emerald-900/20 transition-all duration-200">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5v14M5 12h14"/>
+              </svg>
+              Créer un bureau
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
 
-    <p class="mt-6 text-xs text-center sm:text-left" style="color: color-mix(in srgb, var(--ink) 45%, transparent);">
-      Affichage de {{ bureaux|length }} bureau{{ bureaux|length|pluralize }} sur {{ total_bureaux }}.
-    </p>
+    <!-- ===== FOOTER STATS ===== -->
+    <div class="mt-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400">
+      <div class="flex items-center gap-4">
+        <span>{{ bureaux|length }} bureau{{ bureaux|length|pluralize }} affiché{{ bureaux|length|pluralize }}</span>
+        <span class="w-px h-4 bg-gray-200"></span>
+        <span>{{ total_bureaux }} au total</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          Central
+        </span>
+        <span class="flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+          Opérationnel
+        </span>
+        <span class="flex items-center gap-1.5 text-emerald-600">
+          <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 13l4 4L19 7"/>
+          </svg>
+          Accessible
+        </span>
+      </div>
+    </div>
 
   </div>
 </div>
