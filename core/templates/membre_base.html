@@ -33,7 +33,7 @@
     .nav-ocean-bg {
         position: absolute;
         inset: 0;
-        background: linear-gradient(to right, #3282ac 0%, #23a8b7 100%);
+        background: linear-gradient(to right, #27546c 0%, #154872 100%);
         z-index: 1;
     }
 
@@ -53,11 +53,11 @@
     }
 
     .wave path {
-        fill: rgba(255, 255, 255, 0.15);
+        fill: rgb(241, 172, 10);
     }
 
     .wave1 {
-        animation: waveMove 12s linear infinite;
+        animation: waveMove 5s linear infinite;
         opacity: 0.6;
     }
 
@@ -71,12 +71,12 @@
     }
 
     .wave3 {
-        animation: waveMove 16s linear infinite;
+        animation: waveMove 10s linear infinite;
         opacity: 0.3;
     }
 
     .wave3 path {
-        fill: rgba(255, 255, 255, 0.08);
+        fill: rgba(242, 233, 233, 0.481);
     }
 
     @keyframes waveMove {
@@ -90,12 +90,12 @@
     </style>
     
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen bg-white dark:bg-slate-900 dark:text-white">
 
     <!-- Fond flouté -->
     <div class="fixed inset-0 z-0">
-        <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10"
-             style="background-image: url('{% static 'image/logo.png' %}');"></div>
+        <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-80"
+             style="background-image: url('{% static 'image/UJK-1.jpg' %}');"></div>
         <div class="absolute inset-0 bg-black/5 backdrop-blur-sm"></div>
     </div>
 
@@ -108,7 +108,7 @@
     <div class="nav-ocean-bg"></div>
 
     <!-- Vagues animées -->
-    <div class="wave-wrapper">
+    <div class="wave-wrapper shadow-lg">
         <svg class="wave wave1" viewBox="0 0 1200 120" preserveAspectRatio="none">
             <path d="M0,60 C150,100 350,0 600,50 C850,100 1050,20 1200,60 L1200,120 L0,120 Z"></path>
         </svg>
