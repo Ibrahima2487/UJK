@@ -28,6 +28,10 @@ from .vue.actions import temoin_create
 from .vue.actions import temoin_details
 from .vue.actions import temoin_edit
 
+#====== PROJET ================
+from .vue.projet import projet_list
+from .vue.projet import projet_ajoute
+
 
 from .vue.gallery import gallery_status
 from .vue.gallery import gallery_modifie

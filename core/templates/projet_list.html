@@ -1,7 +1,414 @@
 {% extends 'membre_base.html' %}
+{% load static %}
 
 {% block content %}
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
 
+    <!-- EN-TÊTE -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
+        <div class="flex items-center gap-3">
+            <div class="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">Projets</h1>
+                <p class="text-sm sm:text-base text-gray-500 mt-0.5">
+                    {{ page_obj.paginator.count }} projet{{ page_obj.paginator.count|pluralize:"s" }} au total
+                </p>
+            </div>
+        </div>
+        <a href="{% url 'projet_ajoute' %}"  onclick="openModalForm(event, this.href)"
+           class="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200 gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span class="hidden sm:inline">Nouveau projet</span>
+            <span class="sm:hidden">Ajouter</span>
+        </a>
+    </div>
 
+    <!-- STATISTIQUES -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <!-- Total -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-medium text-gray-500 uppercase">Total</span>
+                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+            </div>
+            <p class="text-xl sm:text-2xl font-bold text-gray-900 mt-1">{{ total_projets }}</p>
+        </div>
+
+        <!-- En cours -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-medium text-gray-500 uppercase">En cours</span>
+                <svg class="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <p class="text-xl sm:text-2xl font-bold text-yellow-600 mt-1">{{ stats.en_cours }}</p>
+        </div>
+
+        <!-- Terminés -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-medium text-gray-500 uppercase">Terminés</span>
+                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <p class="text-xl sm:text-2xl font-bold text-green-600 mt-1">{{ stats.termine }}</p>
+        </div>
+
+        <!-- Planifiés -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-medium text-gray-500 uppercase">Planifiés</span>
+                <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            </div>
+            <p class="text-xl sm:text-2xl font-bold text-purple-600 mt-1">{{ stats.planifie }}</p>
+        </div>
+
+        <!-- Suspendus -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-medium text-gray-500 uppercase">Suspendus</span>
+                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <p class="text-xl sm:text-2xl font-bold text-red-600 mt-1">{{ stats.suspendu }}</p>
+        </div>
+    </div>
+
+    <!-- FILTRES -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6 sm:mb-8">
+        <form method="get" class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <div class="flex-1">
+                <label class="sr-only">Rechercher</label>
+                <div class="relative">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input type="text" name="search" value="{{ request.GET.search|default:'' }}" 
+                           placeholder="Rechercher un projet..." 
+                           class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow">
+                </div>
+            </div>
+            <div class="sm:w-48">
+                <select name="statut" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow bg-white">
+                    <option value="">Tous les statuts</option>
+                    {% for value, label in statut_choices %}
+                    <option value="{{ value }}" {% if request.GET.statut == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+                Filtrer
+            </button>
+            {% if request.GET.search or request.GET.statut %}
+            <a href="{% url 'projet_liste' %}" onclick="openModalForm(event, this.href)" class="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors text-center">
+                Réinitialiser
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- TABLEAU DESKTOP -->
+    <div class="hidden lg:block bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Projet</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Responsable</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Période</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Budget</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Statut</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Bénéficiaires</th>
+                        <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for projet in page_obj %}
+                    <tr class="hover:bg-blue-50/50 transition-colors duration-150 {% cycle 'bg-white' 'bg-gray-50/30' %}">
+                        <td class="px-4 py-3">
+                            <div class="font-medium text-gray-900">{{ projet.nom }}</div>
+                            <div class="text-xs text-gray-500 line-clamp-1">{{ projet.description|truncatewords:8 }}</div>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            {% if projet.responsable %}
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-sm font-bold">
+                                    {{ projet.responsable.first_name|first|upper }}{{ projet.responsable.last_name|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ projet.responsable.get_full_name|default:projet.responsable.username }}
+                                    </div>
+                                    <div class="text-xs text-gray-500">{{ projet.responsable.email }}</div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <span class="text-sm text-gray-400">Non assigné</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="text-sm text-gray-700">{{ projet.date_debut|date:"d/m/Y" }}</div>
+                            {% if projet.date_fin_prevue %}
+                            <div class="text-xs text-gray-500">→ {{ projet.date_fin_prevue|date:"d/m/Y" }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ projet.budget_prevu|floatformat:0 }} FCFA</div>
+                            <div class="flex items-center gap-1 mt-0.5">
+                                <div class="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-600 rounded-full" 
+                                         style="width: {% widthratio projet.depense_totale projet.budget_prevu 100 %}%;">
+                                    </div>
+                                </div>
+                                <span class="text-xs text-gray-500">{{ projet.depense_totale|floatformat:0 }} FCFA</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium 
+                                {% if projet.statut == 'planifie' %}bg-purple-100 text-purple-800
+                                {% elif projet.statut == 'en_cours' %}bg-yellow-100 text-yellow-800
+                                {% elif projet.statut == 'termine' %}bg-green-100 text-green-800
+                                {% elif projet.statut == 'suspendu' %}bg-red-100 text-red-800{% endif %}">
+                                {% if projet.statut == 'planifie' %}
+                                <span class="w-1.5 h-1.5 bg-purple-500 rounded-full mr-1.5"></span>
+                                {% elif projet.statut == 'en_cours' %}
+                                <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full mr-1.5 animate-pulse"></span>
+                                {% elif projet.statut == 'termine' %}
+                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                                {% elif projet.statut == 'suspendu' %}
+                                <span class="w-1.5 h-1.5 bg-red-500 rounded-full mr-1.5"></span>
+                                {% endif %}
+                                {{ projet.get_statut_display }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            <div class="text-sm text-gray-700">👤 {{ projet.beneficiaires_directs }}</div>
+                            <div class="text-xs text-gray-500">+ {{ projet.beneficiaires_indirects }} indirects</div>
+                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-right">
+                            <div class="flex items-center justify-end gap-1">
+                                <a href="{% url 'projet_detail' projet.id %}" class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors" title="Voir">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </a>
+                                <a href="{% url 'projet_modifier' projet.id %}" class="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors" title="Modifier">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </a>
+                                <button onclick="confirmDelete({{ projet.id }}, '{{ projet.nom|escapejs }}')" class="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors" title="Supprimer">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-4 py-12 text-center">
+                            <div class="flex flex-col items-center">
+                                <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                                <p class="text-gray-500 text-lg">Aucun projet trouvé</p>
+                                <a href="{% url 'projet_ajoute' %}" onclick="openModalForm(event, this.href)" class="mt-4 text-blue-600 hover:text-blue-800 font-medium">Créer le premier projet →</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CARTES MOBILE/TABLETTE -->
+    <div class="lg:hidden space-y-4">
+        {% for projet in page_obj %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200">
+            <div class="p-4 sm:p-5">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-semibold text-gray-900 text-base sm:text-lg truncate">{{ projet.nom }}</h3>
+                        {% if projet.description %}
+                        <p class="text-sm text-gray-500 line-clamp-2 mt-0.5">{{ projet.description }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="flex-shrink-0">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium 
+                            {% if projet.statut == 'planifie' %}bg-purple-100 text-purple-800
+                            {% elif projet.statut == 'en_cours' %}bg-yellow-100 text-yellow-800
+                            {% elif projet.statut == 'termine' %}bg-green-100 text-green-800
+                            {% elif projet.statut == 'suspendu' %}bg-red-100 text-red-800{% endif %}">
+                            {{ projet.get_statut_display }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-gray-100">
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Responsable</p>
+                        <p class="text-sm text-gray-900 mt-0.5">
+                            {% if projet.responsable %}
+                            {{ projet.responsable.get_full_name|default:projet.responsable.username }}
+                            {% else %}
+                            <span class="text-gray-400">Non assigné</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Budget</p>
+                        <p class="text-sm font-medium text-gray-900 mt-0.5">{{ projet.budget_prevu|floatformat:0 }} FCFA</p>
+                        <div class="w-full h-1 bg-gray-200 rounded-full mt-1 overflow-hidden">
+                            <div class="h-full bg-blue-600 rounded-full" 
+                                 style="width: {% widthratio projet.depense_totale projet.budget_prevu 100 %}%;"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-0.5">Dépensé: {{ projet.depense_totale|floatformat:0 }} FCFA</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Début</p>
+                        <p class="text-sm text-gray-900 mt-0.5">{{ projet.date_debut|date:"d/m/Y" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Fin prévue</p>
+                        <p class="text-sm text-gray-900 mt-0.5">{{ projet.date_fin_prevue|date:"d/m/Y"|default:"—" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Bénéficiaires</p>
+                        <p class="text-sm text-gray-900 mt-0.5">
+                             {{ projet.beneficiaires_directs }} direct
+                            {% if projet.beneficiaires_indirects %}
+                            <span class="text-gray-500 text-xs">+ {{ projet.beneficiaires_indirects }} indirects</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Solde</p>
+                        <p class="text-sm font-medium {% if projet.solde_restant > 0 %}text-green-600{% else %}text-red-600{% endif %} mt-0.5">
+                            {{ projet.solde_restant|floatformat:0 }} FCFA
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-1 mt-3 pt-3 border-t border-gray-100">
+                    <a href="{% url 'projet_detail' projet.id %}" class="flex items-center gap-1.5 px-3 py-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        Voir
+                    </a>
+                    <a href="{% url 'projet_modifier' projet.id %}" class="flex items-center gap-1.5 px-3 py-1.5 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors text-sm font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Modifier
+                    </a>
+                    <button onclick="confirmDelete({{ projet.id }}, '{{ projet.nom|escapejs }}')" class="flex items-center gap-1.5 px-3 py-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Supprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+            <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <p class="text-gray-500">Aucun projet trouvé</p>
+            <a href="{% url 'projet_ajoute' %}" onclick="openModalForm(event, this.href)" class="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium">Créer le premier projet →</a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- PAGINATION -->
+    {% if is_paginated %}
+    <div class="flex items-center justify-between flex-wrap gap-4 mt-6 sm:mt-8">
+        <p class="text-sm text-gray-500">
+            Affichage de {{ page_obj.start_index }} à {{ page_obj.end_index }} sur {{ paginator.count }} projet{{ paginator.count|pluralize:"s" }}
+        </p>
+        <div class="flex items-center gap-1">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}" 
+               class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                ←
+            </a>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}" 
+                   class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                    {{ num }}
+                </a>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.statut %}&statut={{ request.GET.statut }}{% endif %}" 
+               class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+                →
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- MODAL SUPPRESSION -->
+    <div id="deleteModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <div class="p-6">
+                <div class="flex items-center justify-center mb-4">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-center text-gray-900">Confirmer la suppression</h3>
+                <p class="text-center text-gray-500 mt-2">
+                    Êtes-vous sûr de vouloir supprimer le projet <strong id="deleteProjectName" class="text-gray-700"></strong> ?
+                    <br><span class="text-sm text-red-500">Cette action est irréversible.</span>
+                </p>
+                <div class="flex gap-3 mt-6">
+                    <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors">
+                        Annuler
+                    </button>
+                    <form id="deleteForm" method="post" action="" class="flex-1">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors">
+                            Supprimer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- JAVASCRIPT -->
 
 {% endblock %}

@@ -30,6 +30,9 @@ urlpatterns = [
     path('gallery_ajouter/', views.gallery_ajouter, name="gallery_ajouter"),
 
 
+    path('projet_list/', views.projet_list, name="projet_list"),
+    path('projet_ajoute/', views.projet_ajoute, name="projet_ajoute"),
+
     # ======= TEMOIN ============
     path('temoin/', views.temoin, name='temoin'),
     path('temoin_create/', views.temoin_create, name="temoin_create"),
