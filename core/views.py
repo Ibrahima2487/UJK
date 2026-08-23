@@ -31,6 +31,7 @@ from .vue.actions import temoin_edit
 #====== PROJET ================
 from .vue.projet import projet_list
 from .vue.projet import projet_ajoute
+from .vue.projet import projet_detail
 
 
 from .vue.gallery import gallery_status

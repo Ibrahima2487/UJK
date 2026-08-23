@@ -168,14 +168,14 @@
                             {% endif %}
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">{{ projet.budget_prevu|floatformat:0 }} FCFA</div>
+                            <div class="text-sm font-medium text-gray-900">{{ projet.budget_prevu|floatformat:0 }} GNF</div>
                             <div class="flex items-center gap-1 mt-0.5">
                                 <div class="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
                                     <div class="h-full bg-blue-600 rounded-full" 
                                          style="width: {% widthratio projet.depense_totale projet.budget_prevu 100 %}%;">
                                     </div>
                                 </div>
-                                <span class="text-xs text-gray-500">{{ projet.depense_totale|floatformat:0 }} FCFA</span>
+                                <span class="text-xs text-gray-500">{{ projet.depense_totale|floatformat:0 }} GNF</span>
                             </div>
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap">
@@ -197,18 +197,18 @@
                             </span>
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap">
-                            <div class="text-sm text-gray-700">👤 {{ projet.beneficiaires_directs }}</div>
+                            <div class="text-sm text-gray-700"> {{ projet.beneficiaires_directs }}</div>
                             <div class="text-xs text-gray-500">+ {{ projet.beneficiaires_indirects }} indirects</div>
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap text-right">
                             <div class="flex items-center justify-end gap-1">
-                                <a href="{% url 'projet_detail' projet.id %}" class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors" title="Voir">
+                                <a href="{% url 'projet_detail' projet.pk %}" onclick="openModalForm(event, this.href)"   class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors" title="Voir">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                     </svg>
                                 </a>
-                                <a href="{% url 'projet_modifier' projet.id %}" class="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors" title="Modifier">
+                                <a href="#" class="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors" title="Modifier">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
@@ -275,12 +275,12 @@
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Budget</p>
-                        <p class="text-sm font-medium text-gray-900 mt-0.5">{{ projet.budget_prevu|floatformat:0 }} FCFA</p>
+                        <p class="text-sm font-medium text-gray-900 mt-0.5">{{ projet.budget_prevu|floatformat:0 }} GNF</p>
                         <div class="w-full h-1 bg-gray-200 rounded-full mt-1 overflow-hidden">
                             <div class="h-full bg-blue-600 rounded-full" 
                                  style="width: {% widthratio projet.depense_totale projet.budget_prevu 100 %}%;"></div>
                         </div>
-                        <p class="text-xs text-gray-500 mt-0.5">Dépensé: {{ projet.depense_totale|floatformat:0 }} FCFA</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Dépensé: {{ projet.depense_totale|floatformat:0 }} GNF</p>
                     </div>
                     <div>
                         <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Début</p>
@@ -302,20 +302,20 @@
                     <div>
                         <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Solde</p>
                         <p class="text-sm font-medium {% if projet.solde_restant > 0 %}text-green-600{% else %}text-red-600{% endif %} mt-0.5">
-                            {{ projet.solde_restant|floatformat:0 }} FCFA
+                            {{ projet.solde_restant|floatformat:0 }} GNF
                         </p>
                     </div>
                 </div>
 
                 <div class="flex items-center justify-end gap-1 mt-3 pt-3 border-t border-gray-100">
-                    <a href="{% url 'projet_detail' projet.id %}" class="flex items-center gap-1.5 px-3 py-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium">
+                    <a href="{% url 'projet_detail' projet.pk %}" onclick="openModalForm(event, this.href)" class="flex items-center gap-1.5 px-3 py-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors text-sm font-medium">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                         Voir
                     </a>
-                    <a href="{% url 'projet_modifier' projet.id %}" class="flex items-center gap-1.5 px-3 py-1.5 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors text-sm font-medium">
+                    <a href="#" class="flex items-center gap-1.5 px-3 py-1.5 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors text-sm font-medium">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>

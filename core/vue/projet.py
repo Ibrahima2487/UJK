@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
-from core.models import Projet
+from core.models import Projet, Depense
 from core.forms import ProjetForm
 
 
@@ -29,6 +29,15 @@ def projet_list(request):
         'statut_choices': Projet.STATUT_CHOICES,
     }
     return render(request, 'projet_list.html', context)
+
+
+def projet_detail(request, pk):
+    projet = get_object_or_404(Projet, pk=pk)
+    
+    context = {
+        'projet': projet,
+    }
+    return render(request, 'projet_detail.html', context)
 
 
 def projet_ajoute(request):

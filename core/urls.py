@@ -32,6 +32,7 @@ urlpatterns = [
 
     path('projet_list/', views.projet_list, name="projet_list"),
     path('projet_ajoute/', views.projet_ajoute, name="projet_ajoute"),
+    path('projet_detail/<int:pk>/', views.projet_detail,name="projet_detail"),
 
     # ======= TEMOIN ============
     path('temoin/', views.temoin, name='temoin'),
